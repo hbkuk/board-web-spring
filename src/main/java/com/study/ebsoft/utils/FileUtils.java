@@ -15,7 +15,7 @@ import java.io.*;
 @Slf4j
 public class FileUtils {
 
-    public static final String UPLOAD_PATH = "C:\\git\\ebrain\\eb-study-templates-1week\\src\\main\\webapp\\upload";
+    public static final String UPLOAD_PATH = "C:\\git\\ebrain\\eb-study-templates-3week\\ebsoft\\src\\main\\webapp\\upload";
     private static final int MAX_FILE_SIZE = 2 * 1024 * 1024;
 
     /**
