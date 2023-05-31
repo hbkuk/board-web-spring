@@ -126,7 +126,7 @@
         <div class="btn_area">
             <div class="align_right">
                 <input type="button" value="작성" class="btn_write btn_txt01" style="cursor: pointer;"
-                       onclick="location.href='/board/write/form<%=searchConditionQueryString.isEmpty() ? "" : "?" + searchConditionQueryString%>'"/>
+                       onclick="location.href='/board/write<%=searchConditionQueryString.isEmpty() ? "" : "?" + searchConditionQueryString%>'"/>
             </div>
         </div>
     </div>

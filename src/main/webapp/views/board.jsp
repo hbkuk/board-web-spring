@@ -112,9 +112,9 @@
                 <input type="button" value="목록" class="btn_list btn_txt02" style="cursor: pointer;"
                        onclick="location.href='/boards<%= searchConditionQueryString.isEmpty() ? "" : "?" + searchConditionQueryString %>'" />
                 <input type="button" value="수정" class="btn_list btn_txt02" style="cursor: pointer;"
-                       onclick="location.href='/board/modify/form?board_idx=<%= board.getBoardIdx() %><%= searchConditionQueryString.isEmpty() ? "" : "&" + searchConditionQueryString %>'" />
+                       onclick="location.href='/board/modify?board_idx=<%= board.getBoardIdx() %><%= searchConditionQueryString.isEmpty() ? "" : "&" + searchConditionQueryString %>'" />
                 <input type="button" value="삭제" class="btn_write btn_txt01" style="cursor: pointer;"
-                       onclick="location.href='/board/delete/form?board_idx=<%= board.getBoardIdx() %><%= searchConditionQueryString.isEmpty() ? "" : "&" + searchConditionQueryString %>'" />
+                       onclick="location.href='/board/delete?board_idx=<%= board.getBoardIdx() %><%= searchConditionQueryString.isEmpty() ? "" : "&" + searchConditionQueryString %>'" />
 
             </div>
         </div>
