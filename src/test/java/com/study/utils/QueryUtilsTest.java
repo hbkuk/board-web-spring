@@ -115,7 +115,6 @@ public class QueryUtilsTest {
             assertThat(queryBuilder.toString()).isEqualTo(" WHERE DATE(b.regdate) <= '2023-05-20' AND b.title LIKE '%소프트웨어 장인%' OR b.writer LIKE '%소프트웨어 장인%' OR b.content LIKE '%소프트웨어 장인%'");
         }
 
-        @Disabled
         @Test
         @DisplayName("시작 날짜보다 종료 날짜가 크다면 예외를 던진다")
         void throw_exception_when_start_date_bigger_then_end_date() {
