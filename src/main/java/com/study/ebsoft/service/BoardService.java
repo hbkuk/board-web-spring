@@ -25,17 +25,18 @@ import java.util.stream.Collectors;
 @Service
 public class BoardService {
 
-    @Autowired
     private BoardDAO boardDAO;
-
-    @Autowired
     private CommentDAO commentDAO;
-
-    @Autowired
+    private FileDAO fileDAO;
     private CategoryDAO categoryDAO;
 
     @Autowired
-    private FileDAO fileDAO;
+    public BoardService(BoardDAO boardDAO, CommentDAO commentDAO, FileDAO fileDAO, CategoryDAO categoryDAO) {
+        this.boardDAO = boardDAO;
+        this.commentDAO = commentDAO;
+        this.fileDAO = fileDAO;
+        this.categoryDAO = categoryDAO;
+    }
 
     /**
      * 검색 조건에 맞는 모든 게시물에 대한 정보와 해당 게시물에 업로드된 파일의 존재여부를 생성해 리턴합니다
