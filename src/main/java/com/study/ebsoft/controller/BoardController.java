@@ -56,7 +56,7 @@ public class BoardController {
     @GetMapping("/boards")
     public ModelAndView showBoards(HttpServletRequest req, ModelAndView mav) throws ServletException, IOException {
         mav.addObject("boards", boardService.findAllBoardsWithFileCheck(SearchConditionUtils.buildQueryCondition(req.getParameterMap())));
-        mav.addObject("categories", boardService.findAllCategorys());
+        mav.addObject("categories", boardService.findAllCategories());
         mav.setViewName("boards");
         return mav;
     }
@@ -66,7 +66,7 @@ public class BoardController {
      */
     @GetMapping("/board/write")
     public ModelAndView writeForm(HttpServletRequest req, ModelAndView mav) throws ServletException, IOException {
-        mav.addObject("categories", boardService.findAllCategorys());
+        mav.addObject("categories", boardService.findAllCategories());
         mav.setViewName("boardWrite");
         return mav;
     }
