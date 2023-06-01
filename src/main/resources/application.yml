@@ -5,15 +5,18 @@ spring:
     username: ebsoft
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
-
 # ? ??? ??
   mvc:
     view:
       prefix: /views/
       suffix: .jsp
 
-# Hibernate ?? ?? ??
 logging:
   level:
-    org.hibernate.SQL: debug
-    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.springframework.web : debug
+    sql: error
+    jdbc: off
+    jdbc.sqlonly: off
+
+spring.servlet.multipart:
+  enabled: false
