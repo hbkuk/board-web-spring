@@ -39,6 +39,7 @@ public class BoardService {
 
     /**
      * 검색 조건에 맞는 모든 게시물에 대한 정보와 해당 게시물에 업로드된 파일의 존재여부를 생성해 리턴합니다
+     * 
      */
     public List<BoardDTO> findAllBoardsWithFileCheck(String searchConditionQuery) {
         return boardDAO.findAllWithFileCheck(searchConditionQuery);
@@ -46,6 +47,7 @@ public class BoardService {
 
     /**
      * 게시물 번호를 인자로 받아 번호에 해당하는 게시물, 모든 댓글, 모든 파일 정보를 생성해 리턴합니다
+     * 
      * @param boardIdx 게시물 번호
      * @return 게시물 번호에 해당하는 게시물이 있다면 BoardDTO, 그렇지 않다면 null
      */
@@ -63,6 +65,7 @@ public class BoardService {
 
     /**
      * 게시물 번호를 인자로 받아 번호에 해당하는 게시물, 모든 파일 정보를 생성해 리턴합니다
+     * 
      * @param boardIdx 게시물 번호
      * @return 게시물 번호에 해당하는 게시물이 있다면 BoardDTO, 그렇지 않다면 null
      */
@@ -81,6 +84,7 @@ public class BoardService {
 
     /**
      * 게시물 정보와 업로드 할 파일을 인자로 받아 저장하고 게시물 번호를 리턴합니다
+     * 
      * @param board 게시물 정보
      * @param files 업로드 할 파일
      * @return 게시물이 저장되었다면 게시물 번호만 담긴 BoardDTO, 그렇지 않다면 null
@@ -98,8 +102,9 @@ public class BoardService {
     }
 
     /**
-     * 수정할 게시물 정보와 추가 또는 삭제할 파일의 정보를 인자로 받아서 수정하고 게시물 번호를 리턴합니다<br>
+     * 수정할 게시물 정보와 추가 또는 삭제할 파일의 정보를 인자로 받아서 수정하고 게시물 번호를 리턴합니다.
      * 사용자가 삭제한 경우 {@code previouslyUploadedIndexes}에 파일의 번호가 포함되지 않고 인자로 전달됩니다
+     *
      * @param updateBoard 수정할 게시물 정보
      * @param newUploadFiles 추가로 업로드 할 파일 정보
      * @param previouslyUploadedIndexes 이전에 업로드 된 파일의 번호
@@ -119,16 +124,13 @@ public class BoardService {
             throw new IllegalArgumentException("비밀번호가 다릅니다.");
         }
 
-        // DB 확인
         List<Long> dbFileIndexes = fileDAO.findFileIndexesByBoardId(updateReturnBoardDTO.getBoardIdx());
 
         List<Long> indexesToDelete = new ArrayList<>(dbFileIndexes);
         indexesToDelete.removeAll(previouslyUploadedIndexes);
 
-        // 파일 삭제
         deleteFilesFromdatabaseAndDirectory(indexesToDelete);
 
-        // 새 이미지 추가
         newUploadFiles.forEach(file -> fileDAO.save(file, updateReturnBoardDTO.getBoardIdx()));
 
         return updateReturnBoardDTO;
@@ -136,11 +138,11 @@ public class BoardService {
 
     /**
      * 삭제할 파일의 번호를 인자로 받아 데이터베이스 및 디렉토리에서 해당 파일 정보를 삭제합니다
+     *
      * @param indexesToDelete 삭제할 파일의 번호 리스트
      */
     private void deleteFilesFromdatabaseAndDirectory(List<Long> indexesToDelete) {
 
-        // 저장 디렉토리에서 파일 삭제
         List<String> fileNamesToDelete = indexesToDelete.stream()
                 .map(fileIdx -> fileDAO.findFileNameById(fileIdx).getSavedFileName())
                 .collect(Collectors.toList());
@@ -148,7 +150,6 @@ public class BoardService {
         fileNamesToDelete.stream()
                 .forEach(fileName -> FileUtils.deleteUploadedFile(fileName));
 
-        // DB 파일 삭제
         indexesToDelete.stream()
                 .forEach(fileIdx -> fileDAO.deleteByFileId(fileIdx));
 
@@ -156,6 +157,7 @@ public class BoardService {
 
     /**
      * 삭제할 게시물의 정보를 인자로 받아 게시물 번호에 해당하는 게시물, 댓글, 파일 정보를 삭제합니다.
+     *
      * @param deleteBoardDTO 삭제할 게시물 정보
      */
     public void deleteBoardWithFilesAndComment(BoardDTO deleteBoardDTO) throws IllegalArgumentException {
@@ -174,7 +176,9 @@ public class BoardService {
     }
 
     /**
-     * 댓글 정보를 인자로 받아 게시물 번호
+     * 댓글 정보를 인자로 받아 저장하고 게시물 번호가 담긴 Comment 객체를 리턴합니다
+     * 게시물 번호를 찾지 못했다면 NoSuchElement 예외를 던집니다
+     *
      * @param comment 댓글 정보
      * @return 댓글이 저장되었다면 게시물 번호만 담긴 CommentDTO, 그렇지 않다면 null
      */
@@ -188,11 +192,12 @@ public class BoardService {
         return commentDAO.save(comment);
     }
 
-    //TODO: javadocs
     /**
-     *
-     * @param deleteComment
-     * @return
+     * 삭제할 댓글 정보를 인자로 받아서 댓글을 삭제합니다
+     * 패스워드가 같지 않다면 IllegalArgument 예외를 던집니다
+     * 
+     * @param deleteComment 삭제할 댓글 정보
+     * @return 게시물 번호
      */
     public Long deleteCommentByCommentIdx(CommentDTO deleteComment) {
         CommentDTO commentDTO = commentDAO.findByCommentIdx(deleteComment.getCommentIdx());
@@ -205,20 +210,21 @@ public class BoardService {
         return deleteComment.getBoardIdx();
     }
 
-    //TODO: javadocs
     /**
+     * 모든 카테고리를 리턴합니다
      *
-     * @return
+     * @return 모든 카테고리
      */
-    public List<CategoryDTO> findAllCategorys() {
+    public List<CategoryDTO> findAllCategories() {
         return categoryDAO.findAll();
     }
 
-    //TODO: javadocs
+
     /**
+     * 파일 번호를 인자로 받아 번호에 해당하는 File 객체를 생성해 리턴합니다
      *
-     * @param fileIdx
-     * @return
+     * @param fileIdx 파일 번호
+     * @return 파일 번호에 해당하는 FileDTO, 찾지 못헀다면 null
      */
     public FileDTO findFileById(long fileIdx) {
         return fileDAO.findFileNameById(fileIdx);
