@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public class FileOriginalName {
     private static final String IMAGE_NAME_EXTENSION__REGEX = "\\.(\\w+)$";
     private static final Pattern EXTENSION_PATTERN_COMPILE = Pattern.compile(IMAGE_NAME_EXTENSION__REGEX);
-    private String fileName;
+    private String originalName;
 
     public FileOriginalName(String fileName) {
 
@@ -16,7 +16,7 @@ public class FileOriginalName {
             throw new IllegalArgumentException("유효하지 않은 확장자입니다.");
         }
 
-        this.fileName = fileName;
+        this.originalName = fileName;
     }
 
     private boolean isInvalidImageName(String fileName) {
@@ -30,8 +30,8 @@ public class FileOriginalName {
         return false;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getOriginalName() {
+        return originalName;
     }
 
     private Matcher getMatcher(String imageName) {
@@ -45,11 +45,11 @@ public class FileOriginalName {
         if (o == null || getClass() != o.getClass())
             return false;
         FileOriginalName imageName1 = (FileOriginalName) o;
-        return Objects.equals(fileName, imageName1.fileName);
+        return Objects.equals(originalName, imageName1.originalName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fileName);
+        return Objects.hash(originalName);
     }
 }

@@ -1,5 +1,7 @@
 package com.study.ebsoft.model.comment;
 
+import lombok.Getter;
+
 import java.util.Objects;
 
 public class CommentIdx {
@@ -11,6 +13,10 @@ public class CommentIdx {
             throw new IllegalArgumentException("글 번호는 음수일 수 없습니다.");
         }
         this.commentIdx = value;
+    }
+
+    public long getCommentIdx() {
+        return commentIdx;
     }
 
     @Override

@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 @Getter
 public class ModDate {
 
-    private LocalDateTime localDatetime = LocalDateTime.now();
+    private LocalDateTime modDate = LocalDateTime.now();
 
     public ModDate(LocalDateTime localDateTime) {
-        this.localDatetime = localDateTime;
+        this.modDate = localDateTime;
     }
 }
