@@ -27,7 +27,7 @@ public class BoardRepositoryTest {
     @Disabled("다른 테스트와 간섭")
     @Test
     public void selectBoards() {
-        List<BoardDTO> boards = boardRepository.selectBoards();
+        List<BoardDTO> boards = boardRepository.selectBoardsWithFileCheck();
 
         log.info(boards.toString());
         assertThat(boards).hasSize(10);
