@@ -1,11 +1,6 @@
 package com.study.ebsoft.controller;
 
 import com.study.ebsoft.dto.CommentDTO;
-import com.study.ebsoft.model.board.BoardIdx;
-import com.study.ebsoft.model.board.Password;
-import com.study.ebsoft.model.comment.Comment;
-import com.study.ebsoft.model.comment.CommentContent;
-import com.study.ebsoft.model.comment.CommentWriter;
 import com.study.ebsoft.service.BoardService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +34,15 @@ public class CommentController {
                                      @RequestParam("comment_content") String content,
                                      @RequestParam("board_idx") Long boardIdx) throws IOException, ServletException {
 
-        Comment comment = null;
+        CommentDTO comment = null;
         try {
-            comment = new Comment(new CommentWriter(writer), new Password(password),
-                    new CommentContent(content), new BoardIdx(boardIdx));
+            // TODO: build 클래스 분리 
+            comment = CommentDTO.builder()
+                    .writer(writer)
+                    .password(password)
+                    .content(content)
+                    .boardIdx(boardIdx)
+                    .build();
         } catch (IllegalArgumentException e) {
             log.error("error : {}", e.getMessage());
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -51,9 +51,9 @@ public class CommentController {
             mav.setViewName("redirect:/board");
             return mav;
         }
-        boardService.saveComment(comment);
+        boardService.insertComment(comment);
 
-        mav.addObject("board_idx", comment.getBoardIdx().getBoardIdx());
+        mav.addObject("board_idx", comment.getBoardIdx());
         mav.setViewName("redirect:/board");
         return mav;
     }
