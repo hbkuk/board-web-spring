@@ -89,6 +89,8 @@ INSERT INTO tb_board (category_idx, title, writer, content, password, hit, regda
 
 INSERT INTO tb_comment (writer, password, content, regdate, board_idx) VALUES
                                                                            ('사용자1', 'commentpass1!', 'Comment 1', '2023-05-18 10:30:00', 1),
+                                                                           ('사용자1', 'commentpass1!', 'Comment 1', '2023-05-18 10:30:00', 1),
+                                                                           ('사용자1', 'commentpass1!', 'Comment 1', '2023-05-18 10:30:00', 1),
                                                                            ('사용자2', 'commentpass2!', 'Comment 2', '2023-05-18 11:30:00', 2),
                                                                            ('사용자3', 'commentpass3!', 'Comment 3', '2023-05-18 12:30:00', 3),
                                                                            ('사용자4', 'commentpass4!', 'Comment 4', '2023-05-18 13:30:00', 4),
@@ -100,6 +102,8 @@ INSERT INTO tb_comment (writer, password, content, regdate, board_idx) VALUES
                                                                            ('사용자10', 'commentpass10!', 'Comment 10', '2023-05-18 19:30:00', 10);
 
 INSERT INTO tb_file (saved_name, original_name, size, board_idx) VALUES
+                                                                     ('file1.png', 'Image 1.png', 1024, 1),
+                                                                     ('file1.png', 'Image 1.png', 1024, 1),
                                                                      ('file1.png', 'Image 1.png', 1024, 1),
                                                                      ('file2.png', 'Image 2.png', 2048, 2),
                                                                      ('file3.png', 'Image 3.png', 3072, 3),
