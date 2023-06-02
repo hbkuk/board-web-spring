@@ -31,8 +31,8 @@ public class BoardService {
      * 검색 조건에 맞는 모든 게시물에 대한 정보와 해당 게시물에 업로드된 파일의 존재여부를 생성해 리턴합니다
      *
      */
-    public List<BoardDTO> selectBoards() {
-        return boardRepository.selectBoards();
+    public List<BoardDTO> selectBoardsWithFileCheck() {
+        return boardRepository.selectBoardsWithFileCheck();
     }
 
     /**
@@ -42,7 +42,6 @@ public class BoardService {
      * @param boardIdx 게시물 번호
      * @return 게시물 번호에 해당하는 게시물이 있다면 BoardDTO, 그렇지 않다면 null
      */
-    @Transactional
     public BoardDTO selectBoardWithDetails(Long boardIdx) throws NoSuchElementException {
         log.debug("selectBoardWithDetails() 메서드 호출시 BoardIdx: {}", boardIdx);
 
@@ -84,6 +83,7 @@ public class BoardService {
         boardRepository.insertBoard(board);
 
         if (board.getFiles().size() != 0) {
+            board.getFiles().forEach(file->{file.setBoardIdx(board.getBoardIdx());});
             board.getFiles().forEach(file -> boardRepository.insertFile(file));
         }
 
@@ -98,7 +98,6 @@ public class BoardService {
      * @param previouslyUploadedIndexes 이전에 업로드 된 파일의 번호
      * @return 게시물 수정이되었다면 게시물 번호가 담긴 Board, 그렇지 않다면 null
      */
-    @Transactional
     public BoardDTO updateBoardWithFiles(BoardDTO updateBoard, List<Long> previouslyUploadedIndexes) {
         log.debug(" updateBoardWithImages() 메서드 호출 -> updateBoard : {} , newUploadFiles size : {}, previouslyUploadedIndexes size : {}",
                 updateBoard.toString(), updateBoard.getFiles().size(), previouslyUploadedIndexes.size());
@@ -127,6 +126,7 @@ public class BoardService {
         indexesToDelete.stream()
                 .forEach(fileIdx -> boardRepository.deleteFile(fileIdx));
 
+        updateBoard.getFiles().forEach(file->{file.setBoardIdx(updateBoard.getBoardIdx());});
         updateBoard.getFiles().forEach(file -> boardRepository.insertFile(file));
 
         return updateBoard;
@@ -138,7 +138,6 @@ public class BoardService {
      *
      * @param deleteBoardDTO 삭제할 게시물 정보
      */
-    @Transactional
     public void deleteBoardWithFilesAndComment(BoardDTO deleteBoardDTO) throws IllegalArgumentException {
         BoardDTO boardDTO = boardRepository.selectBoard(deleteBoardDTO.getBoardIdx());
 
@@ -170,7 +169,7 @@ public class BoardService {
      * @param comment 댓글 정보
      * @return 댓글이 저장되었다면 게시물 번호만 담긴 Comment, 그렇지 않다면 null
      */
-    public CommentDTO saveComment(CommentDTO comment) throws NoSuchElementException {
+    public CommentDTO insertComment(CommentDTO comment) throws NoSuchElementException {
         log.debug("New Comment / request! Comment  : {} ", comment);
         if( boardRepository.selectBoard(comment.getBoardIdx()) == null ) {
             throw new NoSuchElementException("해당 글을 찾을 수 없습니다.");
