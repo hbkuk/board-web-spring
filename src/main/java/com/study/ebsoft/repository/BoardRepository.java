@@ -20,8 +20,8 @@ public class BoardRepository {
         this.boardMapper = boardMapper;
     }
 
-    public List<BoardDTO> selectBoards() {
-        return boardMapper.selectBoards();
+    public List<BoardDTO> selectBoardsWithFileCheck() {
+        return boardMapper.selectBoardsWithFileCheck();
     }
 
     public BoardDTO selectBoard(Long boardIdx) {
