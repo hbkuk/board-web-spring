@@ -31,7 +31,7 @@
         </collection>
     </resultMap>
 
-    <resultMap id="BoardWithImagesMap" type="BoardDTO">
+    <resultMap id="BoardWithFilesMap" type="BoardDTO">
         <id property="boardIdx" column="boardIdx"/>
         <result property="categoryIdx" column="categoryIdx"/>
         <result property="category" column="category"/>
@@ -94,7 +94,7 @@
         WHERE b.board_idx = #{boardIdx};
     </select>
 
-    <select id="selectBoardWithImages" parameterType="Long" resultMap="BoardWithImagesMap">
+    <select id="selectBoardWithFiles" parameterType="Long" resultMap="BoardWithFilesMap">
         SELECT b.board_idx      AS boardIdx,
                c.category_idx   AS categoryIdx,
                c.category       AS category,
@@ -151,6 +151,14 @@
         FROM tb_category
     </select>
 
+    <select id="selectFile" resultType="FileDTO">
+        SELECT *
+        FROM tb_file
+        where file_idx = #{fileIdx}
+    </select>
+
+
+
     <insert id="insertBoard" parameterType="BoardDTO" useGeneratedKeys="true" keyProperty="boardIdx">
         INSERT INTO tb_board (category_idx, title, writer, content, password, hit, regdate)
         VALUES (#{categoryIdx}, #{title}, #{writer}, #{content},
@@ -191,6 +199,12 @@
         DELETE FROM tb_comment WHERE comment_idx = #{commentIdx}
     </delete>
 
+    <delete id="deleteAllComment" parameterType="CommentDTO">
+        DELETE FROM tb_comment WHERE board_idx = #{boardIdx} and password = #{password}
+    </delete>
 
+    <delete id="deleteBoard" parameterType="BoardDTO">
+        DELETE FROM tb_board WHERE board_idx = #{boardIdx} and password = #{password}
+    </delete>
 
 </mapper>
