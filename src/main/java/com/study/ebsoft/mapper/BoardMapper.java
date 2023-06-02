@@ -11,7 +11,7 @@ import java.util.List;
 @Mapper
 public interface BoardMapper {
 
-    List<BoardDTO> selectBoards();
+    List<BoardDTO> selectBoardsWithFileCheck();
 
     BoardDTO selectBoard(Long boardIdx);
 

@@ -18,9 +18,9 @@
 
         <collection property="comments" ofType="CommentDTO">
             <id property="commentIdx" column="commentIdx"/>
-            <result property="writer" column="writer"/>
-            <result property="content" column="content"/>
-            <result property="regDate" column="regDate"/>
+            <result property="writer" column="commentWriter"/>
+            <result property="content" column="commentContent"/>
+            <result property="regDate" column="commentRegDate"/>
         </collection>
 
         <collection property="files" ofType="FileDTO">
@@ -50,7 +50,7 @@
         </collection>
     </resultMap>
 
-    <select id="selectBoards" parameterType="Long" resultType="BoardDTO">
+    <select id="selectBoardsWithFileCheck" parameterType="Long" resultType="BoardDTO" useCache="false" flushCache="true">
         SELECT b.board_idx,
                c.category,
                b.title,
@@ -69,7 +69,7 @@
         group by b.board_idx;
     </select>
 
-    <select id="selectBoardWithDetails" parameterType="Long" resultMap="BoardWithDetailsMap">
+    <select id="selectBoardWithDetails" parameterType="Long" resultMap="BoardWithDetailsMap" useCache="false" flushCache="true">
         SELECT b.board_idx      AS boardIdx,
                c.category_idx   AS categoryIdx,
                c.category       AS category,
@@ -94,7 +94,7 @@
         WHERE b.board_idx = #{boardIdx};
     </select>
 
-    <select id="selectBoardWithFiles" parameterType="Long" resultMap="BoardWithFilesMap">
+    <select id="selectBoardWithFiles" parameterType="Long" resultMap="BoardWithFilesMap" useCache="false" flushCache="true">
         SELECT b.board_idx      AS boardIdx,
                c.category_idx   AS categoryIdx,
                c.category       AS category,
@@ -114,7 +114,7 @@
         WHERE b.board_idx = #{boardIdx};
     </select>
 
-    <select id="selectBoard" parameterType="Long" resultType="BoardDTO">
+    <select id="selectBoard" parameterType="Long" resultType="BoardDTO" useCache="false" flushCache="true">
         SELECT b.board_idx,
                c.category_idx,
                c.category,
@@ -152,8 +152,11 @@
     </select>
 
     <select id="selectFile" resultType="FileDTO">
-        SELECT *
-        FROM tb_file
+        SELECT tf.file_idx      AS fileIdx,
+               tf.saved_name    AS savedFileName,
+               tf.original_name AS originalFileName,
+               tf.size          AS fileSize
+        FROM tb_file tf
         where file_idx = #{fileIdx}
     </select>
 
@@ -199,8 +202,8 @@
         DELETE FROM tb_comment WHERE comment_idx = #{commentIdx}
     </delete>
 
-    <delete id="deleteAllComment" parameterType="CommentDTO">
-        DELETE FROM tb_comment WHERE board_idx = #{boardIdx} and password = #{password}
+    <delete id="deleteAllComment" parameterType="Long">
+        DELETE FROM tb_comment WHERE board_idx = #{boardIdx}
     </delete>
 
     <delete id="deleteBoard" parameterType="BoardDTO">
