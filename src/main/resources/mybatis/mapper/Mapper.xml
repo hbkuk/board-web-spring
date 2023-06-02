@@ -4,31 +4,193 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.study.ebsoft.mapper.BoardMapper">
-    <select id="showBoard" resultType="BoardDTO">
-        SELECT b.board_idx AS boardIdx,
-               c.category_idx AS categoryIdx,
-               c.category AS category,
-               b.title AS title,
-               b.writer AS writer,
-               b.content AS content,
-               b.hit AS hit,
-               b.regdate AS regDate,
-               b.moddate AS modDate,
-               (SELECT GROUP_CONCAT(file_idx) FROM tb_file WHERE board_idx = b.board_idx)       AS fileIdx,
-               (SELECT GROUP_CONCAT(saved_name) FROM tb_file WHERE board_idx = b.board_idx)     AS savedFileName,
-               (SELECT GROUP_CONCAT(original_name) FROM tb_file WHERE board_idx = b.board_idx)  AS originalFileName,
-               (SELECT GROUP_CONCAT(size) FROM tb_file WHERE board_idx = b.board_idx)           AS fileSize,
 
-               (SELECT GROUP_CONCAT(comment_idx) FROM tb_comment WHERE board_idx = b.board_idx) AS commentIdx,
-               (SELECT GROUP_CONCAT(writer) FROM tb_comment WHERE board_idx = b.board_idx)      AS writer,
-               (SELECT GROUP_CONCAT(content) FROM tb_comment WHERE board_idx = b.board_idx)     AS content,
-               (SELECT GROUP_CONCAT(regdate) FROM tb_comment WHERE board_idx = b.board_idx)     AS regDate
+    <resultMap id="BoardWithDetailsMap" type="BoardDTO">
+        <id property="boardIdx" column="boardIdx"/>
+        <result property="categoryIdx" column="categoryIdx"/>
+        <result property="category" column="category"/>
+        <result property="title" column="title"/>
+        <result property="writer" column="writer"/>
+        <result property="content" column="content"/>
+        <result property="hit" column="hit"/>
+        <result property="regDate" column="regDate"/>
+        <result property="modDate" column="modDate"/>
+
+        <collection property="comments" ofType="CommentDTO">
+            <id property="commentIdx" column="commentIdx"/>
+            <result property="writer" column="writer"/>
+            <result property="content" column="content"/>
+            <result property="regDate" column="regDate"/>
+        </collection>
+
+        <collection property="files" ofType="FileDTO">
+            <id property="fileIdx" column="fileIdx"/>
+            <result property="savedFileName" column="savedFileName"/>
+            <result property="originalFileName" column="originalFileName"/>
+            <result property="fileSize" column="fileSize"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="BoardWithImagesMap" type="BoardDTO">
+        <id property="boardIdx" column="boardIdx"/>
+        <result property="categoryIdx" column="categoryIdx"/>
+        <result property="category" column="category"/>
+        <result property="title" column="title"/>
+        <result property="writer" column="writer"/>
+        <result property="content" column="content"/>
+        <result property="hit" column="hit"/>
+        <result property="regDate" column="regDate"/>
+        <result property="modDate" column="modDate"/>
+
+        <collection property="files" ofType="FileDTO">
+            <id property="fileIdx" column="fileIdx"/>
+            <result property="savedFileName" column="savedFileName"/>
+            <result property="originalFileName" column="originalFileName"/>
+            <result property="fileSize" column="fileSize"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectBoards" parameterType="Long" resultType="BoardDTO">
+        SELECT b.board_idx,
+               c.category,
+               b.title,
+               b.writer,
+               b.content,
+               b.password,
+               b.hit,
+               b.regdate,
+               b.moddate,
+               (CASE
+                    WHEN EXISTS (SELECT 1 FROM tb_file f WHERE f.board_idx = b.board_idx) THEN 1
+                    ELSE 0 END) AS has_file
+        FROM tb_board b
+                 JOIN tb_category c ON b.category_idx = c.category_idx
+                 LEFT OUTER JOIN tb_file f ON b.board_idx = f.board_idx
+        group by b.board_idx;
+    </select>
+
+    <select id="selectBoardWithDetails" parameterType="Long" resultMap="BoardWithDetailsMap">
+        SELECT b.board_idx      AS boardIdx,
+               c.category_idx   AS categoryIdx,
+               c.category       AS category,
+               b.title          AS title,
+               b.writer         AS writer,
+               b.content        AS content,
+               b.hit            AS hit,
+               b.regdate        AS regDate,
+               b.moddate        AS modDate,
+               tc.comment_idx   AS commentIdx,
+               tc.writer        AS commentWriter,
+               tc.content       AS commentContent,
+               tc.regdate       AS commentRegDate,
+               tf.file_idx      AS fileIdx,
+               tf.saved_name    AS savedFileName,
+               tf.original_name AS originalFileName,
+               tf.size          AS fileSize
+        FROM tb_board b
+                 JOIN tb_category c ON b.category_idx = c.category_idx
+                 LEFT OUTER JOIN tb_comment tc ON b.board_idx = tc.board_idx
+                 LEFT OUTER JOIN tb_file tf ON b.board_idx = tf.board_idx
+        WHERE b.board_idx = #{boardIdx};
+    </select>
+
+    <select id="selectBoardWithImages" parameterType="Long" resultMap="BoardWithImagesMap">
+        SELECT b.board_idx      AS boardIdx,
+               c.category_idx   AS categoryIdx,
+               c.category       AS category,
+               b.title          AS title,
+               b.writer         AS writer,
+               b.content        AS content,
+               b.hit            AS hit,
+               b.regdate        AS regDate,
+               b.moddate        AS modDate,
+               tf.file_idx      AS fileIdx,
+               tf.saved_name    AS savedFileName,
+               tf.original_name AS originalFileName,
+               tf.size          AS fileSize
+        FROM tb_board b
+                 JOIN tb_category c ON b.category_idx = c.category_idx
+                 LEFT OUTER JOIN tb_file tf ON b.board_idx = tf.board_idx
+        WHERE b.board_idx = #{boardIdx};
+    </select>
+
+    <select id="selectBoard" parameterType="Long" resultType="BoardDTO">
+        SELECT b.board_idx,
+               c.category_idx,
+               c.category,
+               b.title,
+               b.writer,
+               b.content,
+               b.password,
+               b.hit,
+               b.regdate,
+               b.moddate
         FROM tb_board b
                  JOIN tb_category c ON b.category_idx = c.category_idx
         WHERE b.board_idx = #{boardIdx};
     </select>
 
-    <select id="showTestBoard" resultType="BoardDTO">
-        SELECT * FROM tb_board where board_idx = #{boardIdx}
+    <select id="selectFileIndexes" resultType="Long">
+        SELECT file_idx
+        FROM tb_file
+        WHERE board_idx = #{boardIdx}
     </select>
+
+    <select id="selectSavedFileName" resultType="String">
+        SELECT saved_name FROM tb_file WHERE file_idx = #{fileIdx}
+    </select>
+
+    <select id="selectComment" resultType="CommentDTO">
+        SELECT *
+        FROM tb_comment
+        WHERE comment_idx = #{commentIdx}
+    </select>
+
+    <select id="selectAllCategory" resultType="CategoryDTO">
+        SELECT *
+        FROM tb_category
+    </select>
+
+    <insert id="insertBoard" parameterType="BoardDTO" useGeneratedKeys="true" keyProperty="boardIdx">
+        INSERT INTO tb_board (category_idx, title, writer, content, password, hit, regdate)
+        VALUES (#{categoryIdx}, #{title}, #{writer}, #{content},
+        #{password}, 0, NOW());
+    </insert>
+
+    <insert id="insertFile" parameterType="FileDTO" useGeneratedKeys="true" keyProperty="fileIdx">
+        INSERT INTO tb_file (saved_name, original_name, size, board_idx)
+        VALUES (#{savedFileName}, #{originalFileName}, #{fileSize}, #{boardIdx});
+    </insert>
+
+    <insert id="insertComment" parameterType="CommentDTO" useGeneratedKeys="true" keyProperty="commentIdx">
+        INSERT INTO tb_comment (writer, password, content, regdate, board_idx)
+        VALUES (#{writer}, #{password}, #{content}, NOW(), #{boardIdx})
+    </insert>
+
+    <update id="updateBoard" parameterType="BoardDTO">
+        UPDATE tb_board
+        SET title   = #{title},
+        writer  = #{writer},
+        content = #{content},
+        moddate = #{modDate}
+        WHERE board_idx = #{boardIdx}
+        and password = #{password}
+    </update>
+
+    <update id="increaseHit" parameterType="Long">
+        UPDATE tb_board
+        SET hit = hit + 1
+        WHERE board_idx = #{boardIdx}
+    </update>
+
+    <delete id="deleteFile" parameterType="Long">
+        DELETE FROM tb_file WHERE file_idx = #{fileIdx}
+    </delete>
+
+    <delete id="deleteComment" parameterType="Long">
+        DELETE FROM tb_comment WHERE comment_idx = #{commentIdx}
+    </delete>
+
+
+
 </mapper>
