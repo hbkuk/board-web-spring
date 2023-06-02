@@ -17,7 +17,7 @@ public interface BoardMapper {
 
     BoardDTO selectBoardWithDetails(Long boardIdx);
 
-    BoardDTO selectBoardWithImages(Long boardIdx);
+    BoardDTO selectBoardWithFiles(Long boardIdx);
 
     CommentDTO selectComment(Long commentIdx);
 
@@ -27,17 +27,29 @@ public interface BoardMapper {
 
     String selectSavedFileName(Long fileIdx);
 
+    FileDTO selectFile(Long fileIdx);
+
+
+
     void insertBoard(BoardDTO board);
 
     void insertFile(FileDTO file);
 
     void insertComment(CommentDTO commentDTO);
 
+
+
     int updateBoard(BoardDTO boardDTO);
 
     int increaseHit(Long boardIdx);
 
+
+
+    int deleteBoard(BoardDTO board);
+
+    int deleteComment(CommentDTO comment);
+
     int deleteFile(Long fileIdx);
 
-    int deleteComment(Long commentIdx);
+    int deleteAllComment(Long boardIdx);
 }
