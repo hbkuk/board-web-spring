@@ -4,232 +4,80 @@ import com.study.ebsoft.dto.BoardDTO;
 import com.study.ebsoft.dto.CategoryDTO;
 import com.study.ebsoft.dto.CommentDTO;
 import com.study.ebsoft.dto.FileDTO;
+import com.study.ebsoft.mapper.BoardMapper;
 import com.study.ebsoft.model.board.Board;
-import com.study.ebsoft.model.comment.Comment;
-import com.study.ebsoft.model.file.File;
-import com.study.ebsoft.repository.board.BoardDAO;
-import com.study.ebsoft.repository.category.CategoryDAO;
-import com.study.ebsoft.repository.comment.CommentDAO;
-import com.study.ebsoft.repository.file.FileDAO;
-import com.study.ebsoft.utils.FileUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 public class BoardService {
 
-    private BoardDAO boardDAO;
-    private CommentDAO commentDAO;
-    private FileDAO fileDAO;
-    private CategoryDAO categoryDAO;
+    public BoardMapper boardMapper;
 
     @Autowired
-    public BoardService(BoardDAO boardDAO, CommentDAO commentDAO, FileDAO fileDAO, CategoryDAO categoryDAO) {
-        this.boardDAO = boardDAO;
-        this.commentDAO = commentDAO;
-        this.fileDAO = fileDAO;
-        this.categoryDAO = categoryDAO;
+    public BoardService(BoardMapper boardMapper) {
+        this.boardMapper = boardMapper;
     }
 
-    /**
-     * 검색 조건에 맞는 모든 게시물에 대한 정보와 해당 게시물에 업로드된 파일의 존재여부를 생성해 리턴합니다
-     * 
-     */
-    public List<BoardDTO> findAllBoardsWithFileCheck(String searchConditionQuery) {
-        return boardDAO.findAllWithFileCheck(searchConditionQuery);
+    public List<BoardDTO> selectBoards() {
+        return boardMapper.selectBoards();
     }
 
-    /**
-     * 게시물 번호를 인자로 받아 번호에 해당하는 게시물, 모든 댓글, 모든 파일 정보를 생성해 리턴합니다
-     * 
-     * @param boardIdx 게시물 번호
-     * @return 게시물 번호에 해당하는 게시물이 있다면 BoardDTO, 그렇지 않다면 null
-     */
-    public BoardDTO findBoardWithDetails(long boardIdx) throws NoSuchElementException {
-        if( boardDAO.increaseHitCount(boardIdx) == null ) {
-            throw new NoSuchElementException("해당 글을 찾을 수 없습니다.");
-        }
-
-        BoardDTO boardDTO = boardDAO.findById(boardIdx);
-        boardDTO.setComments(commentDAO.findAllByBoardId(boardIdx));
-        boardDTO.setFiles(fileDAO.findFilesByBoardId(boardIdx));
-
-        return boardDTO;
+    public BoardDTO selectBoard(Long boardIdx) {
+        return boardMapper.selectBoard(boardIdx);
     }
 
-    /**
-     * 게시물 번호를 인자로 받아 번호에 해당하는 게시물, 모든 파일 정보를 생성해 리턴합니다
-     * 
-     * @param boardIdx 게시물 번호
-     * @return 게시물 번호에 해당하는 게시물이 있다면 BoardDTO, 그렇지 않다면 null
-     */
-    public BoardDTO findBoardWithImages(long boardIdx) throws NoSuchElementException {
-        log.debug("getBoardWithImages() 메서드 호출시 BoardIdx: {}", boardIdx);
-
-        BoardDTO boardDTO = boardDAO.findById(boardIdx);
-        if( boardDTO == null ) {
-            throw new NoSuchElementException("해당 글을 찾을 수 없습니다.");
-        }
-        log.debug("getBoardWithImages() -> findById -> BoardIDX : {}", boardDTO.getBoardIdx());
-        boardDTO.setFiles(fileDAO.findFilesByBoardId(boardIdx));
-
-        return boardDTO;
+    public BoardDTO selectBoardWithDetails(Long boardIdx) {
+        return boardMapper.selectBoardWithDetails(boardIdx);
     }
 
-    /**
-     * 게시물 정보와 업로드 할 파일을 인자로 받아 저장하고 게시물 번호를 리턴합니다
-     * 
-     * @param board 게시물 정보
-     * @param files 업로드 할 파일
-     * @return 게시물이 저장되었다면 게시물 번호만 담긴 BoardDTO, 그렇지 않다면 null
-     */
-    public BoardDTO saveBoardWithImages(Board board, List<File> files) {
-        log.debug(" saveBoardWithImages() 메서드 호출 -> board : {} , files의 size : {} ",
-                board.toString(), files.size());
-        BoardDTO boardDTO = boardDAO.save(board);
-
-        if (files.size() != 0) {
-            files.forEach(file -> fileDAO.save(file, boardDTO.getBoardIdx()));
-        }
-
-        return boardDTO;
+    public BoardDTO selectBoardWithImages(Long boardIdx) {
+        return boardMapper.selectBoardWithImages(boardIdx);
     }
 
-    /**
-     * 수정할 게시물 정보와 추가 또는 삭제할 파일의 정보를 인자로 받아서 수정하고 게시물 번호를 리턴합니다.
-     * 사용자가 삭제한 경우 {@code previouslyUploadedIndexes}에 파일의 번호가 포함되지 않고 인자로 전달됩니다
-     *
-     * @param updateBoard 수정할 게시물 정보
-     * @param newUploadFiles 추가로 업로드 할 파일 정보
-     * @param previouslyUploadedIndexes 이전에 업로드 된 파일의 번호
-     * @return 게시물 수정이되었다면 게시물 번호가 담긴 BoardDTO, 그렇지 않다면 null
-     */
-    public BoardDTO updateBoardWithImages(Board updateBoard, List<File> newUploadFiles, List<Long> previouslyUploadedIndexes) {
-        log.debug(" updateBoardWithImages() 메서드 호출 -> updateBoard : {} , newUploadFiles size : {}, previouslyUploadedIndexes size : {}",
-                updateBoard.toString(), newUploadFiles.size(), previouslyUploadedIndexes.size());
-
-        BoardDTO findBoardDTO = boardDAO.findById(updateBoard.getBoardIdx().getBoardIdx());
-        if( findBoardDTO == null ) {
-            throw new NoSuchElementException("해당 글을 찾을 수 없습니다.");
-        }
-
-        BoardDTO updateReturnBoardDTO = boardDAO.update(updateBoard);
-        if( updateReturnBoardDTO == null ) {
-            throw new IllegalArgumentException("비밀번호가 다릅니다.");
-        }
-
-        List<Long> dbFileIndexes = fileDAO.findFileIndexesByBoardId(updateReturnBoardDTO.getBoardIdx());
-
-        List<Long> indexesToDelete = new ArrayList<>(dbFileIndexes);
-        indexesToDelete.removeAll(previouslyUploadedIndexes);
-
-        deleteFilesFromdatabaseAndDirectory(indexesToDelete);
-
-        newUploadFiles.forEach(file -> fileDAO.save(file, updateReturnBoardDTO.getBoardIdx()));
-
-        return updateReturnBoardDTO;
+    public int increaseHit(Long boardIdx) {
+        return boardMapper.increaseHit(boardIdx);
     }
 
-    /**
-     * 삭제할 파일의 번호를 인자로 받아 데이터베이스 및 디렉토리에서 해당 파일 정보를 삭제합니다
-     *
-     * @param indexesToDelete 삭제할 파일의 번호 리스트
-     */
-    private void deleteFilesFromdatabaseAndDirectory(List<Long> indexesToDelete) {
-
-        List<String> fileNamesToDelete = indexesToDelete.stream()
-                .map(fileIdx -> fileDAO.findFileNameById(fileIdx).getSavedFileName())
-                .collect(Collectors.toList());
-
-        fileNamesToDelete.stream()
-                .forEach(fileName -> FileUtils.deleteUploadedFile(fileName));
-
-        indexesToDelete.stream()
-                .forEach(fileIdx -> fileDAO.deleteByFileId(fileIdx));
-
+    public void insertBoard(BoardDTO board) {
+        boardMapper.insertBoard(board);
     }
 
-    /**
-     * 삭제할 게시물의 정보를 인자로 받아 게시물 번호에 해당하는 게시물, 댓글, 파일 정보를 삭제합니다.
-     *
-     * @param deleteBoardDTO 삭제할 게시물 정보
-     */
-    public void deleteBoardWithFilesAndComment(BoardDTO deleteBoardDTO) throws IllegalArgumentException {
-        BoardDTO boardDTO = boardDAO.findById(deleteBoardDTO.getBoardIdx());
-
-        if( !boardDTO.getPassword().equals(deleteBoardDTO.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 다릅니다.");
-        }
-
-        commentDAO.deleteAllByBoardIdx(deleteBoardDTO.getBoardIdx());
-
-        List<Long> indexesToDelete = fileDAO.findFileIndexesByBoardId(boardDTO.getBoardIdx());
-        deleteFilesFromdatabaseAndDirectory(indexesToDelete);
-
-        boardDAO.deleteById(deleteBoardDTO.getBoardIdx(), deleteBoardDTO.getPassword());
+    public void insertFile(FileDTO file) {
+        boardMapper.insertFile(file);
     }
 
-    /**
-     * 댓글 정보를 인자로 받아 저장하고 게시물 번호가 담긴 Comment 객체를 리턴합니다
-     * 게시물 번호를 찾지 못했다면 NoSuchElement 예외를 던집니다
-     *
-     * @param comment 댓글 정보
-     * @return 댓글이 저장되었다면 게시물 번호만 담긴 CommentDTO, 그렇지 않다면 null
-     */
-    public CommentDTO saveComment(Comment comment) throws NoSuchElementException {
-        BoardDTO boardDTO = boardDAO.findById(comment.getBoardIdx().getBoardIdx());
-        if( boardDTO == null ) {
-            throw new NoSuchElementException("해당 글을 찾을 수 없습니다.");
-        }
-        log.debug("New Comment / request! Comment  : {} ", comment);
-
-        return commentDAO.save(comment);
+    public int updateBoard(BoardDTO board) {
+        return boardMapper.updateBoard(board);
     }
 
-    /**
-     * 삭제할 댓글 정보를 인자로 받아서 댓글을 삭제합니다
-     * 패스워드가 같지 않다면 IllegalArgument 예외를 던집니다
-     * 
-     * @param deleteComment 삭제할 댓글 정보
-     * @return 게시물 번호
-     */
-    public Long deleteCommentByCommentIdx(CommentDTO deleteComment) {
-        CommentDTO commentDTO = commentDAO.findByCommentIdx(deleteComment.getCommentIdx());
-
-        if( !commentDTO.getPassword().equals(deleteComment.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 다릅니다.");
-        }
-        commentDAO.deleteCommentByCommentIdx(deleteComment);
-
-        return deleteComment.getBoardIdx();
+    public List<Long> selectFileIndexes(Long boardIdx) {
+        return boardMapper.selectFileIndexes(boardIdx);
     }
 
-    /**
-     * 모든 카테고리를 리턴합니다
-     *
-     * @return 모든 카테고리
-     */
-    public List<CategoryDTO> findAllCategories() {
-        return categoryDAO.findAll();
+    public String selectSavedFileName(Long fileIdx) {
+        return boardMapper.selectSavedFileName(fileIdx);
     }
 
-
-    /**
-     * 파일 번호를 인자로 받아 번호에 해당하는 File 객체를 생성해 리턴합니다
-     *
-     * @param fileIdx 파일 번호
-     * @return 파일 번호에 해당하는 FileDTO, 찾지 못헀다면 null
-     */
-    public FileDTO findFileById(long fileIdx) {
-        return fileDAO.findFileNameById(fileIdx);
+    public int deleteFile(Long fileIdx) {
+        return boardMapper.deleteFile(fileIdx);
     }
 
+    public void insertComment(CommentDTO commentDTO) {
+        boardMapper.insertComment(commentDTO);
+    }
 
+    public CommentDTO selectComment(Long commentIdx) {
+        return boardMapper.selectComment(commentIdx);
+    }
+
+    public int deleteComment(Long commentIdx) {
+        return boardMapper.deleteComment(commentIdx);
+    }
+
+    public List<CategoryDTO> selectAllCategory() {
+        return boardMapper.selectAllCategory();
+    }
 }
