@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 @Getter
 public class RegDate {
 
-    private LocalDateTime localDatetime = LocalDateTime.now();
+    private LocalDateTime regDate = LocalDateTime.now();
 
     public RegDate(LocalDateTime dateTime) {
-        this.localDatetime = dateTime;
+        this.regDate = dateTime;
     }
 }
