@@ -45,18 +45,23 @@ public class BoardController {
      */
     @GetMapping("/board")
     public ModelAndView showBoard(@RequestParam(name = "board_idx") Long boardIdx, ModelAndView mav) throws ServletException, IOException, NoSuchElementException {
-        mav.addObject("board", boardService.findBoardWithDetails(boardIdx));
+        BoardDTO board = boardService.selectBoardWithDetails(boardIdx);
+        log.debug("showBoard 호출 -> : {}", board.toString());
+
+        mav.addObject("board", board);
         mav.setViewName("board");
         return mav;
     }
 
+    // TODO: 검색조건 동적쿼리
     /**
      * 검색조건(searchConditionQueryString)에 맞는 전체 게시물 리스트와 View를 응답합니다.
      */
     @GetMapping("/boards")
     public ModelAndView showBoards(HttpServletRequest req, ModelAndView mav) throws ServletException, IOException {
-        mav.addObject("boards", boardService.findAllBoardsWithFileCheck(SearchConditionUtils.buildQueryCondition(req.getParameterMap())));
-        mav.addObject("categories", boardService.findAllCategories());
+        //mav.addObject("boards", boardService.selectBoardsWithFileCheck(SearchConditionUtils.buildQueryCondition(req.getParameterMap())));
+        mav.addObject("boards", boardService.selectBoardsWithFileCheck());
+        mav.addObject("categories", boardService.selectAllCategory());
         mav.setViewName("boards");
         return mav;
     }
@@ -66,7 +71,7 @@ public class BoardController {
      */
     @GetMapping("/board/write")
     public ModelAndView writeForm(HttpServletRequest req, ModelAndView mav) throws ServletException, IOException {
-        mav.addObject("categories", boardService.findAllCategories());
+        mav.addObject("categories", boardService.selectAllCategory());
         mav.setViewName("boardWrite");
         return mav;
     }
@@ -79,9 +84,10 @@ public class BoardController {
         // TODO: 예외 발생 시 파일 삭제...
         MultipartRequest multi = FileUtils.fileUpload(req);
 
-        Board board = null;
-        List<File> files = null;
+        BoardDTO board = null;
+        List<FileDTO> files = null;
         try {
+            // TODO: 메서드 병합
             board = BuildUtils.buildWriteBoardFromRequest(multi);
             files = BuildUtils.buildFilesFromRequest(multi);
         } catch (IllegalArgumentException e) {
@@ -91,8 +97,9 @@ public class BoardController {
             mav.setViewName("redirect:/board/write");
             return mav;
         }
+        board.setFiles(files);
 
-        BoardDTO boardDTO = boardService.saveBoardWithImages(board,files);
+        BoardDTO boardDTO = boardService.insertBoardWithFiles(board);
 
         mav.addObject("board_idx", boardDTO.getBoardIdx());
         mav.setViewName("redirect:/board");
@@ -106,7 +113,7 @@ public class BoardController {
      */
     @GetMapping("/board/modify")
     public ModelAndView boardModifyForm(@RequestParam(name = "board_idx") Long boardIdx, ModelAndView mav) throws ServletException, IOException, NoSuchElementException {
-        mav.addObject("board", boardService.findBoardWithImages(boardIdx));
+        mav.addObject("board", boardService.selectBoardWithFiles(boardIdx));
         mav.setViewName("boardModify");
         return mav;
     }
@@ -119,8 +126,8 @@ public class BoardController {
         MultipartRequest multi = FileUtils.fileUpload(req);
 
         // TODO: Error Message에 패스워드는 영문, 숫자, 특수문자가 포함되어 있어야 합니다.가 포함됨. BoardDTO 객체를 사용할 것.
-        Board updateBoard = null;
-        List<File> newUploadFiles = null;
+        BoardDTO updateBoard = null;
+        List<FileDTO> newUploadFiles = null;
         try {
             updateBoard = BuildUtils.buildModifyBoardFromRequest(multi);
             newUploadFiles = BuildUtils.buildFilesFromRequest(multi);
@@ -132,6 +139,7 @@ public class BoardController {
             mav.setViewName("redirect:/board/modify");
             return mav;
         }
+        updateBoard.setFiles(newUploadFiles);
 
         List<Long> previouslyUploadedIndexes = new ArrayList<Long>();
         if (multi.getParameter("file_idx") != null) {
@@ -141,7 +149,7 @@ public class BoardController {
         }
 
         try {
-            boardService.updateBoardWithImages(updateBoard, newUploadFiles, previouslyUploadedIndexes);
+            boardService.updateBoardWithFiles(updateBoard, previouslyUploadedIndexes);
         } catch (IllegalArgumentException e) {
             log.error("error : {}", e.getMessage());
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -150,7 +158,7 @@ public class BoardController {
             mav.setViewName("redirect:/board/modify");
             return mav;
         }
-        mav.addObject("board_idx", updateBoard.getBoardIdx().getBoardIdx());
+        mav.addObject("board_idx", updateBoard.getBoardIdx());
         mav.setViewName("redirect:/board");
         log.debug("redirect URI : {}", mav.getViewName());
         return mav;
@@ -163,7 +171,7 @@ public class BoardController {
      */
     @GetMapping("/board/delete")
     public ModelAndView boardDeleteForm(@RequestParam(name = "board_idx") Long boardIdx, ModelAndView mav) throws ServletException, IOException, NoSuchElementException {
-        mav.addObject("board", boardService.findBoardWithDetails(boardIdx));
+        mav.addObject("board", boardService.selectBoardWithDetails(boardIdx));
         mav.setViewName("boardDelete");
         return mav;
     }
@@ -176,7 +184,7 @@ public class BoardController {
                              ModelAndView mav,
                              @ModelAttribute BoardDTO deleteBoard,
                              @RequestParam("board_idx") Long boardIdx,
-                             @RequestParam("passwrd") String password) throws ServletException, IOException, NoSuchElementException {
+                             @RequestParam("password") String password) throws ServletException, IOException, NoSuchElementException {
 
         deleteBoard.setBoardIdx(boardIdx);
         deleteBoard.setPassword(password);
