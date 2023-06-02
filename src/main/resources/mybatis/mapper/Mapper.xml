@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.ebsoft.mapper.BoardMapper">
+    <select id="showBoard" resultType="BoardDTO">
+        SELECT b.board_idx AS boardIdx,
+               c.category_idx AS categoryIdx,
+               c.category AS category,
+               b.title AS title,
+               b.writer AS writer,
+               b.content AS content,
+               b.hit AS hit,
+               b.regdate AS regDate,
+               b.moddate AS modDate,
+               (SELECT GROUP_CONCAT(file_idx) FROM tb_file WHERE board_idx = b.board_idx)       AS fileIdx,
+               (SELECT GROUP_CONCAT(saved_name) FROM tb_file WHERE board_idx = b.board_idx)     AS savedFileName,
+               (SELECT GROUP_CONCAT(original_name) FROM tb_file WHERE board_idx = b.board_idx)  AS originalFileName,
+               (SELECT GROUP_CONCAT(size) FROM tb_file WHERE board_idx = b.board_idx)           AS fileSize,
+
+               (SELECT GROUP_CONCAT(comment_idx) FROM tb_comment WHERE board_idx = b.board_idx) AS commentIdx,
+               (SELECT GROUP_CONCAT(writer) FROM tb_comment WHERE board_idx = b.board_idx)      AS writer,
+               (SELECT GROUP_CONCAT(content) FROM tb_comment WHERE board_idx = b.board_idx)     AS content,
+               (SELECT GROUP_CONCAT(regdate) FROM tb_comment WHERE board_idx = b.board_idx)     AS regDate
+        FROM tb_board b
+                 JOIN tb_category c ON b.category_idx = c.category_idx
+        WHERE b.board_idx = #{boardIdx};
+    </select>
+
+    <select id="showTestBoard" resultType="BoardDTO">
+        SELECT * FROM tb_board where board_idx = #{boardIdx}
+    </select>
+</mapper>
