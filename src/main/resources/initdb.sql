@@ -75,7 +75,7 @@ INSERT INTO tb_category (category_code, category) VALUES
 
 
 INSERT INTO tb_board (category_idx, title, writer, content, password, hit, regdate, moddate) VALUES
-                                                                                                 (1, 'Title 1', '테스터1', 'Content 1', 'password1!', 10, '2023-05-18 10:00:00', null),
+                                                                                                 (1, 'Title 1', '테스터1', 'Content 1', 'password1!', 0, '2023-05-18 10:00:00', null),
                                                                                                  (2, 'Title 2', '테스터2', 'Content 2', 'password2!', 5, '2023-05-18 11:00:00', null),
                                                                                                  (3, 'Title 3', '테스터3', 'Content 3', 'password3!', 8, '2023-05-18 12:00:00', null),
                                                                                                  (4, 'Title 4', '테스터4', 'Content 4', 'password4!', 3, '2023-05-18 13:00:00', null),
