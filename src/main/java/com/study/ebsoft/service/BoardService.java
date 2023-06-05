@@ -9,7 +9,6 @@ import com.study.ebsoft.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,7 @@ public class BoardService {
      *
      */
     public List<BoardDTO> selectBoardsWithFileCheck() {
-        return boardRepository.selectBoardsWithFileCheck();
+        return boardRepository.findBoards();
     }
 
     /**
@@ -49,7 +48,7 @@ public class BoardService {
             throw new NoSuchElementException("해당 글을 찾을 수 없습니다.");
         }
 
-        return boardRepository.selectBoardWithDetails(boardIdx);
+        return boardRepository.findBoardAndCommentAndFile(boardIdx);
     }
 
     /**
@@ -62,7 +61,7 @@ public class BoardService {
     public BoardDTO selectBoardWithFiles(Long boardIdx) {
         log.debug("selectBoardWithFiles() 메서드 호출시 BoardIdx: {}", boardIdx);
 
-        BoardDTO boardDTO = boardRepository.selectBoardWithFiles(boardIdx);
+        BoardDTO boardDTO = boardRepository.findBoardFile(boardIdx);
 
         if( boardDTO == null ) {
             throw new NoSuchElementException("해당 글을 찾을 수 없습니다.");
@@ -102,7 +101,7 @@ public class BoardService {
         log.debug(" updateBoardWithImages() 메서드 호출 -> updateBoard : {} , newUploadFiles size : {}, previouslyUploadedIndexes size : {}",
                 updateBoard.toString(), updateBoard.getFiles().size(), previouslyUploadedIndexes.size());
 
-        BoardDTO findBoardDTO = boardRepository.selectBoard(updateBoard.getBoardIdx());
+        BoardDTO findBoardDTO = boardRepository.findBoard(updateBoard.getBoardIdx());
         if( findBoardDTO == null ) {
             throw new NoSuchElementException("해당 글을 찾을 수 없습니다.");
         }
@@ -111,13 +110,13 @@ public class BoardService {
             throw new IllegalArgumentException("비밀번호가 다릅니다.");
         }
 
-        List<Long> dbFileIndexes = boardRepository.selectFileIndexes(updateBoard.getBoardIdx());
+        List<Long> dbFileIndexes = boardRepository.findFileIndexes(updateBoard.getBoardIdx());
 
         List<Long> indexesToDelete = new ArrayList<>(dbFileIndexes);
         indexesToDelete.removeAll(previouslyUploadedIndexes);
 
         List<String> fileNamesToDelete = indexesToDelete.stream()
-                .map(fileIdx -> boardRepository.selectSavedFileName(fileIdx))
+                .map(fileIdx -> boardRepository.findSavedFileName(fileIdx))
                 .collect(Collectors.toList());
 
         fileNamesToDelete.stream()
@@ -139,7 +138,7 @@ public class BoardService {
      * @param deleteBoardDTO 삭제할 게시물 정보
      */
     public void deleteBoardWithFilesAndComment(BoardDTO deleteBoardDTO) {
-        BoardDTO boardDTO = boardRepository.selectBoard(deleteBoardDTO.getBoardIdx());
+        BoardDTO boardDTO = boardRepository.findBoard(deleteBoardDTO.getBoardIdx());
 
         if( !boardDTO.getPassword().equals(deleteBoardDTO.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 다릅니다.");
@@ -147,10 +146,10 @@ public class BoardService {
 
         boardRepository.deleteAllComment(deleteBoardDTO.getBoardIdx());
 
-        List<Long> indexesToDelete = boardRepository.selectFileIndexes(boardDTO.getBoardIdx());
+        List<Long> indexesToDelete = boardRepository.findFileIndexes(boardDTO.getBoardIdx());
 
         List<String> fileNamesToDelete = indexesToDelete.stream()
-                .map(fileIdx -> boardRepository.selectSavedFileName(fileIdx))
+                .map(fileIdx -> boardRepository.findSavedFileName(fileIdx))
                 .collect(Collectors.toList());
 
         fileNamesToDelete.stream()
@@ -171,7 +170,7 @@ public class BoardService {
      */
     public CommentDTO insertComment(CommentDTO comment) {
         log.debug("New Comment / request! Comment  : {} ", comment);
-        if( boardRepository.selectBoard(comment.getBoardIdx()) == null ) {
+        if( boardRepository.findBoard(comment.getBoardIdx()) == null ) {
             throw new NoSuchElementException("해당 글을 찾을 수 없습니다.");
         }
 
@@ -187,7 +186,7 @@ public class BoardService {
      * @return 게시물 번호
      */
     public Long deleteCommentByCommentIdx(CommentDTO deleteComment) {
-        CommentDTO commentDTO = boardRepository.selectComment(deleteComment.getCommentIdx());
+        CommentDTO commentDTO = boardRepository.findComment(deleteComment.getCommentIdx());
 
         if( !commentDTO.getPassword().equals(deleteComment.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 다릅니다.");
@@ -203,7 +202,7 @@ public class BoardService {
      * @return 모든 카테고리
      */
     public List<CategoryDTO> selectAllCategory() {
-        return boardRepository.selectAllCategory();
+        return boardRepository.findAllCategory();
     }
 
     /**
@@ -213,6 +212,6 @@ public class BoardService {
      * @return 파일 번호에 해당하는 FileDTO, 찾지 못헀다면 null
      */
     public FileDTO findFileById(Long fileIdx) {
-        return boardRepository.selectFile(fileIdx);
+        return boardRepository.findFile(fileIdx);
     }
 }

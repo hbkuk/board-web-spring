@@ -20,40 +20,40 @@ public class BoardRepository {
         this.boardMapper = boardMapper;
     }
 
-    public List<BoardDTO> selectBoardsWithFileCheck() {
-        return boardMapper.selectBoardsWithFileCheck();
+    public List<BoardDTO> findBoards() {
+        return boardMapper.findBoards();
     }
 
-    public BoardDTO selectBoard(Long boardIdx) {
-        return boardMapper.selectBoard(boardIdx);
+    public BoardDTO findBoard(Long boardIdx) {
+        return boardMapper.findBoard(boardIdx);
     }
 
-    public BoardDTO selectBoardWithDetails(Long boardIdx) {
-        return boardMapper.selectBoardWithDetails(boardIdx);
+    public BoardDTO findBoardAndCommentAndFile(Long boardIdx) {
+        return boardMapper.findBoardAndCommentAndFile(boardIdx);
     }
 
-    public BoardDTO selectBoardWithFiles(Long boardIdx) {
-        return boardMapper.selectBoardWithFiles(boardIdx);
+    public BoardDTO findBoardFile(Long boardIdx) {
+        return boardMapper.findBoardFile(boardIdx);
     }
 
-    public List<Long> selectFileIndexes(Long boardIdx) {
-        return boardMapper.selectFileIndexes(boardIdx);
+    public List<Long> findFileIndexes(Long boardIdx) {
+        return boardMapper.findFileIndexes(boardIdx);
     }
 
-    public String selectSavedFileName(Long fileIdx) {
-        return boardMapper.selectSavedFileName(fileIdx);
+    public String findSavedFileName(Long fileIdx) {
+        return boardMapper.findSavedFileName(fileIdx);
     }
 
-    public CommentDTO selectComment(Long commentIdx) {
-        return boardMapper.selectComment(commentIdx);
+    public CommentDTO findComment(Long commentIdx) {
+        return boardMapper.findComment(commentIdx);
     }
 
-    public List<CategoryDTO> selectAllCategory() {
-        return boardMapper.selectAllCategory();
+    public List<CategoryDTO> findAllCategory() {
+        return boardMapper.findAllCategory();
     }
 
-    public FileDTO selectFile(Long fileIdx) {
-        return boardMapper.selectFile(fileIdx);
+    public FileDTO findFile(Long fileIdx) {
+        return boardMapper.findFile(fileIdx);
     }
 
 

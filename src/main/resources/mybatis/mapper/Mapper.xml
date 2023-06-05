@@ -50,7 +50,7 @@
         </collection>
     </resultMap>
 
-    <select id="selectBoardsWithFileCheck" parameterType="Long" resultType="BoardDTO" useCache="false" flushCache="true">
+    <select id="findBoards" parameterType="Long" resultType="BoardDTO" useCache="false" flushCache="true">
         SELECT b.board_idx,
                c.category,
                b.title,
@@ -69,7 +69,7 @@
         group by b.board_idx;
     </select>
 
-    <select id="selectBoardWithDetails" parameterType="Long" resultMap="BoardWithDetailsMap" useCache="false" flushCache="true">
+    <select id="findBoardAndCommentAndFile" parameterType="Long" resultMap="BoardWithDetailsMap" useCache="false" flushCache="true">
         SELECT b.board_idx      AS boardIdx,
                c.category_idx   AS categoryIdx,
                c.category       AS category,
@@ -94,7 +94,7 @@
         WHERE b.board_idx = #{boardIdx};
     </select>
 
-    <select id="selectBoardWithFiles" parameterType="Long" resultMap="BoardWithFilesMap" useCache="false" flushCache="true">
+    <select id="findBoardFile" parameterType="Long" resultMap="BoardWithFilesMap" useCache="false" flushCache="true">
         SELECT b.board_idx      AS boardIdx,
                c.category_idx   AS categoryIdx,
                c.category       AS category,
@@ -114,7 +114,7 @@
         WHERE b.board_idx = #{boardIdx};
     </select>
 
-    <select id="selectBoard" parameterType="Long" resultType="BoardDTO" useCache="false" flushCache="true">
+    <select id="findBoard" parameterType="Long" resultType="BoardDTO" useCache="false" flushCache="true">
         SELECT b.board_idx,
                c.category_idx,
                c.category,
@@ -130,28 +130,28 @@
         WHERE b.board_idx = #{boardIdx};
     </select>
 
-    <select id="selectFileIndexes" resultType="Long">
+    <select id="findFileIndexes" resultType="Long">
         SELECT file_idx
         FROM tb_file
         WHERE board_idx = #{boardIdx}
     </select>
 
-    <select id="selectSavedFileName" resultType="String">
+    <select id="findSavedFileName" resultType="String">
         SELECT saved_name FROM tb_file WHERE file_idx = #{fileIdx}
     </select>
 
-    <select id="selectComment" resultType="CommentDTO">
+    <select id="findComment" resultType="CommentDTO">
         SELECT *
         FROM tb_comment
         WHERE comment_idx = #{commentIdx}
     </select>
 
-    <select id="selectAllCategory" resultType="CategoryDTO">
+    <select id="findAllCategory" resultType="CategoryDTO">
         SELECT *
         FROM tb_category
     </select>
 
-    <select id="selectFile" resultType="FileDTO">
+    <select id="findFile" resultType="FileDTO">
         SELECT tf.file_idx      AS fileIdx,
                tf.saved_name    AS savedFileName,
                tf.original_name AS originalFileName,
@@ -177,6 +177,9 @@
         INSERT INTO tb_comment (writer, password, content, regdate, board_idx)
         VALUES (#{writer}, #{password}, #{content}, NOW(), #{boardIdx})
     </insert>
+
+
+
 
     <update id="updateBoard" parameterType="BoardDTO">
         UPDATE tb_board

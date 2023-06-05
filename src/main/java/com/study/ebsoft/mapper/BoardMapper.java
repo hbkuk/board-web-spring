@@ -11,23 +11,23 @@ import java.util.List;
 @Mapper
 public interface BoardMapper {
 
-    List<BoardDTO> selectBoardsWithFileCheck();
+    List<BoardDTO> findBoards();
 
-    BoardDTO selectBoard(Long boardIdx);
+    BoardDTO findBoard(Long boardIdx);
 
-    BoardDTO selectBoardWithDetails(Long boardIdx);
+    BoardDTO findBoardAndCommentAndFile(Long boardIdx);
 
-    BoardDTO selectBoardWithFiles(Long boardIdx);
+    BoardDTO findBoardFile(Long boardIdx);
 
-    CommentDTO selectComment(Long commentIdx);
+    CommentDTO findComment(Long commentIdx);
 
-    List<CategoryDTO> selectAllCategory();
+    List<CategoryDTO> findAllCategory();
 
-    List<Long> selectFileIndexes(Long boardIdx);
+    List<Long> findFileIndexes(Long boardIdx);
 
-    String selectSavedFileName(Long fileIdx);
+    String findSavedFileName(Long fileIdx);
 
-    FileDTO selectFile(Long fileIdx);
+    FileDTO findFile(Long fileIdx);
 
 
 

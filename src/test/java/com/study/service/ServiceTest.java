@@ -69,7 +69,7 @@ public class ServiceTest {
             // then
             InOrder inOrder = inOrder(boardRepository);
             inOrder.verify(boardRepository).increaseHit(boardIdx);
-            inOrder.verify(boardRepository).selectBoardWithDetails(boardIdx);
+            inOrder.verify(boardRepository).findBoardAndCommentAndFile(boardIdx);
             inOrder.verifyNoMoreInteractions();
         }
 
@@ -161,20 +161,20 @@ public class ServiceTest {
                 // given
                 Long boardIdx = 1L;
                 BoardDTO boardDTO = new BoardDTO();
-                when(boardRepository.selectBoardWithFiles(boardIdx)).thenReturn(boardDTO);
+                when(boardRepository.findBoardFile(boardIdx)).thenReturn(boardDTO);
 
                 // when
                 boardService.selectBoardWithFiles(boardIdx);
 
                 // then
-                verify(boardRepository, times(1)).selectBoardWithFiles(boardIdx);
+                verify(boardRepository, times(1)).findBoardFile(boardIdx);
             }
 
             @Test
             @DisplayName("게시글 수정을 눌렀을때 글을 찾지 못했다면 예외가 발생한다.")
             void modify_post_not_found_exception() {
 
-                when(boardRepository.selectBoardWithFiles(1L)).thenReturn(null);
+                when(boardRepository.findBoardFile(1L)).thenReturn(null);
 
                 assertThatExceptionOfType(NoSuchElementException.class)
                         .isThrownBy(() -> {
@@ -213,9 +213,9 @@ public class ServiceTest {
                 List<Long> previouslyUploadedIndexes = new ArrayList<>();
                 List<Long> getDbFileIndexes = new ArrayList<>();
 
-                when(boardRepository.selectBoard(boardIdx)).thenReturn(selectBoardDTO);
+                when(boardRepository.findBoard(boardIdx)).thenReturn(selectBoardDTO);
                 when(boardRepository.updateBoard(updateBoard)).thenReturn(1);
-                when(boardRepository.selectFileIndexes(boardIdx)).thenReturn(getDbFileIndexes);
+                when(boardRepository.findFileIndexes(boardIdx)).thenReturn(getDbFileIndexes);
 
                 // when
                 boardService.updateBoardWithFiles(updateBoard, previouslyUploadedIndexes);
@@ -251,9 +251,9 @@ public class ServiceTest {
 
                 List<Long> dbFileIndexes = Arrays.asList(10L, 11L, 12L);
 
-                when(boardRepository.selectBoard(boardIdx)).thenReturn(selectBoardDTO);
+                when(boardRepository.findBoard(boardIdx)).thenReturn(selectBoardDTO);
                 when(boardRepository.updateBoard(updateBoard)).thenReturn(1);
-                when(boardRepository.selectFileIndexes(boardIdx)).thenReturn(dbFileIndexes);
+                when(boardRepository.findFileIndexes(boardIdx)).thenReturn(dbFileIndexes);
 
                 // when
                 boardService.updateBoardWithFiles(updateBoard, previouslyUploadedIndexes);
@@ -296,13 +296,13 @@ public class ServiceTest {
                 List<Long> fileIndexesToDelete = new ArrayList<>(dbFileIndexes);
                 fileIndexesToDelete.removeAll(previouslyUploadedIndexes);
 
-                when(boardRepository.selectBoard(boardIdx)).thenReturn(selectBoardDTO);
+                when(boardRepository.findBoard(boardIdx)).thenReturn(selectBoardDTO);
                 when(boardRepository.updateBoard(updateBoard)).thenReturn(1);
-                when(boardRepository.selectFileIndexes(boardIdx)).thenReturn(dbFileIndexes);
+                when(boardRepository.findFileIndexes(boardIdx)).thenReturn(dbFileIndexes);
 
-                when(boardRepository.selectSavedFileName(10L)).thenReturn("image1.jpg");
-                when(boardRepository.selectSavedFileName(11L)).thenReturn("image2.jpg");
-                when(boardRepository.selectSavedFileName(12L)).thenReturn("image3.jpg");
+                when(boardRepository.findSavedFileName(10L)).thenReturn("image1.jpg");
+                when(boardRepository.findSavedFileName(11L)).thenReturn("image2.jpg");
+                when(boardRepository.findSavedFileName(12L)).thenReturn("image3.jpg");
 
                 // when
                 boardService.updateBoardWithFiles(updateBoard, previouslyUploadedIndexes);
@@ -347,9 +347,9 @@ public class ServiceTest {
 
                 List<Long> dbFileIndexes = Arrays.asList(10L, 11L);
 
-                when(boardRepository.selectBoard(boardIdx)).thenReturn(selectBoardDTO);
+                when(boardRepository.findBoard(boardIdx)).thenReturn(selectBoardDTO);
                 when(boardRepository.updateBoard(updateBoard)).thenReturn(1);
-                when(boardRepository.selectFileIndexes(boardIdx)).thenReturn(dbFileIndexes);
+                when(boardRepository.findFileIndexes(boardIdx)).thenReturn(dbFileIndexes);
 
                 // when
                 boardService.updateBoardWithFiles(updateBoard, previouslyUploadedIndexes);
@@ -385,11 +385,11 @@ public class ServiceTest {
 
             List<Long> dbFileIndexes = Arrays.asList(10L, 11L, 12L);
 
-            when(boardRepository.selectBoard(boardIdx)).thenReturn(actureBoardDTO);
-            when(boardRepository.selectFileIndexes(deleteBoardDTO.getBoardIdx())).thenReturn(dbFileIndexes);
-            when(boardRepository.selectSavedFileName(10L)).thenReturn("image1.jpg");
-            when(boardRepository.selectSavedFileName(11L)).thenReturn("image2.jpg");
-            when(boardRepository.selectSavedFileName(12L)).thenReturn("image3.jpg");
+            when(boardRepository.findBoard(boardIdx)).thenReturn(actureBoardDTO);
+            when(boardRepository.findFileIndexes(deleteBoardDTO.getBoardIdx())).thenReturn(dbFileIndexes);
+            when(boardRepository.findSavedFileName(10L)).thenReturn("image1.jpg");
+            when(boardRepository.findSavedFileName(11L)).thenReturn("image2.jpg");
+            when(boardRepository.findSavedFileName(12L)).thenReturn("image3.jpg");
 
             // when
             boardService.deleteBoardWithFilesAndComment(deleteBoardDTO);
@@ -416,7 +416,7 @@ public class ServiceTest {
             actureBoardDTO.setBoardIdx(boardIdx);
             actureBoardDTO.setPassword("qudrnr132!");
 
-            when(boardRepository.selectBoard(boardIdx)).thenReturn(actureBoardDTO);
+            when(boardRepository.findBoard(boardIdx)).thenReturn(actureBoardDTO);
 
             // then
             assertThatIllegalArgumentException()

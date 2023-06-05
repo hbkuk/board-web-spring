@@ -27,7 +27,7 @@ public class BoardRepositoryTest {
     @Disabled("다른 테스트와 간섭")
     @Test
     public void selectBoards() {
-        List<BoardDTO> boards = boardRepository.selectBoardsWithFileCheck();
+        List<BoardDTO> boards = boardRepository.findBoards();
 
         log.info(boards.toString());
         assertThat(boards).hasSize(10);
@@ -36,7 +36,7 @@ public class BoardRepositoryTest {
     @Test
     public void selectBoard() {
         Long boardIdx = 5L;
-        BoardDTO boardDTO = boardRepository.selectBoard(boardIdx);
+        BoardDTO boardDTO = boardRepository.findBoard(boardIdx);
 
         log.info(boardDTO.toString());
         assertThat(boardDTO.getTitle()).isEqualTo("Title 5");
@@ -46,7 +46,7 @@ public class BoardRepositoryTest {
     @Test
     public void selectBoardWithDetails() {
         Long boardIdx = 1L;
-        BoardDTO boardDTO = boardRepository.selectBoardWithDetails(boardIdx);
+        BoardDTO boardDTO = boardRepository.findBoardAndCommentAndFile(boardIdx);
 
         log.info(boardDTO.toString());
         assertThat(boardDTO.getBoardIdx()).isEqualTo(1);
@@ -57,7 +57,7 @@ public class BoardRepositoryTest {
     @Test
     public void selectBoardWithFiles() {
         Long boardIdx = 10L;
-        BoardDTO boardDTO = boardRepository.selectBoardWithFiles(boardIdx);
+        BoardDTO boardDTO = boardRepository.findBoardFile(boardIdx);
 
         log.info(boardDTO.toString());
         assertThat(boardDTO.getBoardIdx()).isEqualTo(10);
@@ -72,7 +72,7 @@ public class BoardRepositoryTest {
 
         assertThat(affectedRows).isEqualTo(1);
 
-        BoardDTO boardDTO = boardRepository.selectBoardWithDetails(boardIdx);
+        BoardDTO boardDTO = boardRepository.findBoardAndCommentAndFile(boardIdx);
 
         assertThat(boardDTO.getHit()).isEqualTo(1);
     }
@@ -123,20 +123,20 @@ public class BoardRepositoryTest {
         int affectedRows = boardRepository.updateBoard(board);
         assertThat(affectedRows).isEqualTo(1);
 
-        BoardDTO selectBoard = boardRepository.selectBoard(1L);
+        BoardDTO selectBoard = boardRepository.findBoard(1L);
         assertThat(selectBoard.getTitle()).isEqualTo("제목 999로 수정");
     }
 
     @Disabled("위쪽 테스트와 간섭")
     @Test
     public void selectFileIndexes() {
-        List<Long> fileIndexes = boardRepository.selectFileIndexes(1L);
+        List<Long> fileIndexes = boardRepository.findFileIndexes(1L);
         assertThat(fileIndexes).hasSize(1);
     }
 
     @Test
     public void selectSavedFileName() {
-        String fileName = boardRepository.selectSavedFileName(1L);
+        String fileName = boardRepository.findSavedFileName(1L);
         assertThat(fileName).isEqualTo("file1.png");
     }
 
@@ -144,7 +144,7 @@ public class BoardRepositoryTest {
     public void deleteFile() {
         int affectedRows = boardRepository.deleteFile(1L);
         assertThat(affectedRows).isEqualTo(1);
-        assertThat(boardRepository.selectSavedFileName(1L)).isNull();
+        assertThat(boardRepository.findSavedFileName(1L)).isNull();
     }
 
     @Test
@@ -163,7 +163,7 @@ public class BoardRepositoryTest {
 
     @Test
     public void selectComment() {
-        CommentDTO comment = boardRepository.selectComment(5L);
+        CommentDTO comment = boardRepository.findComment(5L);
 
         assertThat(comment.getContent()).isEqualTo("Comment 5");
     }
@@ -181,7 +181,7 @@ public class BoardRepositoryTest {
 
     @Test
     public void selectAllCategory() {
-        List<CategoryDTO> categories = boardRepository.selectAllCategory();
+        List<CategoryDTO> categories = boardRepository.findAllCategory();
 
         assertThat(categories).hasSize(10);
     }
