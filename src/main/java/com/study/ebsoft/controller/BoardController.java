@@ -44,7 +44,7 @@ public class BoardController {
      * @throws NoSuchElementException 게시글 번호에 해당하는 게시물이 없는 경우 예외를 던집니다
      */
     @GetMapping("/board")
-    public ModelAndView showBoard(@RequestParam(name = "board_idx") Long boardIdx, ModelAndView mav) throws ServletException, IOException, NoSuchElementException {
+    public ModelAndView showBoard(@RequestParam(name = "board_idx") Long boardIdx, ModelAndView mav) {
         BoardDTO board = boardService.selectBoardWithDetails(boardIdx);
         log.debug("showBoard 호출 -> : {}", board.toString());
 
@@ -58,7 +58,7 @@ public class BoardController {
      * 검색조건(searchConditionQueryString)에 맞는 전체 게시물 리스트와 View를 응답합니다.
      */
     @GetMapping("/boards")
-    public ModelAndView showBoards(HttpServletRequest req, ModelAndView mav) throws ServletException, IOException {
+    public ModelAndView showBoards(HttpServletRequest req, ModelAndView mav) {
         //mav.addObject("boards", boardService.selectBoardsWithFileCheck(SearchConditionUtils.buildQueryCondition(req.getParameterMap())));
         mav.addObject("boards", boardService.selectBoardsWithFileCheck());
         mav.addObject("categories", boardService.selectAllCategory());
@@ -70,7 +70,7 @@ public class BoardController {
      * 게시글 작성에 필요한 정보와 View를 응답합니다
      */
     @GetMapping("/board/write")
-    public ModelAndView writeForm(HttpServletRequest req, ModelAndView mav) throws ServletException, IOException {
+    public ModelAndView writeForm(HttpServletRequest req, ModelAndView mav) {
         mav.addObject("categories", boardService.selectAllCategory());
         mav.setViewName("boardWrite");
         return mav;
@@ -80,7 +80,7 @@ public class BoardController {
      * 게시물을 작성합니다
      */
     @PostMapping("/board/write")
-    public ModelAndView boardWrite(HttpServletRequest req, RedirectAttributes redirectAttributes, ModelAndView mav) throws ServletException, IOException {
+    public ModelAndView boardWrite(HttpServletRequest req, RedirectAttributes redirectAttributes, ModelAndView mav) {
         // TODO: 예외 발생 시 파일 삭제...
         MultipartRequest multi = FileUtils.fileUpload(req);
 
@@ -112,7 +112,7 @@ public class BoardController {
      * @throws NoSuchElementException 게시글 번호에 해당하는 게시물이 없는 경우 예외를 던집니다
      */
     @GetMapping("/board/modify")
-    public ModelAndView boardModifyForm(@RequestParam(name = "board_idx") Long boardIdx, ModelAndView mav) throws ServletException, IOException, NoSuchElementException {
+    public ModelAndView boardModifyForm(@RequestParam(name = "board_idx") Long boardIdx, ModelAndView mav) {
         mav.addObject("board", boardService.selectBoardWithFiles(boardIdx));
         mav.setViewName("boardModify");
         return mav;
@@ -122,7 +122,7 @@ public class BoardController {
      * 게시물 번호에 해당하는 게시물을 수정합니다
      */
     @PostMapping("/board/modify")
-    public ModelAndView boardModify(HttpServletRequest req, RedirectAttributes redirectAttributes, ModelAndView mav) throws ServletException, IOException, NoSuchElementException {
+    public ModelAndView boardModify(HttpServletRequest req, RedirectAttributes redirectAttributes, ModelAndView mav) {
         MultipartRequest multi = FileUtils.fileUpload(req);
 
         // TODO: Error Message에 패스워드는 영문, 숫자, 특수문자가 포함되어 있어야 합니다.가 포함됨. BoardDTO 객체를 사용할 것.
@@ -170,7 +170,7 @@ public class BoardController {
      * @throws NoSuchElementException 게시글 번호에 해당하는 게시물이 없는 경우 예외를 던집니다
      */
     @GetMapping("/board/delete")
-    public ModelAndView boardDeleteForm(@RequestParam(name = "board_idx") Long boardIdx, ModelAndView mav) throws ServletException, IOException, NoSuchElementException {
+    public ModelAndView boardDeleteForm(@RequestParam(name = "board_idx") Long boardIdx, ModelAndView mav) {
         mav.addObject("board", boardService.selectBoardWithDetails(boardIdx));
         mav.setViewName("boardDelete");
         return mav;
@@ -184,7 +184,7 @@ public class BoardController {
                              ModelAndView mav,
                              @ModelAttribute BoardDTO deleteBoard,
                              @RequestParam("board_idx") Long boardIdx,
-                             @RequestParam("password") String password) throws ServletException, IOException, NoSuchElementException {
+                             @RequestParam("password") String password) {
 
         deleteBoard.setBoardIdx(boardIdx);
         deleteBoard.setPassword(password);

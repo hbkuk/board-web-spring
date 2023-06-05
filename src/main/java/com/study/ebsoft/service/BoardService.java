@@ -42,7 +42,7 @@ public class BoardService {
      * @param boardIdx 게시물 번호
      * @return 게시물 번호에 해당하는 게시물이 있다면 BoardDTO, 그렇지 않다면 null
      */
-    public BoardDTO selectBoardWithDetails(Long boardIdx) throws NoSuchElementException {
+    public BoardDTO selectBoardWithDetails(Long boardIdx) {
         log.debug("selectBoardWithDetails() 메서드 호출시 BoardIdx: {}", boardIdx);
 
         if( boardRepository.increaseHit(boardIdx) == 0 ) {
@@ -59,7 +59,7 @@ public class BoardService {
      * @param boardIdx 게시물 번호
      * @return 게시물 번호에 해당하는 게시물이 있다면 BoardDTO, 그렇지 않다면 null
      */
-    public BoardDTO selectBoardWithFiles(Long boardIdx) throws NoSuchElementException {
+    public BoardDTO selectBoardWithFiles(Long boardIdx) {
         log.debug("selectBoardWithFiles() 메서드 호출시 BoardIdx: {}", boardIdx);
 
         BoardDTO boardDTO = boardRepository.selectBoardWithFiles(boardIdx);
@@ -138,7 +138,7 @@ public class BoardService {
      *
      * @param deleteBoardDTO 삭제할 게시물 정보
      */
-    public void deleteBoardWithFilesAndComment(BoardDTO deleteBoardDTO) throws IllegalArgumentException {
+    public void deleteBoardWithFilesAndComment(BoardDTO deleteBoardDTO) {
         BoardDTO boardDTO = boardRepository.selectBoard(deleteBoardDTO.getBoardIdx());
 
         if( !boardDTO.getPassword().equals(deleteBoardDTO.getPassword())) {
@@ -169,7 +169,7 @@ public class BoardService {
      * @param comment 댓글 정보
      * @return 댓글이 저장되었다면 게시물 번호만 담긴 Comment, 그렇지 않다면 null
      */
-    public CommentDTO insertComment(CommentDTO comment) throws NoSuchElementException {
+    public CommentDTO insertComment(CommentDTO comment) {
         log.debug("New Comment / request! Comment  : {} ", comment);
         if( boardRepository.selectBoard(comment.getBoardIdx()) == null ) {
             throw new NoSuchElementException("해당 글을 찾을 수 없습니다.");

@@ -32,7 +32,7 @@ public class CommentController {
                                      @RequestParam("comment_writer") String writer,
                                      @RequestParam("comment_password") String password,
                                      @RequestParam("comment_content") String content,
-                                     @RequestParam("board_idx") Long boardIdx) throws IOException, ServletException {
+                                     @RequestParam("board_idx") Long boardIdx) {
 
         CommentDTO comment = null;
         try {
@@ -66,7 +66,7 @@ public class CommentController {
                                       @ModelAttribute CommentDTO deleteComment,
                                       @RequestParam("comment_idx") Long commentIdx,
                                       @RequestParam("board_idx") Long boardIdx,
-                                      @RequestParam("password") String password) throws IOException, ServletException {
+                                      @RequestParam("password") String password) {
 
         deleteComment.setCommentIdx(commentIdx);
         deleteComment.setBoardIdx(boardIdx);
