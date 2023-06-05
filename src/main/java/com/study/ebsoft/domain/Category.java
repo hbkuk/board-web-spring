@@ -24,9 +24,7 @@ public class Category {
     /**
      * 카테고리의 고유 식별자입니다.
      */
-    @Builder.Default
-    @Positive(message = "카테고리 번호는 양수이어야 합니다.")
-    private final Long categoryIdx = 0L;
+    private final Long categoryIdx;
 
     /**
      * 카테고리의 코드입니다.

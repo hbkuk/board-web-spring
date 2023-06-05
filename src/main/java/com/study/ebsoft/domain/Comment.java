@@ -28,39 +28,31 @@ public class Comment {
     /**
      * 댓글의 고유 식별자입니다.
      */
-    @Builder.Default
-    private final Long commentIdx = 0L;
+    private final Long commentIdx;
 
     /**
      * 댓글 작성자입니다.
      */
-    @Size(min = 3, max = 4, message = "작성자는 3글자 이상, 4글자 이하로 입력해야 합니다.")
     private final String writer;
 
     /**
      * 게시글의 내용입니다.
      */
-    @Size(min = 4, max = 1000, message = "내용은 4글자 이상, 1000글자 이하로 입력해야 합니다.")
     private String content;
 
     /**
      * 게시글의 비밀번호입니다. (JSON 직렬화 시 숨김 처리)
      */
     @JsonIgnore
-    @Size(min = 4, max = 15, message = "패스워드는 4글자 이상, 15글자 이하로 입력해야 합니다.")
-    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$", message = "패스워드는 영문, 숫자, 특수문자를 포함해야 합니다.")
     private String password;
-
 
     /**
      * 등록일시입니다.
      */
-    @Builder.Default
-    private final LocalDateTime regDate = LocalDateTime.now();
+    private final LocalDateTime regDate;
 
     /**
      * 게시글의 고유 식별자입니다.
      */
-    @Positive(message = "게시글 번호는 양수이어야 합니다.")
     private Long boardIdx;
 }
