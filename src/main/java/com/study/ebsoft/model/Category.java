@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
+import javax.validation.constraints.Positive;
+
 /**
  * 카테고리를 나타내는 클래스입니다.
  *
@@ -23,6 +25,7 @@ public class Category {
      * 카테고리의 고유 식별자입니다.
      */
     @Builder.Default
+    @Positive(message = "카테고리 번호는 양수이어야 합니다.")
     private final Long categoryIdx = 0L;
 
     /**

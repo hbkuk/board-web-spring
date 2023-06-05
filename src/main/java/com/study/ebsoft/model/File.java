@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.ToString;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Positive;
+
 /**
  * 파일을 나타내는 클래스입니다.
  *
@@ -25,6 +28,7 @@ public class File {
      * 파일의 고유 식별자입니다.
      */
     @Builder.Default
+    @Positive(message = "파일 번호는 양수이어야 합니다.")
     private Long fileIdx = 0L;
 
     /**
@@ -41,10 +45,12 @@ public class File {
     /**
      * 파일의 크기입니다.
      */
+    @Max(10_485_760)
     private Integer fileSize;
 
     /**
      * 게시글의 고유 식별자입니다.
      */
+    @Positive(message = "게시글 번호는 양수이어야 합니다.")
     private Long boardIdx;
 }
