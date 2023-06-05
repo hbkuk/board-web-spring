@@ -1,4 +1,4 @@
-package com.study.ebsoft.model;
+package com.study.ebsoft.domain;
 
 import lombok.Builder;
 import lombok.Getter;
