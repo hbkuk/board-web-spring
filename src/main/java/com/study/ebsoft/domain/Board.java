@@ -70,5 +70,25 @@ public class Board {
      */
     private final LocalDateTime modDate;
 
+    public boolean isSamePassword(String password) {
+        return this.password.equals(password);
+    }
+
+    public Board update(Board updateBoard) {
+        if(!isSamePassword(updateBoard.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 다릅니다.");
+        }
+        return Board.builder()
+                .boardIdx(this.boardIdx)
+                .categoryIdx(updateBoard.getCategoryIdx())
+                .title(updateBoard.getTitle())
+                .writer(updateBoard.getWriter())
+                .content(updateBoard.getContent())
+                .password(this.password)
+                .hit(this.hit)
+                .regDate(this.regDate)
+                .modDate(LocalDateTime.now())
+                .build();
+    }
 }
 
