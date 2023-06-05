@@ -38,9 +38,6 @@ public class BoardValidationUtils {
         validateWriter(board.getWriter());
         validateContent(board.getContent());
         validatePassword(board.getPassword());
-        validateHit(board.getHit());
-        validateRegDate(board.getRegDate());
-        validateModDate(board.getModDate());
     }
 
     public static void delete(Board board) {
