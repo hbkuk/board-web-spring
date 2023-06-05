@@ -1,4 +1,4 @@
-package com.study.ebsoft.utils;
+package com.study.ebsoft.utils.validation;
 
 import com.study.ebsoft.domain.Comment;
 
@@ -63,7 +63,7 @@ public class CommentValidationUtils {
 
     private static void validateCommentIdx(Long commentIdx) {
         if (!isValidPositive(commentIdx)) {
-            throw new IllegalArgumentException("댓글 번호는 양수이어야 합니다.");
+            throw new IllegalArgumentException(String.format("댓글 번호는 %d보다 큰 숫자여야 합니다.", MIN_NUMBER_VALUE));
         }
     }
 
@@ -90,7 +90,7 @@ public class CommentValidationUtils {
 
     private static void validateBoardIdx(Long boardIdx) {
         if (!isValidPositive(boardIdx)) {
-            throw new IllegalArgumentException("게시글 번호는 양수이어야 합니다.");
+            throw new IllegalArgumentException(String.format("게시글 번호는 %d보다 큰 숫자여야 합니다.", MIN_NUMBER_VALUE));
         }
     }
 

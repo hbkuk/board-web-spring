@@ -1,7 +1,7 @@
 package com.study.utils;
 
 import com.study.ebsoft.domain.Board;
-import com.study.ebsoft.utils.BoardValidationUtils;
+import com.study.ebsoft.utils.validation.BoardValidationUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

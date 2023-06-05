@@ -1,4 +1,4 @@
-package com.study.ebsoft.utils;
+package com.study.ebsoft.utils.validation;
 
 import com.study.ebsoft.domain.Board;
 
@@ -18,6 +18,7 @@ public class BoardValidationUtils {
 
     private static final int MIN_CONTENT_VALUE = 4;
     private static final int MAX_CONTENT_VALUE = 2000;
+
     private static final int MIN_PASSWORD_VALUE = 4;
     private static final int MAX_PASSWORD_VALUE = 15;
 
@@ -42,7 +43,7 @@ public class BoardValidationUtils {
         validateModDate(board.getModDate());
     }
 
-    public static void validateDeleteBoard(Board board) {
+    public static void delete(Board board) {
         validateBoardIdx(board.getBoardIdx());
         isEmpty(board.getPassword());
     }

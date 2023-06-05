@@ -1,7 +1,7 @@
 package com.study.utils;
 
 import com.study.ebsoft.domain.Comment;
-import com.study.ebsoft.utils.CommentValidationUtils;
+import com.study.ebsoft.utils.validation.CommentValidationUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
