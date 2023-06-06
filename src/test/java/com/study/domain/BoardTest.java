@@ -55,7 +55,7 @@ public class BoardTest {
     }
 
     @Test
-    @DisplayName("update 메서드는 비밀번호가 같다면 게시글을 수정한다.")
+    @DisplayName("update 메서드는 게시글을 수정한다.")
     void update() {
         // given
         Board board = Board.builder()
@@ -80,6 +80,8 @@ public class BoardTest {
 
         // when
         BoardValidationUtils.update(updateBoard);
+        board.isSamePassword(updateBoard.getPassword());
+
         Board updatedBoard = board.update(updateBoard);
 
         // then
@@ -116,10 +118,11 @@ public class BoardTest {
                 .build();
 
         BoardValidationUtils.update(updateBoard);
+        Board updatedBoard = board.update(updateBoard);
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> {
-                    Board updatedBoard = board.update(updateBoard);
+                    board.isSamePassword(updatedBoard.getPassword());
                 })
                 .withMessageMatching("비밀번호가 다릅니다.");
     }
