@@ -28,7 +28,7 @@ CREATE TABLE tb_file (
     fileIdx BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     savedName varchar(255) NOT NULL,
     originalName varchar(255) NOT NULL,
-    size INT NOT NULL,
+    fileSize INT NOT NULL,
     boardIdx BIGINT NOT NULL
 );
 
@@ -83,7 +83,7 @@ INSERT INTO tb_comment (writer, password, content, regDate, boardIdx) VALUES
     ('테9', 'commentpass9!', 'Comment 9', '2023-05-18 18:30:00', 9),
     ('테10', 'commentpass10!', 'Comment 10', '2023-05-18 19:30:00', 10);
 
-INSERT INTO tb_file (savedName, originalName, size, boardIdx) VALUES
+INSERT INTO tb_file (savedName, originalName, fileSize, boardIdx) VALUES
     ('file1.png', 'Image 1.png', 1024, 1),
     ('file2.png', 'Image 2.png', 2048, 2),
     ('file3.png', 'Image 3.png', 3072, 3),
