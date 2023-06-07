@@ -3,6 +3,7 @@ package com.study.ebsoft.utils.validation;
 import com.study.ebsoft.domain.File;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,12 +29,11 @@ public class FileValidationUtils {
         validateFileSize(file.getFileSize());
     }
 
-    public static void find(File file) {
-        validateFileIdx(file.getFileIdx());
-        validateFileName(file.getSavedName());
-        validateFileName(file.getOriginalName());
-        validateFileSize(file.getFileSize());
-        validateBoardIdx(file.getBoardIdx());
+    public static void validateOnCreate(List<File> files) {
+        log.debug("validateOnCreate... 유효성 검증 -> files : {}", files);
+        for (File file : files) {
+            validateOnCreate(file);
+        }
     }
 
     private static boolean isValidPositive(Long value) {
