@@ -6,11 +6,32 @@
 <mapper namespace="com.study.ebsoft.mapper.CommentMapper">
 
     <select id="findAll" resultType="Comment" useCache="false" flushCache="true">
-        SELECT * FROM tb_comment co
+        SELECT *
+        FROM tb_comment co
     </select>
 
-    <delete id="deleteAllByBoardIdx" parameterType="Long">
-        DELETE FROM tb_comment WHERE boardIdx = #{boardIdx}
+    <select id="findByCommentIdx" parameterType="Long" resultType="Comment" useCache="false" flushCache="true">
+        SELECT *
+        FROM tb_comment co
+        WHERE commentIdx = #{commentIdx}
+    </select>
+
+    <delete id="delete" parameterType="Comment">
+        DELETE
+        FROM tb_comment
+        WHERE commentIdx = #{commentIdx}
+          AND password = #{password}
     </delete>
+
+    <delete id="deleteAllByBoardIdx" parameterType="Long">
+        DELETE
+        FROM tb_comment
+        WHERE boardIdx = #{boardIdx}
+    </delete>
+
+    <insert id="insert" parameterType="Comment" useGeneratedKeys="true" keyProperty="commentIdx">
+        INSERT INTO tb_comment (writer, password, content, regdate, boardIdx)
+        VALUES (#{writer}, #{password}, #{content}, NOW(), #{boardIdx})
+    </insert>
 
 </mapper>
