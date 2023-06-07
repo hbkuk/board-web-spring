@@ -1,10 +1,12 @@
 package com.study.ebsoft.utils.validation;
 
 import com.study.ebsoft.domain.File;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class FileValidationUtils {
 
     private static final int MIN_NUMBER_VALUE = 0;
@@ -18,11 +20,12 @@ public class FileValidationUtils {
     private static final String IMAGE_NAME_EXTENSION__REGEX = "\\.(\\w+)$";
     private static final Pattern EXTENSION_PATTERN_COMPILE = Pattern.compile(IMAGE_NAME_EXTENSION__REGEX);
 
-    public static void create(File file) {
+    public static void validateOnCreate(File file) {
+        log.debug("validateOnCreate... 유효성 검증 -> file : {}", file);
+
         validateFileName(file.getSavedName());
         validateFileName(file.getOriginalName());
         validateFileSize(file.getFileSize());
-        validateBoardIdx(file.getBoardIdx());
     }
 
     public static void find(File file) {
@@ -51,16 +54,19 @@ public class FileValidationUtils {
         }
     }
 
-    private static boolean isInvalidImageName(String fileName) {
-        Matcher matcher = getMatcher(fileName);
-        if (!matcher.find()) {
-            return true;
+    public static String extractFileExtension(String fileName) {
+        Matcher matcher = FileValidationUtils.EXTENSION_PATTERN_COMPILE.matcher(fileName);
+        if (matcher.find()) {
+            return matcher.group(1).toUpperCase();
         }
-        if (!FileNameExtension.contains(matcher.group(1).toUpperCase())) {
-            return true;
-        }
-        return false;
+        return null;
     }
+
+    private static boolean isInvalidImageName(String fileName) {
+        String extension = extractFileExtension(fileName);
+        return extension == null || !FileNameExtension.contains(extension);
+    }
+
 
     private static void validateBoardIdx(Long boardIdx) {
         if (!isValidPositive(boardIdx)) {
