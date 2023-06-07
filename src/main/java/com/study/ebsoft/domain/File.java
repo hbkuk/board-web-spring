@@ -3,9 +3,6 @@ package com.study.ebsoft.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Positive;
-
 /**
  * 파일을 나타내는 클래스입니다.
  *
@@ -52,4 +49,18 @@ public class File {
      * 게시글의 고유 식별자입니다.
      */
     private Long boardIdx;
+
+    /**
+     * 게시글 번호가 업데이트 된 File 객체를 리턴합니다.
+     *
+     * @param boardIdx 게시글 번호
+     */
+    public File  updateBoardIdx(Long boardIdx) {
+        return File.builder()
+                .originalName(this.originalName)
+                .savedName(this.savedName)
+                .fileSize(this.fileSize)
+                .boardIdx(boardIdx)
+                .build();
+    }
 }
