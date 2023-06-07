@@ -2,6 +2,7 @@ package com.study.ebsoft.service;
 
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.repository.BoardRepository;
+import com.study.ebsoft.utils.validation.BoardValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,7 @@ public class BoardService {
     }
 
     public void insert(Board board) {
+        BoardValidationUtils.validateOnCreate(board);
         boardRepository.insert(board);
     }
 

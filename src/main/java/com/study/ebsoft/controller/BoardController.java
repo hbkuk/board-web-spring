@@ -171,21 +171,15 @@ public class BoardController {
         Board board = Board.builder().categoryIdx(categoryIdx).title(title).writer(writer).content(content).password(password).build();
         List<File> files = FileUtils.toFilesAfterUpload(multipartFiles);
 
-        // 2. 유효성 검증
+        // 2. Service 유효성 검증, DB insert 로직 위임
         try {
-            BoardValidationUtils.validateOnCreate(board);
-            FileValidationUtils.validateOnCreate(files);
+            boardService.insert(board);
+            fileService.insert(files, board.getBoardIdx());
         } catch (IllegalArgumentException e) {
-            log.error("예외 발생 -> error : {}", e.getMessage());
-
             // 2-1. 예외 발생 -> 디렉토리 파일 삭제
             files.forEach(FileUtils::deleteFileFromServerDirectory);
             return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
         }
-
-        // 3. 데이터베이스 삽입
-        boardService.insert(board);
-        files.stream().forEach(file -> fileService.insert(file.updateBoardIdx(board.getBoardIdx())));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(board.getBoardIdx()); // Status Code 201
     }

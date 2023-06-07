@@ -6,6 +6,7 @@ import com.study.ebsoft.domain.File;
 import com.study.ebsoft.repository.CategoryRepository;
 import com.study.ebsoft.repository.FileRepository;
 import com.study.ebsoft.utils.FileUtils;
+import com.study.ebsoft.utils.validation.FileValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,14 @@ public class FileService {
     }
 
     public void insert(File file) {
+        FileValidationUtils.validateOnCreate(file);
         fileRepository.insert(file);
+    }
+
+    public void insert(List<File> files, Long boardIdx) {
+        for( File file : files ) {
+            insert(file.updateBoardIdx(boardIdx));
+        }
     }
 
     public List<File> findAllByBoardIdx(Long boardIdx) {
