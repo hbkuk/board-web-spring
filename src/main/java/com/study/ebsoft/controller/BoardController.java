@@ -1,220 +1,266 @@
 package com.study.ebsoft.controller;
 
-import com.oreilly.servlet.MultipartRequest;
-import com.study.ebsoft.dto.BoardDTO;
-import com.study.ebsoft.dto.FileDTO;
-import com.study.ebsoft.model.board.Board;
-import com.study.ebsoft.model.file.File;
+import com.study.ebsoft.domain.Board;
+import com.study.ebsoft.domain.Category;
+import com.study.ebsoft.domain.File;
 import com.study.ebsoft.service.BoardService;
-import com.study.ebsoft.utils.BuildUtils;
+import com.study.ebsoft.service.CategoryService;
+import com.study.ebsoft.service.CommentService;
+import com.study.ebsoft.service.FileService;
 import com.study.ebsoft.utils.FileUtils;
-import com.study.ebsoft.utils.SearchConditionUtils;
+import com.study.ebsoft.utils.validation.BoardValidationUtils;
+import com.study.ebsoft.utils.validation.FileValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
-@Controller
+@RestController()
 public class BoardController {
 
-    private BoardService boardService;
+    private final BoardService boardService;
+    private final CommentService commentService;
+    private final CategoryService categoryService;
+    private final FileService fileService;
 
     @Autowired
-    public BoardController(BoardService boardService) {
+    public BoardController(BoardService boardService, CommentService commentService, CategoryService categoryService, FileService fileService) {
         this.boardService = boardService;
-    }
-
-    /**
-     * 게시글 번호에 해당하는 게시글 정보를 응답합니다
-     *
-     * @throws NoSuchElementException 게시글 번호에 해당하는 게시물이 없는 경우 예외를 던집니다
-     */
-    @GetMapping("/board")
-    public ModelAndView showBoard(@RequestParam(name = "board_idx") Long boardIdx, ModelAndView mav) {
-        BoardDTO board = boardService.selectBoardWithDetails(boardIdx);
-        log.debug("showBoard 호출 -> : {}", board.toString());
-
-        mav.addObject("board", board);
-        mav.setViewName("board");
-        return mav;
+        this.commentService = commentService;
+        this.categoryService = categoryService;
+        this.fileService = fileService;
     }
 
     // TODO: 검색조건 동적쿼리
+
     /**
      * 검색조건(searchConditionQueryString)에 맞는 전체 게시물 리스트와 View를 응답합니다.
      */
     @GetMapping("/boards")
-    public ModelAndView showBoards(HttpServletRequest req, ModelAndView mav) {
+    public ResponseEntity<Object> findBoards(Map<String, Object> response) {
         //mav.addObject("boards", boardService.selectBoardsWithFileCheck(SearchConditionUtils.buildQueryCondition(req.getParameterMap())));
-        mav.addObject("boards", boardService.selectBoardsWithFileCheck());
-        mav.addObject("categories", boardService.selectAllCategory());
-        mav.setViewName("boards");
-        return mav;
+        log.debug("findBoards 호출");
+
+        response.put("boards", boardService.findAll());
+        response.put("files", fileService.findAll());
+        response.put("categories", categoryService.findAll());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
-     * 게시글 작성에 필요한 정보와 View를 응답합니다
+     * 게시글 번호에 해당하는 게시글 정보를 응답합니다
+     */
+    @GetMapping("/board/{boardIdx}")
+    public ResponseEntity<Object> findBoard(@PathVariable("boardIdx") Long boardIdx, Map<String, Object> response) {
+        log.debug("findBoard 호출 -> 게시글 번호 : {}", boardIdx);
+
+        response.put("boards", boardService.findByBoardIdx(boardIdx));
+        response.put("files", fileService.findAll());
+        response.put("comments", commentService.findAll());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    /**
+     * 게시글 작성에 필요한 정보 응답합니다
      */
     @GetMapping("/board/write")
-    public ModelAndView writeForm(HttpServletRequest req, ModelAndView mav) {
-        mav.addObject("categories", boardService.selectAllCategory());
-        mav.setViewName("boardWrite");
-        return mav;
+    public ResponseEntity<List<Category>> findBoardWriteForm() {
+        log.debug("findBoardWriteForm 호출");
+
+        List<Category> categories = categoryService.findAll();
+        return ResponseEntity.ok(categories);
     }
 
     /**
      * 게시물을 작성합니다
      */
-    @PostMapping("/board/write")
-    public ModelAndView boardWrite(HttpServletRequest req, RedirectAttributes redirectAttributes, ModelAndView mav) {
-        // TODO: 예외 발생 시 파일 삭제...
-        MultipartRequest multi = FileUtils.fileUpload(req);
+    @PostMapping("/board")
+    public ResponseEntity insertBoard(@RequestPart(value = "file", required = false) MultipartFile[] multipartFiles,
+                                      @RequestParam(value = "categoryIdx") Integer categoryIdx,
+                                      @RequestParam(value = "title") String title,
+                                      @RequestParam(value = "writer") String writer,
+                                      @RequestParam(value = "content") String content,
+                                      @RequestParam(value = "password") String password) {
+        log.debug("insertBoard 호출");
 
-        BoardDTO board = null;
-        List<FileDTO> files = null;
+        // 1-1. Board 도메인 객체 생성
+        Board board = Board.builder().categoryIdx(categoryIdx).title(title).writer(writer).content(content).password(password).build();
+        // 1-2. File 저장 후 도메인 객체 생성
+        List<File> files = FileUtils.toFilesAfterUpload(multipartFiles);
+
+        // 2. 유효성 검증
         try {
-            // TODO: 메서드 병합
-            board = BuildUtils.buildWriteBoardFromRequest(multi);
-            files = BuildUtils.buildFilesFromRequest(multi);
+            BoardValidationUtils.validateOnCreate(board);
+            files.forEach(FileValidationUtils::validateOnCreate);
         } catch (IllegalArgumentException e) {
-            log.error("error : {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            // 2-1. 예외 발생 -> 디렉토리 파일 삭제
+            log.error("예외 발생 -> error : {}", e.getMessage());
 
-            mav.setViewName("redirect:/board/write");
-            return mav;
+            files.forEach(FileUtils::deleteFileFromServerDirectory);
+            return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
         }
-        board.setFiles(files);
 
-        BoardDTO boardDTO = boardService.insertBoardWithFiles(board);
+        // 3. 데이터베이스 삽입
+        boardService.insert(board);
+        files.stream().forEach(file -> fileService.insert(file.updateBoardIdx(board.getBoardIdx())));
 
-        mav.addObject("board_idx", boardDTO.getBoardIdx());
-        mav.setViewName("redirect:/board");
-        return mav;
+        return ResponseEntity.ok(board.getBoardIdx()); // Status Code 200
     }
 
     /**
      * 게시글 번호에 해당하는 게시글 정보를 응답합니다
      *
-     * @throws NoSuchElementException 게시글 번호에 해당하는 게시물이 없는 경우 예외를 던집니다
+     * @param boardIdx 게시물 번호
+     * @param response 응답 객체
+     * @return 게시물 정보
      */
-    @GetMapping("/board/modify")
-    public ModelAndView boardModifyForm(@RequestParam(name = "board_idx") Long boardIdx, ModelAndView mav) {
-        mav.addObject("board", boardService.selectBoardWithFiles(boardIdx));
-        mav.setViewName("boardModify");
-        return mav;
+    @GetMapping("/board/modify/{boardIdx}")
+    public ResponseEntity<Object> findBoardModifyForm(@PathVariable("boardIdx") Long boardIdx, Map<String, Object> response) {
+        log.debug("findBoardModifyForm 호출 -> 게시글 번호 : {}", boardIdx);
+
+        response.put("boards", boardService.findByBoardIdx(boardIdx));
+        response.put("files", fileService.findAllByBoardIdx(boardIdx));
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
-     * 게시물 번호에 해당하는 게시물을 수정합니다
-     */
-    @PostMapping("/board/modify")
-    public ModelAndView boardModify(HttpServletRequest req, RedirectAttributes redirectAttributes, ModelAndView mav) {
-        MultipartRequest multi = FileUtils.fileUpload(req);
-
-        // TODO: Error Message에 패스워드는 영문, 숫자, 특수문자가 포함되어 있어야 합니다.가 포함됨. BoardDTO 객체를 사용할 것.
-        BoardDTO updateBoard = null;
-        List<FileDTO> newUploadFiles = null;
-        try {
-            updateBoard = BuildUtils.buildModifyBoardFromRequest(multi);
-            newUploadFiles = BuildUtils.buildFilesFromRequest(multi);
-        } catch (IllegalArgumentException e) {
-            log.error("error : {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-
-            mav.addObject("board_idx", Long.parseLong(multi.getParameter("board_idx")));
-            mav.setViewName("redirect:/board/modify");
-            return mav;
-        }
-        updateBoard.setFiles(newUploadFiles);
-
-        List<Long> previouslyUploadedIndexes = new ArrayList<Long>();
-        if (multi.getParameter("file_idx") != null) {
-            for (String item : multi.getParameterValues("file_idx")) {
-                previouslyUploadedIndexes.add(Long.parseLong(item));
-            }
-        }
-
-        try {
-            boardService.updateBoardWithFiles(updateBoard, previouslyUploadedIndexes);
-        } catch (IllegalArgumentException e) {
-            log.error("error : {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-
-            mav.addObject("board_idx", Long.parseLong(multi.getParameter("board_idx")));
-            mav.setViewName("redirect:/board/modify");
-            return mav;
-        }
-        mav.addObject("board_idx", updateBoard.getBoardIdx());
-        mav.setViewName("redirect:/board");
-        log.debug("redirect URI : {}", mav.getViewName());
-        return mav;
-    }
-
-    /**
-     * 게시글 번호에 해당하는 게시글 수정 정보를 응답합니다
+     * 게시글 번호에 해당하는 게시글 삭제 정보를 응답합니다
      *
-     * @throws NoSuchElementException 게시글 번호에 해당하는 게시물이 없는 경우 예외를 던집니다
+     * @param boardIdx 게시물 번호
+     * @return 게시물 정보
      */
     @GetMapping("/board/delete")
-    public ModelAndView boardDeleteForm(@RequestParam(name = "board_idx") Long boardIdx, ModelAndView mav) {
-        mav.addObject("board", boardService.selectBoardWithDetails(boardIdx));
-        mav.setViewName("boardDelete");
-        return mav;
+    public ResponseEntity<Board> deleteBoardForm(@PathVariable("boardIdx") Long boardIdx) {
+        log.debug("findBoardModifyForm 호출 -> 게시글 번호 : {}", boardIdx);
+        return ResponseEntity.ok(boardService.findByBoardIdx(boardIdx));
     }
 
     /**
      * 게시물 번호에 해당하는 게시물 삭제을 삭제합니다
      */
-    @PostMapping("/board/delete")
-    public ModelAndView boardDelete(RedirectAttributes redirectAttributes,
-                             ModelAndView mav,
-                             @ModelAttribute BoardDTO deleteBoard,
-                             @RequestParam("board_idx") Long boardIdx,
-                             @RequestParam("password") String password) {
+    @DeleteMapping("/board/{boardIdx}")
+    public ResponseEntity deleteBoard(@PathVariable("boardIdx") Long boardIdx, @RequestParam(value = "password") String password) {
+        log.debug("findBoardModifyForm 호출 -> 게시글 번호 : {}", boardIdx);
 
-        deleteBoard.setBoardIdx(boardIdx);
-        deleteBoard.setPassword(password);
-
-        try {
-            boardService.deleteBoardWithFilesAndComment(deleteBoard);
-        } catch (IllegalArgumentException e) {
-            log.error("error : {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-
-            mav.addObject("board_idx", deleteBoard.getBoardIdx());
-            mav.setViewName("redirect:/board");
-            log.debug("redirect URI : {}", mav.getViewName());
-            return mav;
+        // 1. 게시글 확인
+        Board board = boardService.findByBoardIdx(boardIdx);
+        if (board == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 글을 찾을 수 없습니다."); // Status Code 404
         }
-        mav.setViewName("redirect:/boards");
-        log.debug("redirect URI : {}", mav.getViewName());
-        return mav;
+
+        // TODO: ENUM으로 분리
+        // 2. 패스워드 확인
+        if (!board.canDelete(password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 올바르지 않습니다."); // Status Code 401
+        }
+
+        // 3. 댓글 -> 파일 -> 게시글 삭제
+        commentService.deleteAllByBoardIdx(board);
+        fileService.deleteAllByBoardIdx(board);
+        boardService.delete(board);
+
+        return ResponseEntity.ok().body("게시물이 성공적으로 삭제되었습니다."); // Status Code 200
     }
 
     /**
      * 파일 번호에 해당하는 파일을 응답합니다
      */
-    @GetMapping("/download")
-    public void download(@RequestParam(name = "file_idx") Long fileIdx, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        FileDTO fileDTO = boardService.findFileById(fileIdx);
-        if (fileDTO == null) {
-            throw new NoSuchElementException("파일을 찾지 못했습니다.");
+    @GetMapping("/download/{fileIdx}")
+    public ResponseEntity serveDownloadFile(@PathVariable("fileIdx") Long fileIdx) {
+        log.debug("serveDownloadFile 호출 -> 파일 번호 : {}", fileIdx);
+
+        // 1. 파일 확인
+        File file = fileService.findByFileIdx(fileIdx);
+        if (file == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 파일을 찾을 수 없습니다."); // Status Code 404
         }
 
-        FileUtils.serveDownloadFile(req, resp, fileDTO.getSavedFileName(), fileDTO.getOriginalFileName());
+        // 2. 파일을 바이트 배열로 변환
+        byte[] fileContent = FileUtils.convertByteArray(file.getSavedName());
+
+        // 3. 다운로드 응답 헤더 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", FileUtils.generateEncodedName(file));
+        headers.setContentLength(fileContent.length);
+
+        return ResponseEntity.ok().headers(headers).body(fileContent);
+    }
+
+    /**
+     * 게시물 번호에 해당하는 게시물을 수정합니다
+     */
+    @PutMapping("/board/{boardIdx}")
+    public ResponseEntity updateBoard(@PathVariable("boardIdx") Long boardIdx,
+                                      @RequestPart(value = "file", required = false) MultipartFile[] multipartFiles,
+                                      @RequestParam(value = "categoryIdx") Integer categoryIdx,
+                                      @RequestParam(value = "title") String title,
+                                      @RequestParam(value = "writer") String writer,
+                                      @RequestParam(value = "content") String content,
+                                      @RequestParam(value = "password") String password,
+                                      @RequestParam(value = "fileIdx", required = false) List<Long> previouslyUploadedIndexes) {
+        // 1-1. 게시글 원본 가져오기
+        Board board = boardService.findByBoardIdx(boardIdx);
+
+        // 1-2. 게시글 원본 확인
+        if (board == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 글을 찾을 수 없습니다."); // Status Code 404
+        }
+
+        // 2-1. update Board 도메인 객체 생성
+        Board updateBoard = Board.builder().boardIdx(boardIdx).categoryIdx(categoryIdx).title(title).writer(writer).content(content).password(password).build();
+
+        // 2-2. 유효성 검증
+        try {
+            BoardValidationUtils.validateOnUpdate(updateBoard);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
+        }
+
+        // 2-3. 패스워드 체크
+        if( !board.canUpdate(updateBoard.getPassword()) ) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 올바르지 않습니다."); // Status Code 401
+        }
+        // 3-1. 업데이트된 도메인 객체
+        Board updatedBoard = board.update(updateBoard);
+
+        // 3-2. File 저장 후 도메인 객체 생성
+        List<File> files = FileUtils.toFilesAfterUpload(multipartFiles);
+
+        // 3-3. 유효성 검증
+        try {
+            files.forEach(FileValidationUtils::validateOnCreate);
+        } catch (IllegalArgumentException e) {
+            // 3-4. 예외 발생 -> 디렉토리 파일 삭제
+            files.forEach(FileUtils::deleteFileFromServerDirectory);
+            return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
+        }
+
+        // 4-1. 데이터베이스에 저장된 기존 파일 인덱스와 인자로 받은 인덱스를 비교
+        List<Long> indexesToDelete = new ArrayList<>(fileService.findAllIndexesByBoardIdx(boardIdx));
+        if(previouslyUploadedIndexes != null && !previouslyUploadedIndexes.isEmpty()) {
+            indexesToDelete.removeAll(previouslyUploadedIndexes);
+        }
+
+        // 5-1. 게시물 수정
+        boardService.update(updatedBoard);
+        // 5-2. 파일 저장
+        files.stream().forEach(file -> fileService.insert(file.updateBoardIdx(board.getBoardIdx())));
+        // 5-3. 파일 삭제
+        indexesToDelete.stream().forEach(fileIdx -> fileService.delete(fileIdx));
+
+
+        return ResponseEntity.ok().body("게시물이 성공적으로 수정되었습니다."); // Status Code 200
     }
 }
