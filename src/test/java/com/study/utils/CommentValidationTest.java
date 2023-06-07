@@ -22,7 +22,7 @@ public class CommentValidationTest {
                 .boardIdx(1L)
                 .build();
 
-        CommentValidationUtils.create(comment);
+        CommentValidationUtils.validateOnCreate(comment);
     }
 
     @Nested
@@ -40,7 +40,7 @@ public class CommentValidationTest {
                     .content("내용 1")
                     .boardIdx(1L)
                     .build();
-            CommentValidationUtils.create(comment);
+            CommentValidationUtils.validateOnCreate(comment);
         }
 
         @DisplayName("3글자 미만 5글자 이상인 경우 예외가 발생한다.")
@@ -55,7 +55,7 @@ public class CommentValidationTest {
                                 .content("내용 1")
                                 .boardIdx(1L)
                                 .build();
-                        CommentValidationUtils.create(comment);
+                        CommentValidationUtils.validateOnCreate(comment);
                     })
                     .withMessageMatching("작성자는 3글자 이상, 4글자 이하로 입력해야 합니다.");
 
@@ -81,7 +81,7 @@ public class CommentValidationTest {
                                     .content("내용 1")
                                     .boardIdx(1L)
                                     .build();
-                            CommentValidationUtils.create(comment);
+                            CommentValidationUtils.validateOnCreate(comment);
                         })
                         .withMessageMatching("패스워드는 4글자 이상, 15글자 이하로 입력해야 합니다.");
             }
@@ -97,7 +97,7 @@ public class CommentValidationTest {
                         .content("내용 1")
                         .boardIdx(1L)
                         .build();
-                CommentValidationUtils.create(comment);
+                CommentValidationUtils.validateOnCreate(comment);
             }
         }
 
@@ -117,7 +117,7 @@ public class CommentValidationTest {
                         .boardIdx(1L)
                         .build();
 
-                CommentValidationUtils.create(comment);
+                CommentValidationUtils.validateOnCreate(comment);
             }
 
             @DisplayName("영문, 숫자, 특수문자가 포함되어 있지 않다면 예외가 발생한다.")
@@ -133,7 +133,7 @@ public class CommentValidationTest {
                                     .content("내용 1")
                                     .boardIdx(1L)
                                     .build();
-                            CommentValidationUtils.create(comment);
+                            CommentValidationUtils.validateOnCreate(comment);
                         })
                         .withMessageMatching("패스워드는 영문, 숫자, 특수문자를 포함해야 합니다.");
             }
@@ -162,7 +162,7 @@ public class CommentValidationTest {
                     .boardIdx(1L)
                     .build();
 
-            CommentValidationUtils.create(commentA);
+            CommentValidationUtils.validateOnCreate(commentA);
 
             Comment commentB = Comment.builder()
                     .writer("테스터")
@@ -171,7 +171,7 @@ public class CommentValidationTest {
                     .boardIdx(1L)
                     .build();
 
-            CommentValidationUtils.create(commentB);
+            CommentValidationUtils.validateOnCreate(commentB);
         }
 
         @Test
@@ -192,7 +192,7 @@ public class CommentValidationTest {
                                 .content(shortContent)
                                 .boardIdx(1L)
                                 .build();
-                        CommentValidationUtils.create(comment);
+                        CommentValidationUtils.validateOnCreate(comment);
                     })
                     .withMessageMatching("내용은 4글자 이상, 1000글자 이하로 입력해야 합니다.");
 
@@ -204,7 +204,7 @@ public class CommentValidationTest {
                                 .content(longContent.toString())
                                 .boardIdx(1L)
                                 .build();
-                        CommentValidationUtils.create(comment);
+                        CommentValidationUtils.validateOnCreate(comment);
                     })
                     .withMessageMatching("내용은 4글자 이상, 1000글자 이하로 입력해야 합니다.");
         }

@@ -3,7 +3,6 @@ package com.study.ebsoft.utils.validation;
 import com.study.ebsoft.domain.Comment;
 
 import java.time.LocalDateTime;
-import java.util.regex.Pattern;
 
 public class CommentValidationUtils {
 
@@ -21,22 +20,14 @@ public class CommentValidationUtils {
     private static final int MAX_PASSWORD_VALUE = 15;
 
 
-    public static void create(Comment comment) {
+    public static void validateOnCreate(Comment comment) {
         validateWriter(comment.getWriter());
         validateContent(comment.getContent());
         validatePassword(comment.getPassword());
-    }
-
-    public static void update(Comment comment) {
-        validateCommentIdx(comment.getCommentIdx());
-        validateWriter(comment.getWriter());
-        validateContent(comment.getContent());
-        validatePassword(comment.getPassword());
-        validateRegDate(comment.getRegDate());
         validateBoardIdx(comment.getBoardIdx());
     }
 
-    public static void delete(Comment comment) {
+    public static void validateOnDelete(Comment comment) {
         validateCommentIdx(comment.getCommentIdx());
         isEmpty(comment.getPassword());
     }
