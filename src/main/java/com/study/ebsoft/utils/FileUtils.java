@@ -83,7 +83,7 @@ public class FileUtils {
     }
 
     // TODO: javadoc
-    public static List<com.study.ebsoft.domain.File> toFilesAfterUpload(MultipartFile[] multipartFiles) {
+    public static List<com.study.ebsoft.domain.File> toFilesAfterUpload(MultipartFile[] multipartFiles, Long boardIdx) {
         List<com.study.ebsoft.domain.File> files = new ArrayList<>();
 
         if (hasExistFile(multipartFiles)) {
@@ -109,6 +109,7 @@ public class FileUtils {
                             .savedName(systemName)
                             .originalName(fileName)
                             .fileSize(fileSize)
+                            .boardIdx(boardIdx)
                             .build();
                     files.add(file);
                 }

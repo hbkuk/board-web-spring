@@ -3,6 +3,7 @@ package com.study.ebsoft.controller;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.domain.Category;
 import com.study.ebsoft.domain.File;
+import com.study.ebsoft.exception.InvalidPasswordException;
 import com.study.ebsoft.service.BoardService;
 import com.study.ebsoft.service.CategoryService;
 import com.study.ebsoft.service.CommentService;
@@ -169,7 +170,7 @@ public class BoardController {
 
         // 1. 도메인 객체 생성
         Board board = Board.builder().categoryIdx(categoryIdx).title(title).writer(writer).content(content).password(password).build();
-        List<File> files = FileUtils.toFilesAfterUpload(multipartFiles);
+        List<File> files = FileUtils.toFilesAfterUpload(multipartFiles, board.getBoardIdx());
 
         // 2. Service 유효성 검증, DB insert 로직 위임
         try {
@@ -188,7 +189,7 @@ public class BoardController {
      * 게시물 번호에 해당하는 게시물을 수정합니다
      */
     @PutMapping("/board/{boardIdx}")
-    public ResponseEntity updateBoard(@PathVariable("boardIdx") Long boardIdx,
+    public ResponseEntity<?> updateBoard(@PathVariable("boardIdx") Long boardIdx,
                                       @RequestPart(value = "file", required = false) MultipartFile[] multipartFiles,
                                       @RequestParam(value = "categoryIdx") Integer categoryIdx,
                                       @RequestParam(value = "title") String title,
@@ -196,65 +197,39 @@ public class BoardController {
                                       @RequestParam(value = "content") String content,
                                       @RequestParam(value = "password") String password,
                                       @RequestParam(value = "fileIdx", required = false) List<Long> previouslyUploadedIndexes) {
-        // 1-1. 게시글 원본 가져오기
-        Board board = boardService.findByBoardIdx(boardIdx);
+        log.debug("updateBoard 호출");
 
-        // 1-2. 게시글 원본 확인
+        // 1-1. 게시글 원본 확인
+        Board board = boardService.findByBoardIdx(boardIdx);
         if (board == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 글을 찾을 수 없습니다."); // Status Code 404
         }
 
-        // 2-1. update Board 도메인 객체 생성
+        // 2-1. 도메인 객체 생성
         Board updateBoard = Board.builder().boardIdx(boardIdx).categoryIdx(categoryIdx).title(title).writer(writer).content(content).password(password).build();
+        List<File> newFiles = FileUtils.toFilesAfterUpload(multipartFiles, boardIdx);
 
-        // 2-2. 유효성 검증
         try {
-            BoardValidationUtils.validateOnUpdate(updateBoard);
+            boardService.update(board, updateBoard);
+            fileService.update(newFiles, previouslyUploadedIndexes);
         } catch (IllegalArgumentException e) {
+            // 유효성 검증 실패
+            FileUtils.deleteFilesFromServerDirectory(newFiles);
             return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
+        } catch (InvalidPasswordException e) {
+            // 패스워드 불일치
+            FileUtils.deleteFilesFromServerDirectory(newFiles);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage()); // Status Code 401
         }
-
-        // 2-3. 패스워드 체크
-        if( !board.canUpdate(password) ) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 올바르지 않습니다."); // Status Code 401
-        }
-        // 3-1. 업데이트된 도메인 객체
-        Board updatedBoard = board.update(updateBoard);
-
-        // 3-2. File 저장 후 도메인 객체 생성
-        List<File> files = FileUtils.toFilesAfterUpload(multipartFiles);
-
-        // 3-3. 유효성 검증
-        try {
-            files.forEach(FileValidationUtils::validateOnCreate);
-        } catch (IllegalArgumentException e) {
-            // 3-4. 예외 발생 -> 디렉토리 파일 삭제
-            files.forEach(FileUtils::deleteFileFromServerDirectory);
-            return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
-        }
-
-        // 4-1. 데이터베이스에 저장된 기존 파일 인덱스와 인자로 받은 인덱스를 비교
-        List<Long> indexesToDelete = new ArrayList<>(fileService.findAllIndexesByBoardIdx(boardIdx));
-        if(previouslyUploadedIndexes != null && !previouslyUploadedIndexes.isEmpty()) {
-            indexesToDelete.removeAll(previouslyUploadedIndexes);
-        }
-
-        // 5-1. 게시물 수정
-        boardService.update(updatedBoard);
-        // 5-2. 파일 저장
-        files.stream().forEach(file -> fileService.insert(file.updateBoardIdx(board.getBoardIdx())));
-        // 5-3. 파일 삭제
-        indexesToDelete.stream().forEach(fileIdx -> fileService.delete(fileIdx));
-
-
-        return ResponseEntity.ok().body("게시물이 성공적으로 수정되었습니다."); // Status Code 200
+        return ResponseEntity.status(HttpStatus.CREATED).body(board.getBoardIdx()); // Status Code 201
     }
 
     /**
      * 게시물 번호에 해당하는 게시물 삭제을 삭제합니다
      */
     @DeleteMapping("/board/{boardIdx}")
-    public ResponseEntity deleteBoard(@PathVariable("boardIdx") Long boardIdx, @RequestParam(value = "password") String password) {
+    public ResponseEntity deleteBoard(@PathVariable("boardIdx") Long boardIdx,
+                                      @RequestParam(value = "password") String password) {
         log.debug("findBoardModifyForm 호출 -> 게시글 번호 : {}", boardIdx);
 
         // 1. 게시글 확인

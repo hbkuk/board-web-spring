@@ -1,9 +1,7 @@
 package com.study.ebsoft.service;
 
 import com.study.ebsoft.domain.Board;
-import com.study.ebsoft.domain.Category;
 import com.study.ebsoft.domain.File;
-import com.study.ebsoft.repository.CategoryRepository;
 import com.study.ebsoft.repository.FileRepository;
 import com.study.ebsoft.utils.FileUtils;
 import com.study.ebsoft.utils.validation.FileValidationUtils;
@@ -11,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -39,7 +38,7 @@ public class FileService {
     }
 
     public void insert(List<File> files, Long boardIdx) {
-        for( File file : files ) {
+        for (File file : files) {
             insert(file.updateBoardIdx(boardIdx));
         }
     }
@@ -67,5 +66,29 @@ public class FileService {
     public void delete(Long fileIdx) {
         FileUtils.deleteUploadedFile(findByFileIdx(fileIdx).getSavedName());
         fileRepository.delete(fileIdx);
+    }
+
+    public void delete(List<Long> fileIndexes) {
+        for (Long fileIdx : fileIndexes) {
+            delete(fileIdx);
+        }
+    }
+
+    public void update(List<File> newFiles, List<Long> previouslyUploadedIndexes) {
+
+        FileValidationUtils.validateOnCreate(newFiles);
+
+        // 데이터베이스에 저장된 기존 파일 인덱스와 인자로 받은 인덱스를 비교
+        List<Long> indexesToDelete = new ArrayList<>(findAllIndexesByBoardIdx(newFiles.get(0).getBoardIdx()));
+        if (isNotNull(previouslyUploadedIndexes)) {
+            indexesToDelete.removeAll(previouslyUploadedIndexes);
+        }
+
+        insert(newFiles, newFiles.get(0).getBoardIdx());
+        delete(indexesToDelete);
+    }
+
+    private boolean isNotNull(List<Long> previouslyUploadedIndexes) {
+        return previouslyUploadedIndexes != null && !previouslyUploadedIndexes.isEmpty();
     }
 }

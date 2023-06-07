@@ -1,6 +1,7 @@
 package com.study.ebsoft.service;
 
 import com.study.ebsoft.domain.Board;
+import com.study.ebsoft.exception.InvalidPasswordException;
 import com.study.ebsoft.repository.BoardRepository;
 import com.study.ebsoft.utils.validation.BoardValidationUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +54,14 @@ public class BoardService {
         boardRepository.delete(board);
     }
 
-    public void update(Board board) {
-        boardRepository.update(board);
+    public void update(Board board, Board updateBoard) {
+
+        BoardValidationUtils.validateOnUpdate(updateBoard);
+
+        if( !board.canUpdate(updateBoard.getPassword()) ) {
+            throw new InvalidPasswordException("비밀번호가 다릅니다.");
+        }
+
+        boardRepository.update(board.update(updateBoard));
     }
 }
