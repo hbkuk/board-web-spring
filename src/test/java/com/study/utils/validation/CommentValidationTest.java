@@ -1,4 +1,4 @@
-package com.study.utils;
+package com.study.utils.validation;
 
 import com.study.ebsoft.domain.Comment;
 import com.study.ebsoft.utils.validation.CommentValidationUtils;

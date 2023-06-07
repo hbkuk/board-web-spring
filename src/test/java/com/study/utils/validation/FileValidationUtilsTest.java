@@ -1,4 +1,4 @@
-package com.study.utils;
+package com.study.utils.validation;
 
 import com.study.ebsoft.domain.File;
 import com.study.ebsoft.utils.validation.FileValidationUtils;
@@ -7,6 +7,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
@@ -173,4 +177,57 @@ public class FileValidationUtilsTest {
                     .withMessageMatching("파일의 크기는 1 이상, 10485760 byte 이하여야만 합니다.");
         }
     }
+
+    @Test
+    @DisplayName("리스트가 전달되면 순서대로 유효성 검증이 진행된다.")
+    void validate_files() {
+        // given
+        File fileA = File.builder()
+                .savedName("test.jpg")
+                .originalName("test.jpg")
+                .fileSize(1_048_576)
+                .boardIdx(1L)
+                .build();
+
+        File fileB = File.builder()
+                .savedName("test.jpg")
+                .originalName("test.jpg")
+                .fileSize(1_048_576)
+                .boardIdx(1L)
+                .build();
+
+        // when
+        List<File> files = Arrays.asList(fileA, fileB);
+        FileValidationUtils.validateOnCreate(files);
+
+    }
+
+    @Test
+    @DisplayName("리스트가 전달되면 순서대로 유효성 검증이 진행되고, 예외가 발생할 수 있다.")
+    void invalidate_files() {
+        // given
+        File fileA = File.builder()
+                .savedName("test.jg")
+                .originalName("test.jpg")
+                .fileSize(1_048_576)
+                .boardIdx(1L)
+                .build();
+
+        File fileB = File.builder()
+                .savedName("test.jpg")
+                .originalName("test.jpg")
+                .fileSize(1_048_576)
+                .boardIdx(1L)
+                .build();
+
+        // when
+        List<File> files = Arrays.asList(fileA, fileB);
+
+        // then
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> {
+                    FileValidationUtils.validateOnCreate(files);
+                }).withMessageMatching("유효하지 않은 확장자입니다.");
+    }
+
 }
