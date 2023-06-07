@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 
 /**
@@ -38,6 +37,9 @@ public class Board {
      */
     private final Integer categoryIdx;
 
+    /**
+     * 카테고리 내용입니다.
+     */
     private final String categoryName;
 
     /**
@@ -56,9 +58,8 @@ public class Board {
     private final String content;
 
     /**
-     * 게시글의 비밀번호입니다. (JSON 직렬화 시 숨김 처리)
+     * 게시글의 비밀번호입니다.
      */
-    @JsonIgnore
     private final String password;
 
     /**
@@ -75,16 +76,6 @@ public class Board {
      * 수정일시입니다.
      */
     private final LocalDateTime modDate;
-
-    /**
-     * 댓글입니다.
-     */
-    private final List<Comment> comments;
-
-    /**
-     * 파일입니다.
-     */
-    private final List<File> files;
 
     /**
      * 입력받은 비밀번호와 현재 객체의 비밀번호가 일치하다면 true, 그렇지 않으면 false를 리턴합니다
@@ -114,6 +105,26 @@ public class Board {
                 .regDate(this.regDate)
                 .modDate(LocalDateTime.now())
                 .build();
+    }
+
+    /**
+     * 인자로 받은 패스워드로 게시글을 삭제할 수 있다면 true, 그렇지 않다면 false를 리턴합니다.
+     *
+     * @param password 비밀번호
+     * @return 게시글을 삭제할 수 있다면 true, 그렇지 않다면 false를 리턴합니다.
+     */
+    public boolean canDelete(String password) {
+        return isSamePassword(password);
+    }
+
+    /**
+     * 인자로 받은 패스워드로 게시글을 수정할 수 있다면 true, 그렇지 않다면 false를 리턴합니다.
+     *
+     * @param password 비밀번호
+     * @return 게시글을 수정할 수 있다면 true, 그렇지 않다면 false를 리턴합니다.
+     */
+    public boolean canUpdate(String password) {
+        return isSamePassword(password);
     }
 }
 
