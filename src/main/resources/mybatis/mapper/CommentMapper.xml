@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.ebsoft.mapper.CommentMapper">
+
+    <select id="findAll" resultType="Comment" useCache="false" flushCache="true">
+        SELECT * FROM tb_comment co
+    </select>
+
+    <delete id="deleteAllByBoardIdx" parameterType="Long">
+        DELETE FROM tb_comment WHERE boardIdx = #{boardIdx}
+    </delete>
+
+</mapper>

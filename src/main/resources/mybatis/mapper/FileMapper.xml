@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.ebsoft.mapper.FileMapper">
+
+    <select id="findAll" resultType="File" useCache="false" flushCache="true">
+        SELECT *
+        FROM tb_file f
+    </select>
+
+    <select id="findAllByBoardIdx" resultType="File" useCache="false" flushCache="true">
+        SELECT *
+        FROM tb_file f
+        WHERE boardIdx = #{boardIdx};
+    </select>
+
+    <select id="findByFileIdx" resultType="File">
+        SELECT *
+        FROM tb_file f
+        where fileIdx = #{fileIdx}
+    </select>
+
+    <select id="findAllIndexesByBoardIdx" resultType="Long">
+        SELECT fileIdx
+        FROM tb_file
+        WHERE boardIdx = #{boardIdx}
+    </select>
+
+    <insert id="insert" parameterType="File" useGeneratedKeys="true" keyProperty="fileIdx">
+        INSERT INTO tb_file (savedName, originalName, fileSize, boardIdx)
+        VALUES (#{savedName}, #{originalName}, #{fileSize}, #{boardIdx});
+    </insert>
+
+    <delete id="deleteFile" parameterType="Long">
+        DELETE
+        FROM tb_file
+        WHERE fileIdx = #{fileIdx}
+    </delete>
+
+    <delete id="deleteAllByBoardIdx" parameterType="Long">
+        DELETE
+        FROM tb_file
+        WHERE boardIdx = #{boardIdx}
+    </delete>
+
+    <delete id="delete" parameterType="Long">
+        DELETE FROM tb_file WHERE fileIdx = #{fileIdx}
+    </delete>
+
+</mapper>

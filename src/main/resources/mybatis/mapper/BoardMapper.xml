@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.ebsoft.mapper.BoardMapper">
+
+    <select id="findAll" resultType="Board" useCache="false" flushCache="true">
+        SELECT b.boardIdx,
+               c.categoryIdx,
+               c.name AS categoryName,
+               b.title,
+               b.writer,
+               b.content,
+               b.password,
+               b.hit,
+               b.regDate,
+               b.modDate
+        FROM tb_board b
+                 JOIN tb_category c ON b.categoryIdx = c.categoryIdx
+    </select>
+
+    <select id="findByBoardIdx" parameterType="Long" resultType="Board" useCache="false" flushCache="true">
+        SELECT b.boardIdx,
+               c.categoryIdx,
+               c.name AS categoryName,
+               b.title,
+               b.writer,
+               b.content,
+               b.password,
+               b.hit,
+               b.regdate,
+               b.moddate
+        FROM tb_board b
+                 JOIN tb_category c ON b.categoryIdx = c.categoryIdx
+        WHERE b.boardIdx = #{boardIdx};
+    </select>
+
+    <update id="increaseHit" parameterType="Long">
+        UPDATE tb_board
+        SET hit = hit + 1
+        WHERE boardIdx = #{boardIdx}
+    </update>
+
+    <insert id="insertBoard" parameterType="Board" useGeneratedKeys="true" keyProperty="boardIdx">
+        INSERT INTO tb_board (categoryIdx, title, writer, content, password, hit, regdate)
+        VALUES (#{categoryIdx}, #{title}, #{writer}, #{content},
+                #{password}, 0, NOW());
+    </insert>
+
+    <update id="update" parameterType="Board">
+        UPDATE tb_board
+        SET title   = #{title},
+            writer  = #{writer},
+            content = #{content},
+            moddate = #{modDate}
+        WHERE boardIdx = #{boardIdx}
+          and password = #{password}
+    </update>
+
+    <delete id="delete" parameterType="Board">
+        DELETE
+        FROM tb_board
+        WHERE boardIdx = #{boardIdx}
+          and password = #{password}
+    </delete>
+
+</mapper>
