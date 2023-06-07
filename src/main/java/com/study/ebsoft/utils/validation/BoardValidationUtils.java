@@ -1,9 +1,11 @@
 package com.study.ebsoft.utils.validation;
 
 import com.study.ebsoft.domain.Board;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 public class BoardValidationUtils {
 
     private static final String PASSWORD_REGEX = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$";
@@ -23,7 +25,9 @@ public class BoardValidationUtils {
     private static final int MAX_PASSWORD_VALUE = 15;
 
 
-    public static void create(Board board) {
+    public static void validateOnCreate(Board board) {
+        log.debug("validateOnCreate... 유효성 검증 -> board : {} ", board.toString());
+
         validateCategoryIdx(board.getCategoryIdx());
         validateTitle(board.getTitle());
         validateWriter(board.getWriter());
@@ -31,8 +35,10 @@ public class BoardValidationUtils {
         validatePassword(board.getPassword());
     }
 
-    public static void update(Board board) {
-        validateBoardIdx(board.getBoardIdx());
+    public static void validateOnUpdate(Board board) {
+        log.debug("validateOnUpdate.... 유효성 검증 -> board : {} ", board.toString());
+
+        //validateBoardIdx(board.getBoardIdx());
         validateCategoryIdx(board.getCategoryIdx());
         validateTitle(board.getTitle());
         validateWriter(board.getWriter());
