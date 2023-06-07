@@ -1,12 +1,16 @@
 package com.study.ebsoft.utils;
 
-import com.oreilly.servlet.MultipartRequest;
-import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
+import com.study.ebsoft.utils.validation.FileValidationUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * 게시글 작성 또는 수정시
@@ -15,30 +19,10 @@ import java.io.*;
 @Slf4j
 public class FileUtils {
 
-    public static final String UPLOAD_PATH = "C:\\git\\ebrain\\eb-study-templates-3week\\ebsoft\\src\\main\\webapp\\upload";
+    public static final String UPLOAD_PATH = "C:\\upload\\";
     private static final int MAX_FILE_SIZE = 2 * 1024 * 1024;
 
-    /**
-     * HttpServletRequest 를 인자로 받아 MultipartRequest 생성하고 리턴합니다.
-     *
-     * @param request HttpServletRequest 객체
-     * @return MultipartRequest 객체
-     */
-    public static MultipartRequest fileUpload(HttpServletRequest request) {
 
-        try {
-            MultipartRequest multi = new MultipartRequest(
-                    request,
-                    UPLOAD_PATH,
-                    MAX_FILE_SIZE,
-                    "utf-8",
-                    new DefaultFileRenamePolicy());
-
-            return multi;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * 파일 이름에 해당하는 파일을 삭제했다면 true, 그렇지 않다면 false 를 반환합니다.
@@ -48,79 +32,108 @@ public class FileUtils {
      */
     public static boolean deleteUploadedFile(String fileName) {
         log.debug("삭제할 File : {}{}{} ", UPLOAD_PATH,"\\",fileName);
-        File file = new File(UPLOAD_PATH, fileName);
-        return file.delete();
+        return createFile(fileName).delete();
     }
 
-    /**
-     * 디렉토리 내에서 해당 파일의 크기를 반환합니다.
-     *
-     * @param fileName 파일의 이름
-     * @return 파일의 크기를 반환
-     */
-    public static long getFileSize(String fileName) {
-        File file = new File(
-                FileUtils.UPLOAD_PATH, fileName);
-        return file.length();
+    public static File createFile(String fileName) {
+        return new File(UPLOAD_PATH, fileName);
     }
 
-    /**
-     * 웹 브라우저로부터 요청된 파일이름을 디렉토리 내에서 읽고, 웹 브라우저에 응답합니다.
-     * 
-     * @param request 요청 정보를 가지고 있는 객체
-     * @param response 응답 정보를 가지고 있는 객체
-     * @param savedFileName 디렉토리에 저장된 파일 이름
-     * @param originalFileName 클라이언트가 알고 있는 파일 이름
-     */
-    public static void serveDownloadFile(HttpServletRequest request, HttpServletResponse response, String savedFileName, String originalFileName) throws IOException {
-        InputStream in = null;
-        OutputStream os = null;
-        File file = null;
-        boolean skip = false;
-        String client = "";
-
+    public static String generateEncodedName(com.study.ebsoft.domain.File file) {
         try {
-            try {
-                file = new File(UPLOAD_PATH, savedFileName);
-                in = new FileInputStream(file);
-            } catch (FileNotFoundException fe) {
-                skip = true;
-            }
-
-            client = request.getHeader("User-Agent");
-
-            response.reset();
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Description", "File Download");
-
-            if (!skip) {
-                if (client.indexOf("MSIE") != -1) {
-                    response.setHeader("Content-Disposition", "attachment; filename=" + new String(originalFileName.getBytes("KSC5601"), "ISO8859_1"));
-                } else {
-                    originalFileName = new String(originalFileName.getBytes("utf-8"), "iso-8859-1");
-                    response.setHeader("Content-Disposition", "attachment; filename=\"" + originalFileName + "\"");
-                    response.setHeader("Content-Type", "application/octet-stream; charset=utf-8");
-                }
-
-                response.setHeader("Content-Length", String.valueOf(file.length()));
-
-                os = response.getOutputStream();
-                byte[] buffer = new byte[4096];
-                int bytesRead;
-
-                while ((bytesRead = in.read(buffer)) != -1) {
-                    os.write(buffer, 0, bytesRead);
-                }
-            } else {
-                response.setContentType("text/html;charset=UTF-8");
-            }
-            in.close();
-            os.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            in.close();
-            os.close();
+            return URLEncoder.encode(file.getOriginalName(), "UTF-8").replaceAll("\\+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            log.error(String.valueOf(e));
         }
+        return null;
+    }
+
+    public static byte[] convertByteArray(String savedFileName) {
+        ByteArrayOutputStream byteArrayOutputStream = null;
+        InputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(FileUtils.createFile(savedFileName));
+
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+
+            byteArrayOutputStream = new ByteArrayOutputStream();
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byteArrayOutputStream.write(buffer, 0, bytesRead);
+            }
+
+            return byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            log.error(String.valueOf(e));
+        } finally {
+            if(byteArrayOutputStream != null) {
+                try {
+                    byteArrayOutputStream.close();
+                } catch (IOException e) {
+                    log.error(String.valueOf(e));
+                }
+            }
+            if(inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    log.error(String.valueOf(e));
+                }
+            }
+        }
+        return null;
+    }
+
+    // TODO: javadoc
+    public static List<com.study.ebsoft.domain.File> toFilesAfterUpload(MultipartFile[] multipartFiles) {
+        List<com.study.ebsoft.domain.File> files = new ArrayList<>();
+
+        if (hasExistFile(multipartFiles)) {
+            for (MultipartFile multipartFile : multipartFiles) {
+                if (!multipartFile.isEmpty()) {
+                    String fileName = multipartFile.getOriginalFilename();
+                    int fileSize = (int) multipartFile.getSize();
+                    String systemName = generateSystemName(fileName);
+
+                    try {
+                        multipartFile.transferTo(createAbsolutePath(systemName));
+                        log.debug("업로드 완료 .. 저장된 파일 이름 : {} ", systemName);
+                    } catch (IOException e) {
+                        // 파일 업로드 중 에러 발생 시 파일 삭제
+                        log.error("파일 업로드 중 예외 발생 -> error : {}", e.getMessage());
+
+                        for (com.study.ebsoft.domain.File file : files) {
+                            deleteFileFromServerDirectory(file);
+                        }
+                    }
+
+                    com.study.ebsoft.domain.File file = com.study.ebsoft.domain.File.builder()
+                            .savedName(systemName)
+                            .originalName(fileName)
+                            .fileSize(fileSize)
+                            .build();
+                    files.add(file);
+                }
+            }
+        }
+        return files;
+    }
+
+    public static void deleteFileFromServerDirectory(com.study.ebsoft.domain.File file) {
+        FileUtils.deleteUploadedFile(file.getSavedName());
+    }
+
+    public static Path createAbsolutePath(String systemName) {
+        Path path = Paths.get(FileUtils.UPLOAD_PATH + systemName);
+        return path;
+    }
+
+    public static String generateSystemName(String fileName) {
+        return String.format("%s.%s", UUID.randomUUID(), FileValidationUtils.extractFileExtension(fileName));
+    }
+
+    public static boolean hasExistFile(MultipartFile[] multipartFiles) {
+        return multipartFiles != null && multipartFiles.length > 0;
     }
 }
