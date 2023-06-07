@@ -31,7 +31,7 @@ public class BoardValidationTest {
                     .build();
 
             // when
-            BoardValidationUtils.create(board);
+            BoardValidationUtils.validateOnCreate(board);
 
             // then
             assertThat(board.getCategoryIdx()).isNotNull();
@@ -50,7 +50,7 @@ public class BoardValidationTest {
                                 .content("내용 1")
                                 .password("rkskekfkakqkt!1")
                                 .build();
-                        BoardValidationUtils.create(board);
+                        BoardValidationUtils.validateOnCreate(board);
                     }).withMessageMatching("카테고리 번호는 0보다 큰 숫자여야 합니다.");
         }
     }
@@ -86,8 +86,8 @@ public class BoardValidationTest {
                     .build();
 
             // when, then
-            BoardValidationUtils.create(boardA);
-            BoardValidationUtils.create(boardB);
+            BoardValidationUtils.validateOnCreate(boardA);
+            BoardValidationUtils.validateOnCreate(boardB);
         }
 
         @Test
@@ -111,7 +111,7 @@ public class BoardValidationTest {
                                 .content("내용 1")
                                 .password("rkskekfkakqkt!1")
                                 .build();
-                        BoardValidationUtils.create(boardA);
+                        BoardValidationUtils.validateOnCreate(boardA);
                     })
                     .withMessageMatching("제목은 4글자 이상, 100글자 이하로 입력해야 합니다.");
 
@@ -124,7 +124,7 @@ public class BoardValidationTest {
                                 .content("내용 1")
                                 .password("rkskekfkakqkt!1")
                                 .build();
-                        BoardValidationUtils.create(boardB);
+                        BoardValidationUtils.validateOnCreate(boardB);
                     })
                     .withMessageMatching("제목은 4글자 이상, 100글자 이하로 입력해야 합니다.");
         }
@@ -147,7 +147,7 @@ public class BoardValidationTest {
                     .content("내용 1")
                     .password("rkskekfkakqkt!1")
                     .build();
-            BoardValidationUtils.create(boardA);
+            BoardValidationUtils.validateOnCreate(boardA);
         }
 
         @DisplayName("3글자 미만 5글자 이상인 경우 예외가 발생한다.")
@@ -164,7 +164,7 @@ public class BoardValidationTest {
                                 .content("내용 1")
                                 .password("rkskekfkakqkt!1")
                                 .build();
-                        BoardValidationUtils.create(boardA);
+                        BoardValidationUtils.validateOnCreate(boardA);
                     })
                     .withMessageMatching("작성자는 3글자 이상, 4글자 이하로 입력해야 합니다.");
 
@@ -194,7 +194,7 @@ public class BoardValidationTest {
                                     .password(password)
                                     .build();
 
-                            BoardValidationUtils.create(board);
+                            BoardValidationUtils.validateOnCreate(board);
                         })
                         .withMessageMatching("패스워드는 4글자 이상, 15글자 이하로 입력해야 합니다.");
             }
@@ -213,7 +213,7 @@ public class BoardValidationTest {
                         .build();
 
                 // when
-                BoardValidationUtils.create(board);
+                BoardValidationUtils.validateOnCreate(board);
             }
         }
 
@@ -234,7 +234,7 @@ public class BoardValidationTest {
                         .password(password)
                         .build();
 
-                BoardValidationUtils.create(board);
+                BoardValidationUtils.validateOnCreate(board);
             }
 
             @DisplayName("영문, 숫자, 특수문자가 포함되어 있지 않다면 예외가 발생한다.")
@@ -251,7 +251,7 @@ public class BoardValidationTest {
                                     .password(password)
                                     .build();
 
-                            BoardValidationUtils.create(board);
+                            BoardValidationUtils.validateOnCreate(board);
                         })
                         .withMessageMatching("패스워드는 영문, 숫자, 특수문자를 포함해야 합니다.");
             }
@@ -290,8 +290,8 @@ public class BoardValidationTest {
                         .password("rkskekfkakqkt!1")
                         .build();
 
-                BoardValidationUtils.create(boardA);
-                BoardValidationUtils.create(boardB);
+                BoardValidationUtils.validateOnCreate(boardA);
+                BoardValidationUtils.validateOnCreate(boardB);
             }
 
 
@@ -314,7 +314,7 @@ public class BoardValidationTest {
                                     .content(shortContent)
                                     .password("rkskekfkakqkt!1")
                                     .build();
-                            BoardValidationUtils.create(boardA);
+                            BoardValidationUtils.validateOnCreate(boardA);
                         })
                         .withMessageMatching("내용은 4글자 이상, 2000글자 이하로 입력해야 합니다.");
 
@@ -327,7 +327,7 @@ public class BoardValidationTest {
                                     .content(longContent.toString())
                                     .password("rkskekfkakqkt!1")
                                     .build();
-                            BoardValidationUtils.create(boardB);
+                            BoardValidationUtils.validateOnCreate(boardB);
                         })
                         .withMessageMatching("내용은 4글자 이상, 2000글자 이하로 입력해야 합니다.");
             }

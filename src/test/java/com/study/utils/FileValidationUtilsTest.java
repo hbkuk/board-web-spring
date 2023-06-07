@@ -1,8 +1,6 @@
 package com.study.utils;
 
-import com.study.ebsoft.domain.Comment;
 import com.study.ebsoft.domain.File;
-import com.study.ebsoft.utils.validation.CommentValidationUtils;
 import com.study.ebsoft.utils.validation.FileValidationUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,7 +22,7 @@ public class FileValidationUtilsTest {
                 .boardIdx(1L)
                 .build();
 
-        FileValidationUtils.create(file);
+        FileValidationUtils.validateOnCreate(file);
     }
 
     @Nested
@@ -47,7 +45,7 @@ public class FileValidationUtilsTest {
                         .boardIdx(1L)
                         .build();
 
-                FileValidationUtils.create(file);
+                FileValidationUtils.validateOnCreate(file);
             }
 
             @DisplayName("유효하지 않은 확장자일 경우 예외가 발생한다.")
@@ -62,7 +60,7 @@ public class FileValidationUtilsTest {
                                     .fileSize(127904)
                                     .boardIdx(1L)
                                     .build();
-                            FileValidationUtils.create(file);
+                            FileValidationUtils.validateOnCreate(file);
                         })
                         .withMessageMatching("유효하지 않은 확장자입니다.");
             }
@@ -98,8 +96,8 @@ public class FileValidationUtilsTest {
                         .boardIdx(1L)
                         .build();
 
-                FileValidationUtils.create(fileA);
-                FileValidationUtils.create(fileB);
+                FileValidationUtils.validateOnCreate(fileA);
+                FileValidationUtils.validateOnCreate(fileB);
             }
 
             @Test
@@ -121,7 +119,7 @@ public class FileValidationUtilsTest {
                                     .fileSize(127904)
                                     .boardIdx(1L)
                                     .build();
-                            FileValidationUtils.create(fileA);
+                            FileValidationUtils.validateOnCreate(fileA);
                         })
                         .withMessageMatching("파일의 이름은 5글자 이상, 255글자 이하여야만 합니다.");
 
@@ -133,7 +131,7 @@ public class FileValidationUtilsTest {
                                     .fileSize(127904)
                                     .boardIdx(1L)
                                     .build();
-                            FileValidationUtils.create(fileA);
+                            FileValidationUtils.validateOnCreate(fileA);
                         })
                         .withMessageMatching("파일의 이름은 5글자 이상, 255글자 이하여야만 합니다.");
             }
@@ -154,12 +152,12 @@ public class FileValidationUtilsTest {
                     .fileSize(fileSize)
                     .boardIdx(1L)
                     .build();
-            FileValidationUtils.create(file);
+            FileValidationUtils.validateOnCreate(file);
         }
 
         @DisplayName("10_485_760 byte 이상일 경우 예외가 발생한다.")
         @ParameterizedTest
-        @ValueSource(ints = {0, 10_485_760, 10_485_761, 10_485_762, 12_000_000})
+        @ValueSource(ints = {0, 10_485_761, 10_485_762, 12_000_000})
         void invalid_file_size(int fileSize) {
 
             assertThatExceptionOfType(IllegalArgumentException.class)
@@ -170,7 +168,7 @@ public class FileValidationUtilsTest {
                                 .fileSize(fileSize)
                                 .boardIdx(1L)
                                 .build();
-                        FileValidationUtils.create(file);
+                        FileValidationUtils.validateOnCreate(file);
                     })
                     .withMessageMatching("파일의 크기는 1 이상, 10485760 byte 이하여야만 합니다.");
         }

@@ -1,7 +1,6 @@
 package com.study.domain;
 
 import com.study.ebsoft.domain.Board;
-import com.study.ebsoft.utils.validation.BoardValidationUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -9,8 +8,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class BoardTest {
 
@@ -78,10 +77,6 @@ public class BoardTest {
                 .password("rkskekfkakqkt!1")
                 .build();
 
-        // when
-        BoardValidationUtils.update(updateBoard);
-        board.isSamePassword(updateBoard.getPassword());
-
         Board updatedBoard = board.update(updateBoard);
 
         // then
@@ -94,9 +89,9 @@ public class BoardTest {
     }
 
     @Test
-    @DisplayName("update 메서드는 비밀번호가 다르다면 예외를 던진다.")
-    void update_exception() {
-        // given
+    @DisplayName("canDelete 메서드는 비밀번호가 같다면 true를 리턴한다.")
+    void can_delete() {
+
         Board board = Board.builder()
                 .boardIdx(1L)
                 .categoryIdx(1)
@@ -108,22 +103,9 @@ public class BoardTest {
                 .regDate(LocalDateTime.now())
                 .build();
 
-        Board updateBoard = Board.builder()
-                .boardIdx(1L)
-                .categoryIdx(3)
-                .title("제목수정 1")
-                .writer("테스터1")
-                .content("내용수정 1")
-                .password("rkskekfkakqkt@1")
-                .build();
+        String passwordToDelete = "rkskekfk@@1";
 
-        BoardValidationUtils.update(updateBoard);
-        Board updatedBoard = board.update(updateBoard);
-
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> {
-                    board.isSamePassword(updatedBoard.getPassword());
-                })
-                .withMessageMatching("비밀번호가 다릅니다.");
+        assertThat(board.canDelete(passwordToDelete)).isEqualTo(false);
     }
+
 }
