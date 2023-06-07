@@ -4,7 +4,6 @@ import com.study.ebsoft.domain.Comment;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CommentTest {
@@ -66,12 +65,7 @@ public class CommentTest {
                 .boardIdx(1L)
                 .build();
 
-        Comment deleteComment = Comment.builder()
-                .password(anotherPassword)
-                .boardIdx(1L)
-                .build();
-
-        boolean actual = comment.canDelete(deleteComment);
+        boolean actual = comment.canDelete(anotherPassword);
 
         assertThat(actual).isEqualTo(true);
     }
@@ -90,12 +84,7 @@ public class CommentTest {
                 .boardIdx(1L)
                 .build();
 
-        Comment deleteComment = Comment.builder()
-                .password(anotherPassword)
-                .boardIdx(1L)
-                .build();
-
-        boolean actual = comment.canDelete(deleteComment);
+        boolean actual = comment.canDelete(anotherPassword);
 
         assertThat(actual).isEqualTo(false);
     }

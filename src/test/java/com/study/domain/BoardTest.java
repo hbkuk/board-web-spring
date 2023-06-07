@@ -105,12 +105,7 @@ public class BoardTest {
                 .regDate(LocalDateTime.now())
                 .build();
 
-        Board deleteBoard = Board.builder()
-                .boardIdx(1L)
-                .password(anotherPassword)
-                .build();
-
-        boolean actual = board.canDelete(deleteBoard);
+        boolean actual = board.canDelete(anotherPassword);
 
         assertThat(actual).isEqualTo(true);
     }
@@ -132,12 +127,7 @@ public class BoardTest {
                 .regDate(LocalDateTime.now())
                 .build();
 
-        Board deleteBoard = Board.builder()
-                .boardIdx(1L)
-                .password(anotherPassword)
-                .build();
-
-        boolean actual = board.canDelete(deleteBoard);
+        boolean actual = board.canDelete(anotherPassword);
 
         assertThat(actual).isEqualTo(false);
     }
