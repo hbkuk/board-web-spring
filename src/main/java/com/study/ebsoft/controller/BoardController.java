@@ -187,6 +187,16 @@ public class BoardController {
 
     /**
      * 게시물 번호에 해당하는 게시물을 수정합니다
+     *
+     * @param boardIdx 게시글 번호
+     * @param multipartFiles 업로드된 파일 배열
+     * @param categoryIdx 카테고리 인덱스
+     * @param title 제목
+     * @param writer 작성자
+     * @param content 내용
+     * @param password 비밀번호
+     * @param previouslyUploadedIndexes 기존 업로드된 파일 인덱스 리스트
+     * @return
      */
     @PutMapping("/board/{boardIdx}")
     public ResponseEntity<?> updateBoard(@PathVariable("boardIdx") Long boardIdx,
@@ -199,25 +209,26 @@ public class BoardController {
                                       @RequestParam(value = "fileIdx", required = false) List<Long> previouslyUploadedIndexes) {
         log.debug("updateBoard 호출");
 
-        // 1-1. 게시글 원본 확인
+        // 1. 게시글 원본 확인
         Board board = boardService.findByBoardIdx(boardIdx);
         if (board == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 글을 찾을 수 없습니다."); // Status Code 404
         }
 
-        // 2-1. 도메인 객체 생성
+        // 2. 도메인 객체 생성
         Board updateBoard = Board.builder().boardIdx(boardIdx).categoryIdx(categoryIdx).title(title).writer(writer).content(content).password(password).build();
         List<File> newFiles = FileUtils.toFilesAfterUpload(multipartFiles, boardIdx);
 
+        // 3-1. Service 유효성 검증, DB insert 로직 위임
         try {
             boardService.update(board, updateBoard);
             fileService.update(newFiles, previouslyUploadedIndexes);
         } catch (IllegalArgumentException e) {
-            // 유효성 검증 실패
+            // 3-2. 유효성 검증 실패
             FileUtils.deleteFilesFromServerDirectory(newFiles);
             return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
         } catch (InvalidPasswordException e) {
-            // 패스워드 불일치
+            // 3-3. 패스워드 불일치
             FileUtils.deleteFilesFromServerDirectory(newFiles);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage()); // Status Code 401
         }
