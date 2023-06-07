@@ -41,9 +41,11 @@ public class BoardController {
     }
 
     // TODO: 검색조건 동적쿼리
-
     /**
-     * 검색조건(searchConditionQueryString)에 맞는 전체 게시물 리스트와 View를 응답합니다.
+     * 검색조건(searchConditionQueryString)에 맞는 전체 게시물을 응답합니다.
+     *
+     * @param response 응답 맵 객체
+     * @return ResponseEntity 응답 결과
      */
     @GetMapping("/boards")
     public ResponseEntity<Object> findBoards(Map<String, Object> response) {
@@ -58,6 +60,10 @@ public class BoardController {
 
     /**
      * 게시글 번호에 해당하는 게시글 정보를 응답합니다
+     *
+     * @param boardIdx 게시물 번호
+     * @param response 응답 맵 객체
+     * @return 응답 결과
      */
     @GetMapping("/board/{boardIdx}")
     public ResponseEntity<Object> findBoard(@PathVariable("boardIdx") Long boardIdx, Map<String, Object> response) {
@@ -69,9 +75,10 @@ public class BoardController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
     /**
      * 게시글 작성에 필요한 정보 응답합니다
+     *
+     * @return 응답 결과
      */
     @GetMapping("/board/write")
     public ResponseEntity<List<Category>> findBoardWriteForm() {
@@ -82,47 +89,11 @@ public class BoardController {
     }
 
     /**
-     * 게시물을 작성합니다
-     */
-    @PostMapping("/board")
-    public ResponseEntity insertBoard(@RequestPart(value = "file", required = false) MultipartFile[] multipartFiles,
-                                      @RequestParam(value = "categoryIdx") Integer categoryIdx,
-                                      @RequestParam(value = "title") String title,
-                                      @RequestParam(value = "writer") String writer,
-                                      @RequestParam(value = "content") String content,
-                                      @RequestParam(value = "password") String password) {
-        log.debug("insertBoard 호출");
-
-        // 1-1. Board 도메인 객체 생성
-        Board board = Board.builder().categoryIdx(categoryIdx).title(title).writer(writer).content(content).password(password).build();
-        // 1-2. File 저장 후 도메인 객체 생성
-        List<File> files = FileUtils.toFilesAfterUpload(multipartFiles);
-
-        // 2. 유효성 검증
-        try {
-            BoardValidationUtils.validateOnCreate(board);
-            files.forEach(FileValidationUtils::validateOnCreate);
-        } catch (IllegalArgumentException e) {
-            // 2-1. 예외 발생 -> 디렉토리 파일 삭제
-            log.error("예외 발생 -> error : {}", e.getMessage());
-
-            files.forEach(FileUtils::deleteFileFromServerDirectory);
-            return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
-        }
-
-        // 3. 데이터베이스 삽입
-        boardService.insert(board);
-        files.stream().forEach(file -> fileService.insert(file.updateBoardIdx(board.getBoardIdx())));
-
-        return ResponseEntity.ok(board.getBoardIdx()); // Status Code 200
-    }
-
-    /**
      * 게시글 번호에 해당하는 게시글 정보를 응답합니다
      *
      * @param boardIdx 게시물 번호
      * @param response 응답 객체
-     * @return 게시물 정보
+     * @return 응답 결과
      */
     @GetMapping("/board/modify/{boardIdx}")
     public ResponseEntity<Object> findBoardModifyForm(@PathVariable("boardIdx") Long boardIdx, Map<String, Object> response) {
@@ -134,10 +105,11 @@ public class BoardController {
     }
 
     /**
-     * 게시글 번호에 해당하는 게시글 삭제 정보를 응답합니다
+     * 게시글 번호에 해당하는 게시글 정보를 응답합니다
      *
      * @param boardIdx 게시물 번호
-     * @return 게시물 정보
+     * @param response 응답 객체
+     * @return 응답 결과
      */
     @GetMapping("/board/delete/{boardIdx}")
     public ResponseEntity<Object> findBoardDeleteForm(@PathVariable("boardIdx") Long boardIdx, Map<String, Object> response) {
@@ -148,34 +120,10 @@ public class BoardController {
     }
 
     /**
-     * 게시물 번호에 해당하는 게시물 삭제을 삭제합니다
-     */
-    @DeleteMapping("/board/{boardIdx}")
-    public ResponseEntity deleteBoard(@PathVariable("boardIdx") Long boardIdx, @RequestParam(value = "password") String password) {
-        log.debug("findBoardModifyForm 호출 -> 게시글 번호 : {}", boardIdx);
-
-        // 1. 게시글 확인
-        Board board = boardService.findByBoardIdx(boardIdx);
-        if (board == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 글을 찾을 수 없습니다."); // Status Code 404
-        }
-
-        // TODO: ENUM으로 분리
-        // 2. 패스워드 확인
-        if (!board.canDelete(password)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 올바르지 않습니다."); // Status Code 401
-        }
-
-        // 3. 댓글 -> 파일 -> 게시글 삭제
-        commentService.deleteAllByBoardIdx(board);
-        fileService.deleteAllByBoardIdx(board);
-        boardService.delete(board);
-
-        return ResponseEntity.ok().body("게시물이 성공적으로 삭제되었습니다."); // Status Code 200
-    }
-
-    /**
      * 파일 번호에 해당하는 파일을 응답합니다
+     *
+     * @param fileIdx 파일 번호
+     * @return 응답 결과
      */
     @GetMapping("/download/{fileIdx}")
     public ResponseEntity serveDownloadFile(@PathVariable("fileIdx") Long fileIdx) {
@@ -197,6 +145,49 @@ public class BoardController {
         headers.setContentLength(fileContent.length);
 
         return ResponseEntity.ok().headers(headers).body(fileContent);
+    }
+
+    /**
+     * 게시물을 작성합니다
+     *
+     * @param multipartFiles 업로드된 파일 배열
+     * @param categoryIdx 카테고리 인덱스
+     * @param title 제목
+     * @param writer 작성자
+     * @param content 내용
+     * @param password 비밀번호
+     * @return 응답 결과
+     */
+    @PostMapping("/board")
+    public ResponseEntity<?> insertBoard(@RequestPart(value = "file", required = false) MultipartFile[] multipartFiles,
+                                      @RequestParam(value = "categoryIdx") Integer categoryIdx,
+                                      @RequestParam(value = "title") String title,
+                                      @RequestParam(value = "writer") String writer,
+                                      @RequestParam(value = "content") String content,
+                                      @RequestParam(value = "password") String password) {
+        log.debug("insertBoard 호출");
+
+        // 1. 도메인 객체 생성
+        Board board = Board.builder().categoryIdx(categoryIdx).title(title).writer(writer).content(content).password(password).build();
+        List<File> files = FileUtils.toFilesAfterUpload(multipartFiles);
+
+        // 2. 유효성 검증
+        try {
+            BoardValidationUtils.validateOnCreate(board);
+            FileValidationUtils.validateOnCreate(files);
+        } catch (IllegalArgumentException e) {
+            log.error("예외 발생 -> error : {}", e.getMessage());
+
+            // 2-1. 예외 발생 -> 디렉토리 파일 삭제
+            files.forEach(FileUtils::deleteFileFromServerDirectory);
+            return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
+        }
+
+        // 3. 데이터베이스 삽입
+        boardService.insert(board);
+        files.stream().forEach(file -> fileService.insert(file.updateBoardIdx(board.getBoardIdx())));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(board.getBoardIdx()); // Status Code 201
     }
 
     /**
@@ -263,5 +254,32 @@ public class BoardController {
 
 
         return ResponseEntity.ok().body("게시물이 성공적으로 수정되었습니다."); // Status Code 200
+    }
+
+    /**
+     * 게시물 번호에 해당하는 게시물 삭제을 삭제합니다
+     */
+    @DeleteMapping("/board/{boardIdx}")
+    public ResponseEntity deleteBoard(@PathVariable("boardIdx") Long boardIdx, @RequestParam(value = "password") String password) {
+        log.debug("findBoardModifyForm 호출 -> 게시글 번호 : {}", boardIdx);
+
+        // 1. 게시글 확인
+        Board board = boardService.findByBoardIdx(boardIdx);
+        if (board == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 글을 찾을 수 없습니다."); // Status Code 404
+        }
+
+        // TODO: ENUM으로 분리
+        // 2. 패스워드 확인
+        if (!board.canDelete(password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 올바르지 않습니다."); // Status Code 401
+        }
+
+        // 3. 댓글 -> 파일 -> 게시글 삭제
+        commentService.deleteAllByBoardIdx(board);
+        fileService.deleteAllByBoardIdx(board);
+        boardService.delete(board);
+
+        return ResponseEntity.ok().body("게시물이 성공적으로 삭제되었습니다."); // Status Code 200
     }
 }
