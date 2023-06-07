@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController()
@@ -150,7 +149,7 @@ public class BoardController {
      * 게시물 번호에 해당하는 게시물 삭제을 삭제합니다
      */
     @DeleteMapping("/board/{boardIdx}")
-    public ResponseEntity deleteBoard(@PathVariable("boardIdx") Long boardIdx, @RequestParam(value = "password") String password) {
+    public ResponseEntity deleteBoard(@PathVariable("boardIdx") Long boardIdx, @RequestBody Board deleteBoard) {
         log.debug("findBoardModifyForm 호출 -> 게시글 번호 : {}", boardIdx);
 
         // 1. 게시글 확인
@@ -161,7 +160,7 @@ public class BoardController {
 
         // TODO: ENUM으로 분리
         // 2. 패스워드 확인
-        if (!board.canDelete(password)) {
+        if (!board.canDelete(deleteBoard)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 올바르지 않습니다."); // Status Code 401
         }
 

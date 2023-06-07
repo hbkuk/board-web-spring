@@ -1,87 +1,70 @@
 package com.study.ebsoft.controller;
 
-import com.study.ebsoft.dto.CommentDTO;
-import com.study.ebsoft.service.BoardService;
+import com.study.ebsoft.domain.Comment;
+import com.study.ebsoft.service.CommentService;
+import com.study.ebsoft.utils.validation.CommentValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.servlet.ServletException;
-import java.io.IOException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@Controller
+@RestController()
 public class CommentController {
-    private BoardService boardService;
+
+    private final CommentService commentService;
 
     @Autowired
-    public CommentController(BoardService boardService) {
-        this.boardService = boardService;
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
     }
 
     /**
      * 댓글을 작성합니다
      */
-    @PostMapping("/comment/write")
-    public ModelAndView writeComment(RedirectAttributes redirectAttributes, ModelAndView mav,
-                                     @RequestParam("comment_writer") String writer,
-                                     @RequestParam("comment_password") String password,
-                                     @RequestParam("comment_content") String content,
-                                     @RequestParam("board_idx") Long boardIdx) {
+    @PostMapping("/comment")
+    public ResponseEntity insertComment(@RequestBody Comment comment) {
+        log.debug("insertComment 호출");
 
-        CommentDTO comment = null;
         try {
-            // TODO: build 클래스 분리 
-            comment = CommentDTO.builder()
-                    .writer(writer)
-                    .password(password)
-                    .content(content)
-                    .boardIdx(boardIdx)
-                    .build();
+            CommentValidationUtils.validateOnCreate(comment);
         } catch (IllegalArgumentException e) {
-            log.error("error : {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-
-            mav.addObject("board_idx", boardIdx);
-            mav.setViewName("redirect:/board");
-            return mav;
+            log.error("예외 발생 -> error : {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
         }
-        boardService.insertComment(comment);
 
-        mav.addObject("board_idx", comment.getBoardIdx());
-        mav.setViewName("redirect:/board");
-        return mav;
+        commentService.insert(comment);
+
+        return ResponseEntity.ok(comment.getBoardIdx()); // Status Code 200
     }
 
     /**
      * 댓글 번호에 해당하는 댓글을 삭제합니다
      */
-    @PostMapping("/comment/delete")
-    public ModelAndView deleteComment(RedirectAttributes redirectAttributes, ModelAndView mav,
-                                      @ModelAttribute CommentDTO deleteComment,
-                                      @RequestParam("comment_idx") Long commentIdx,
-                                      @RequestParam("board_idx") Long boardIdx,
-                                      @RequestParam("password") String password) {
-
-        deleteComment.setCommentIdx(commentIdx);
-        deleteComment.setBoardIdx(boardIdx);
-        deleteComment.setPassword(password);
+    @DeleteMapping("/comment/{commentIdx}")
+    public ResponseEntity deleteComment(@PathVariable("commentIdx") Long commentIdx,  @RequestBody Comment deleteComment) {
+        log.debug("deleteComment 호출");
 
         try {
-            boardService.deleteCommentByCommentIdx(deleteComment);
+            CommentValidationUtils.validateOnDelete(deleteComment);
         } catch (IllegalArgumentException e) {
-            log.error("error : {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            log.error("예외 발생 -> error : {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
         }
-        mav.addObject("board_idx", deleteComment.getBoardIdx());
-        mav.setViewName("redirect:/board");
-        log.debug("redirect URI : {}", mav.getViewName());
-        return mav;
+
+        // 패스워드 체크..
+        Comment comment = commentService.findByCommentIdx(commentIdx);
+        if (comment == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 댓글을 찾을 수 없습니다."); // Status Code 404
+        }
+
+        if(!comment.canDelete(deleteComment)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 올바르지 않습니다."); // Status Code 401
+        }
+
+        commentService.delete(comment);
+        return ResponseEntity.ok("댓글이 성공적으로 삭제되었습니다."); // Status Code 200
     }
 }
 
