@@ -4,23 +4,31 @@ spring:
     username: ebsoft
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   mvc:
     view:
       prefix: /views/
       suffix: .jsp
 
-logging:
-  level:
-    org.springframework.web : debug
-    sql: error
-    jdbc: off
-    jdbc.sqlonly: off
+  servlet:
+    multipart:
+      enabled: true
+      resolve-lazily: false
+      file-size-threshold: 1MB
+      location: C:/Temp
+      max-file-size: 100MB
+      max-request-size: 100MB
 
-spring.servlet.multipart:
-  enabled: false
+logging:
+    level:
+      org.springframework.web : debug
+      sql: error
+      jdbc: off
+      jdbc.sqlonly: off
+      com.study.ebsoft : debug
 
 mybatis:
-  type-aliases-package: com.study.ebsoft.dto
+  type-aliases-package: com.study.ebsoft.dto, com.study.ebsoft.domain
   mapper-locations: classpath:mybatis/mapper/**.xml
   configuration:
     map-underscore-to-camel-case: true
