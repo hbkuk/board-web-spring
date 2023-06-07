@@ -139,17 +139,19 @@ public class BoardController {
      * @param boardIdx 게시물 번호
      * @return 게시물 정보
      */
-    @GetMapping("/board/delete")
-    public ResponseEntity<Board> deleteBoardForm(@PathVariable("boardIdx") Long boardIdx) {
+    @GetMapping("/board/delete/{boardIdx}")
+    public ResponseEntity<Object> findBoardDeleteForm(@PathVariable("boardIdx") Long boardIdx, Map<String, Object> response) {
         log.debug("findBoardModifyForm 호출 -> 게시글 번호 : {}", boardIdx);
-        return ResponseEntity.ok(boardService.findByBoardIdx(boardIdx));
+
+        response.put("boards", boardService.findByBoardIdx(boardIdx));
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
      * 게시물 번호에 해당하는 게시물 삭제을 삭제합니다
      */
     @DeleteMapping("/board/{boardIdx}")
-    public ResponseEntity deleteBoard(@PathVariable("boardIdx") Long boardIdx, @RequestBody Board deleteBoard) {
+    public ResponseEntity deleteBoard(@PathVariable("boardIdx") Long boardIdx, @RequestParam(value = "password") String password) {
         log.debug("findBoardModifyForm 호출 -> 게시글 번호 : {}", boardIdx);
 
         // 1. 게시글 확인
@@ -160,7 +162,7 @@ public class BoardController {
 
         // TODO: ENUM으로 분리
         // 2. 패스워드 확인
-        if (!board.canDelete(deleteBoard)) {
+        if (!board.canDelete(password)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 올바르지 않습니다."); // Status Code 401
         }
 
@@ -228,7 +230,7 @@ public class BoardController {
         }
 
         // 2-3. 패스워드 체크
-        if( !board.canUpdate(updateBoard.getPassword()) ) {
+        if( !board.canUpdate(password) ) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 올바르지 않습니다."); // Status Code 401
         }
         // 3-1. 업데이트된 도메인 객체

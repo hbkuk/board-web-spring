@@ -43,15 +43,8 @@ public class CommentController {
      * 댓글 번호에 해당하는 댓글을 삭제합니다
      */
     @DeleteMapping("/comment/{commentIdx}")
-    public ResponseEntity deleteComment(@PathVariable("commentIdx") Long commentIdx,  @RequestBody Comment deleteComment) {
+    public ResponseEntity deleteComment(@PathVariable("commentIdx") Long commentIdx, @RequestParam(value = "password") String password) {
         log.debug("deleteComment 호출");
-
-        try {
-            CommentValidationUtils.validateOnDelete(deleteComment);
-        } catch (IllegalArgumentException e) {
-            log.error("예외 발생 -> error : {}", e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
-        }
 
         // 패스워드 체크..
         Comment comment = commentService.findByCommentIdx(commentIdx);
@@ -59,7 +52,7 @@ public class CommentController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 댓글을 찾을 수 없습니다."); // Status Code 404
         }
 
-        if(!comment.canDelete(deleteComment)) {
+        if(!comment.canDelete(password)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 올바르지 않습니다."); // Status Code 401
         }
 
