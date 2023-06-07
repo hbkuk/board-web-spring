@@ -20,9 +20,6 @@ import java.util.UUID;
 public class FileUtils {
 
     public static final String UPLOAD_PATH = "C:\\upload\\";
-    private static final int MAX_FILE_SIZE = 2 * 1024 * 1024;
-
-
 
     /**
      * 파일 이름에 해당하는 파일을 삭제했다면 true, 그렇지 않다면 false 를 반환합니다.
@@ -120,8 +117,14 @@ public class FileUtils {
         return files;
     }
 
-    public static void deleteFileFromServerDirectory(com.study.ebsoft.domain.File file) {
-        FileUtils.deleteUploadedFile(file.getSavedName());
+    public static boolean deleteFileFromServerDirectory(com.study.ebsoft.domain.File file) {
+        return FileUtils.deleteUploadedFile(file.getSavedName());
+    }
+
+    public static void deleteFilesFromServerDirectory(List<com.study.ebsoft.domain.File> files ) {
+        for (com.study.ebsoft.domain.File file : files) {
+            deleteUploadedFile(file.getSavedName());
+        }
     }
 
     public static Path createAbsolutePath(String systemName) {
