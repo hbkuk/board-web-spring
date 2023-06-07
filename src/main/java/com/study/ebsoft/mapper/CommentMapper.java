@@ -12,4 +12,10 @@ public interface CommentMapper {
     List<Comment> findAll();
 
     void deleteAllByBoardIdx(Board board);
+
+    void insert(Comment comment);
+
+    void delete(Comment comment);
+
+    Comment findByCommentIdx(Long commentIdx);
 }

@@ -14,7 +14,7 @@ public interface BoardMapper {
 
     void increaseHit(Long boardIdx);
 
-    void insertBoard(Board board);
+    void insert(Board board);
 
     void delete(Board board);
 

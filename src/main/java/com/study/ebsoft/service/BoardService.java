@@ -1,22 +1,13 @@
 package com.study.ebsoft.service;
 
 import com.study.ebsoft.domain.Board;
-import com.study.ebsoft.domain.File;
 import com.study.ebsoft.repository.BoardRepository;
-import com.study.ebsoft.utils.FileUtils;
-import com.study.ebsoft.utils.validation.FileValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -53,7 +44,7 @@ public class BoardService {
     }
 
     public void insert(Board board) {
-        boardRepository.insertBoard(board);
+        boardRepository.insert(board);
     }
 
     public void delete(Board board) {

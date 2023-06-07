@@ -32,4 +32,16 @@ public class CommentService {
     public void deleteAllByBoardIdx(Board board) {
         commentRepository.deleteAllByBoardIdx(board);
     }
+
+    public void insert(Comment comment) {
+        commentRepository.insert(comment);
+    }
+
+    public void delete(Comment comment) {
+        commentRepository.delete(comment);
+    }
+
+    public Comment findByCommentIdx(Long commentIdx) {
+        return commentRepository.findByCommentIdx(commentIdx);
+    }
 }

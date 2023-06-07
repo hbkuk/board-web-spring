@@ -25,4 +25,16 @@ public class CommentRepository {
     public void deleteAllByBoardIdx(Board board) {
         commentMapper.deleteAllByBoardIdx(board);
     }
+
+    public void insert(Comment comment) {
+        commentMapper.insert(comment);
+    }
+
+    public void delete(Comment comment) {
+        commentMapper.delete(comment);
+    }
+
+    public Comment findByCommentIdx(Long commentIdx) {
+        return commentMapper.findByCommentIdx(commentIdx);
+    }
 }

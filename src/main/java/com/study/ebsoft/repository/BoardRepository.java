@@ -29,8 +29,8 @@ public class BoardRepository {
         boardMapper.increaseHit(boardIdx);
     }
 
-    public void insertBoard(Board board) {
-        boardMapper.insertBoard(board);
+    public void insert(Board board) {
+        boardMapper.insert(board);
     }
 
     public void delete(Board board) {
