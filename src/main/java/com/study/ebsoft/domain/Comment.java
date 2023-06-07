@@ -1,11 +1,7 @@
 package com.study.ebsoft.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 /**
@@ -47,7 +43,6 @@ public class Comment {
     /**
      * 게시글의 비밀번호입니다. (JSON 직렬화 시 숨김 처리)
      */
-    @JsonIgnore
     private String password;
 
     /**
@@ -59,4 +54,12 @@ public class Comment {
      * 게시글의 고유 식별자입니다.
      */
     private Long boardIdx;
+    
+    public boolean canDelete(Comment deleteComment) {
+        return deleteComment.isSamePassword(this.password);
+    }
+
+    public boolean isSamePassword(String password) {
+        return this.password.equals(password);
+    }
 }

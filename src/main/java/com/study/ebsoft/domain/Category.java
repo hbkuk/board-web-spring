@@ -2,8 +2,6 @@ package com.study.ebsoft.domain;
 
 import lombok.*;
 
-import javax.validation.constraints.Positive;
-
 /**
  * 카테고리를 나타내는 클래스입니다.
  *
