@@ -196,7 +196,7 @@ public class BoardController {
      * @param content 내용
      * @param password 비밀번호
      * @param previouslyUploadedIndexes 기존 업로드된 파일 인덱스 리스트
-     * @return
+     * @return 응답 결과
      */
     @PutMapping("/board/{boardIdx}")
     public ResponseEntity<?> updateBoard(@PathVariable("boardIdx") Long boardIdx,
@@ -237,11 +237,15 @@ public class BoardController {
 
     /**
      * 게시물 번호에 해당하는 게시물 삭제을 삭제합니다
+     *
+     * @param boardIdx 게시글 번호
+     * @param password 비밀번호
+     * @return 응답 결과
      */
     @DeleteMapping("/board/{boardIdx}")
     public ResponseEntity deleteBoard(@PathVariable("boardIdx") Long boardIdx,
                                       @RequestParam(value = "password") String password) {
-        log.debug("findBoardModifyForm 호출 -> 게시글 번호 : {}", boardIdx);
+        log.debug("deleteBoard 호출 -> 게시글 번호 : {}", boardIdx);
 
         // 1. 게시글 확인
         Board board = boardService.findByBoardIdx(boardIdx);
@@ -249,10 +253,9 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 글을 찾을 수 없습니다."); // Status Code 404
         }
 
-        // TODO: ENUM으로 분리
         // 2. 패스워드 확인
         if (!board.canDelete(password)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 올바르지 않습니다."); // Status Code 401
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 다릅니다."); // Status Code 401
         }
 
         // 3. 댓글 -> 파일 -> 게시글 삭제
@@ -260,6 +263,6 @@ public class BoardController {
         fileService.deleteAllByBoardIdx(board);
         boardService.delete(board);
 
-        return ResponseEntity.ok().body("게시물이 성공적으로 삭제되었습니다."); // Status Code 200
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // Status Code 201
     }
 }
