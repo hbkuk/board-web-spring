@@ -27,10 +27,10 @@ public class BoardTest {
                 .build();
 
         // when
-        boolean acture = board.isSamePassword(password);
+        boolean actual = board.isSamePassword(password);
 
         // then
-        assertThat(acture).isEqualTo(true);
+        assertThat(actual).isEqualTo(true);
     }
 
     @ParameterizedTest
@@ -47,10 +47,10 @@ public class BoardTest {
                 .build();
 
         // when
-        boolean acture = board.isSamePassword(passwordB);
+        boolean actual = board.isSamePassword(passwordB);
 
         // then
-        assertThat(acture).isEqualTo(false);
+        assertThat(actual).isEqualTo(false);
     }
 
     @Test
@@ -91,6 +91,8 @@ public class BoardTest {
     @Test
     @DisplayName("canDelete 메서드는 비밀번호가 같다면 true를 리턴한다.")
     void can_delete() {
+        String password = "rkddkwl1!";
+        String anotherPassword = "rkddkwl1!";
 
         Board board = Board.builder()
                 .boardIdx(1L)
@@ -98,14 +100,46 @@ public class BoardTest {
                 .title("제목 1")
                 .writer("테스터")
                 .content("내용 1")
-                .password("rkskekfkakqkt!1")
+                .password(password)
                 .hit(1)
                 .regDate(LocalDateTime.now())
                 .build();
 
-        String passwordToDelete = "rkskekfk@@1";
+        Board deleteBoard = Board.builder()
+                .boardIdx(1L)
+                .password(anotherPassword)
+                .build();
 
-        assertThat(board.canDelete(passwordToDelete)).isEqualTo(false);
+        boolean actual = board.canDelete(deleteBoard);
+
+        assertThat(actual).isEqualTo(true);
+    }
+
+    @Test
+    @DisplayName("canDelete 메서드는 비밀번호가 다르다면 false를 리턴한다.")
+    void cant_delete() {
+        String password = "rkddkwl1!";
+        String anotherPassword = "rkddk@@@1!";
+
+        Board board = Board.builder()
+                .boardIdx(1L)
+                .categoryIdx(1)
+                .title("제목 1")
+                .writer("테스터")
+                .content("내용 1")
+                .password(password)
+                .hit(1)
+                .regDate(LocalDateTime.now())
+                .build();
+
+        Board deleteBoard = Board.builder()
+                .boardIdx(1L)
+                .password(anotherPassword)
+                .build();
+
+        boolean actual = board.canDelete(deleteBoard);
+
+        assertThat(actual).isEqualTo(false);
     }
 
 }
