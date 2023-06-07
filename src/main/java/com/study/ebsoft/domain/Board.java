@@ -110,17 +110,17 @@ public class Board {
     /**
      * 인자로 받은 패스워드로 게시글을 삭제할 수 있다면 true, 그렇지 않다면 false를 리턴합니다.
      *
-     * @param deleteBoard 삭제할 객체
+     * @param password 패스워드
      * @return 게시글을 삭제할 수 있다면 true, 그렇지 않다면 false를 리턴합니다.
      */
-    public boolean canDelete(Board deleteBoard) {
-        return deleteBoard.isSamePassword(this.password);
+    public boolean canDelete(String password) {
+        return this.isSamePassword(password);
     }
 
     /**
      * 인자로 받은 패스워드로 게시글을 수정할 수 있다면 true, 그렇지 않다면 false를 리턴합니다.
      *
-     * @param password 비밀번호
+     * @param password 패스워드
      * @return 게시글을 수정할 수 있다면 true, 그렇지 않다면 false를 리턴합니다.
      */
     public boolean canUpdate(String password) {

@@ -54,11 +54,23 @@ public class Comment {
      * 게시글의 고유 식별자입니다.
      */
     private Long boardIdx;
-    
-    public boolean canDelete(Comment deleteComment) {
-        return deleteComment.isSamePassword(this.password);
+
+    /**
+     * 인자로 받은 패스워드로 댓글을 삭제할 수 있다면 true, 그렇지 않다면 false를 리턴합니다.
+     *
+     * @param password 패스워드
+     * @return 댓글을 삭제할 수 있다면 true, 그렇지 않다면 false를 리턴합니다.
+     */
+    public boolean canDelete(String password) {
+        return this.isSamePassword(password);
     }
 
+    /**
+     * 입력받은 비밀번호와 현재 객체의 비밀번호가 일치하다면 true, 그렇지 않으면 false를 리턴합니다
+     *
+     * @param password 비교할 비밀번호
+     * @return 비밀번호가 일치하면 true, 그렇지 않으면 false를 반환합니다.
+     */
     public boolean isSamePassword(String password) {
         return this.password.equals(password);
     }
