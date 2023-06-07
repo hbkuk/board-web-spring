@@ -42,7 +42,7 @@
         WHERE boardIdx = #{boardIdx}
     </update>
 
-    <insert id="insertBoard" parameterType="Board" useGeneratedKeys="true" keyProperty="boardIdx">
+    <insert id="insert" parameterType="Board" useGeneratedKeys="true" keyProperty="boardIdx">
         INSERT INTO tb_board (categoryIdx, title, writer, content, password, hit, regdate)
         VALUES (#{categoryIdx}, #{title}, #{writer}, #{content},
                 #{password}, 0, NOW());
