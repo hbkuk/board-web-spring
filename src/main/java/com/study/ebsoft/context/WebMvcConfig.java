@@ -13,13 +13,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     /**
      * 인터셉터를 등록합니다
-     * 모든 경로(/**)에 대해 동작하도록 설정합니다
+     * 특정 경로에 대해 동작하도록 설정합니다
      * 
      * @param registry 인터셉터 레지스트리
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new HttpInterceptor())
-                .addPathPatterns("/**");
+                .addPathPatterns("/board/**")
+                .addPathPatterns("/comment/**");
     }
 }
