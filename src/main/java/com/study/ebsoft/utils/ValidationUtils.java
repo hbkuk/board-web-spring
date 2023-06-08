@@ -3,20 +3,15 @@ package com.study.ebsoft.utils;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.domain.Comment;
 import com.study.ebsoft.domain.File;
-import com.study.ebsoft.utils.validation.FileNameExtension;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
 public class ValidationUtils {
 
     private static final String PASSWORD_REGEX = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$";
-
-    private static final String FILE_NAME_EXTENSION_REGEX = "\\.(\\w+)$";
-    private static final Pattern EXTENSION_PATTERN_COMPILE = Pattern.compile(FILE_NAME_EXTENSION_REGEX);
 
     private static final int MIN_NUMBER_VALUE = 0;
 
@@ -162,15 +157,8 @@ public class ValidationUtils {
     }
 
     private static boolean isValidFileName(String fileName) {
-        String extension = extractFileExtension(fileName);
+        String extension = FileUtils.extractFileExtension(fileName);
         return extension != null && FileNameExtension.contains(extension);
     }
 
-    public static String extractFileExtension(String fileName) {
-        Matcher matcher = EXTENSION_PATTERN_COMPILE.matcher(fileName);
-        if (matcher.find()) {
-            return matcher.group(1).toUpperCase();
-        }
-        return null;
-    }
 }

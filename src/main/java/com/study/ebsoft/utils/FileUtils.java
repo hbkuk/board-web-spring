@@ -1,6 +1,5 @@
 package com.study.ebsoft.utils;
 
-import com.study.ebsoft.utils.validation.FileValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,6 +10,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 게시글 작성 또는 수정시
@@ -20,6 +21,9 @@ import java.util.UUID;
 public class FileUtils {
 
     public static final String UPLOAD_PATH = "C:\\upload\\";
+
+    private static final String FILE_NAME_EXTENSION_REGEX = "\\.(\\w+)$";
+    public static final Pattern EXTENSION_PATTERN_COMPILE = Pattern.compile(FILE_NAME_EXTENSION_REGEX);
 
     /**
      * 파일 이름에 해당하는 파일을 삭제했다면 true, 그렇지 않다면 false 를 반환합니다.
@@ -134,7 +138,15 @@ public class FileUtils {
     }
 
     public static String generateSystemName(String fileName) {
-        return String.format("%s.%s", UUID.randomUUID(), FileValidationUtils.extractFileExtension(fileName));
+        return String.format("%s.%s", UUID.randomUUID(), extractFileExtension(fileName));
+    }
+
+    public static String extractFileExtension(String fileName) {
+        Matcher matcher = EXTENSION_PATTERN_COMPILE.matcher(fileName);
+        if (matcher.find()) {
+            return matcher.group(1).toUpperCase();
+        }
+        return null;
     }
 
     public static boolean hasExistFile(MultipartFile[] multipartFiles) {
