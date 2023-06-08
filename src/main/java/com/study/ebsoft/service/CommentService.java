@@ -3,7 +3,7 @@ package com.study.ebsoft.service;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.domain.Comment;
 import com.study.ebsoft.repository.CommentRepository;
-import com.study.ebsoft.utils.validation.CommentValidationUtils;
+import com.study.ebsoft.utils.ValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ public class CommentService {
     }
 
     public void insert(Comment comment) {
-        CommentValidationUtils.validateOnCreate(comment);
+        ValidationUtils.validateComment(comment);
         commentRepository.insert(comment);
     }
 

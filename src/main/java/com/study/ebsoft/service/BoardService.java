@@ -3,7 +3,7 @@ package com.study.ebsoft.service;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.exception.InvalidPasswordException;
 import com.study.ebsoft.repository.BoardRepository;
-import com.study.ebsoft.utils.validation.BoardValidationUtils;
+import com.study.ebsoft.utils.ValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class BoardService {
      */
     public Board findByBoardIdx(Long boardIdx) {
         Board board = boardRepository.findByBoardIdx(boardIdx);
-        if( board == null ) {
+        if( board == null ) { //TODO: 컨트롤러에서 NoSuchElementException 처리할 것.
             throw new NoSuchElementException("해당 글을 찾을 수 없습니다.");
         }
         boardRepository.increaseHit(boardIdx);
@@ -46,7 +46,7 @@ public class BoardService {
     }
 
     public void insert(Board board) {
-        BoardValidationUtils.validateOnCreate(board);
+        ValidationUtils.validateBoard(board);
         boardRepository.insert(board);
     }
 
@@ -55,8 +55,7 @@ public class BoardService {
     }
 
     public void update(Board board, Board updateBoard) {
-
-        BoardValidationUtils.validateOnUpdate(updateBoard);
+        ValidationUtils.validateBoard(updateBoard);
 
         if( !board.canUpdate(updateBoard.getPassword()) ) {
             throw new InvalidPasswordException("비밀번호가 다릅니다.");

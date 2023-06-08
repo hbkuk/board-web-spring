@@ -1,6 +1,8 @@
 package com.study.ebsoft.controller;
 
+import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.domain.Comment;
+import com.study.ebsoft.service.BoardService;
 import com.study.ebsoft.service.CommentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,29 +14,38 @@ import org.springframework.web.bind.annotation.*;
 @RestController()
 public class CommentController {
 
+    private final BoardService boardService;
     private final CommentService commentService;
 
     @Autowired
-    public CommentController(CommentService commentService) {
+    public CommentController(BoardService boardService,
+                             CommentService commentService) {
         this.commentService = commentService;
+        this.boardService = boardService;
     }
 
     /**
      * 댓글을 작성합니다
      *
-     * @param comment 댓글 정보를 담고 있는 커맨드 객체 (Comment)
+     * @param newComment 댓글 정보를 담고 있는 커맨드 객체 (Comment)
      * @return 응답 결과
      */
     @PostMapping("/comment")
-    public ResponseEntity insertComment(@RequestBody Comment comment) {
+    public ResponseEntity insertComment(@RequestBody Comment newComment) {
         log.debug("insertComment 호출");
 
+        // 원글 확인
+        Board board = boardService.findByBoardIdx(newComment.getBoardIdx());
+        if(board == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 게시글을 찾을 수 없습니다."); // Status Code 404
+        }
+
         try {
-            commentService.insert(comment);
+            commentService.insert(newComment);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(comment.getCommentIdx()); // Status Code 201
+        return ResponseEntity.status(HttpStatus.CREATED).body(newComment.getCommentIdx()); // Status Code 201
     }
 
     /**

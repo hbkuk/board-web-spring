@@ -4,6 +4,7 @@ import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.domain.File;
 import com.study.ebsoft.repository.FileRepository;
 import com.study.ebsoft.utils.FileUtils;
+import com.study.ebsoft.utils.ValidationUtils;
 import com.study.ebsoft.utils.validation.FileValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class FileService {
     }
 
     public void insert(File file) {
-        FileValidationUtils.validateOnCreate(file);
+        ValidationUtils.validateFileOnCreate(file);
         fileRepository.insert(file);
     }
 
@@ -76,7 +77,7 @@ public class FileService {
 
     public void update(List<File> newFiles, List<Long> previouslyUploadedIndexes) {
 
-        FileValidationUtils.validateOnCreate(newFiles);
+        ValidationUtils.validateFileOnCreate(newFiles);
 
         // 데이터베이스에 저장된 기존 파일 인덱스와 인자로 받은 인덱스를 비교
         List<Long> indexesToDelete = new ArrayList<>(findAllIndexesByBoardIdx(newFiles.get(0).getBoardIdx()));

@@ -9,8 +9,6 @@ import com.study.ebsoft.service.CategoryService;
 import com.study.ebsoft.service.CommentService;
 import com.study.ebsoft.service.FileService;
 import com.study.ebsoft.utils.FileUtils;
-import com.study.ebsoft.utils.validation.BoardValidationUtils;
-import com.study.ebsoft.utils.validation.FileValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
