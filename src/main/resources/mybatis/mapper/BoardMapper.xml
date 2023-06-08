@@ -5,20 +5,63 @@
 
 <mapper namespace="com.study.ebsoft.mapper.BoardMapper">
 
-    <select id="findAll" resultType="Board" useCache="false" flushCache="true">
+    <resultMap id="BoardsResultMap" type="BoardDTO">
+        <association property="board" resultMap="BoardResultMap"/>
+        <association property="file" resultMap="FileResultMap"/>
+    </resultMap>
+
+    <resultMap id="BoardResultMap" type="Board">
+        <id property="boardIdx" column="boardIdx"/>
+        <result property="categoryIdx" column="categoryIdx"/>
+        <result property="categoryName" column="name"/>
+        <result property="title" column="title"/>
+        <result property="writer" column="writer"/>
+        <result property="content" column="content"/>
+        <result property="hit" column="hit"/>
+        <result property="regDate" column="regdate"/>
+        <result property="modDate" column="moddate"/>
+    </resultMap>
+
+    <resultMap id="FileResultMap" type="File">
+        <id property="fileIdx" column="fileIdx"/>
+        <result property="originalName" column="originalName"/>
+        <result property="fileSize" column="fileSize"/>
+    </resultMap>
+
+    <select id="findAllBySearchCondition" parameterType="SearchConditionDTO" resultMap="BoardsResultMap" useCache="false" flushCache="true">
         SELECT b.boardIdx,
-               c.categoryIdx,
-               c.name AS categoryName,
-               b.title,
-               b.writer,
-               b.content,
-               b.password,
-               b.hit,
-               b.regDate,
-               b.modDate
+        c.categoryIdx,
+        c.name,
+        b.title,
+        b.writer,
+        b.content,
+        b.hit,
+        b.regdate,
+        b.moddate,
+        f.fileIdx,
+        f.originalName,
+        f.fileSize
         FROM tb_board b
-                 JOIN tb_category c ON b.categoryIdx = c.categoryIdx
+        JOIN tb_category c ON b.categoryIdx = c.categoryIdx
+        LEFT OUTER JOIN tb_file f ON b.boardIdx = f.boardIdx
+        WHERE
+        <if test="startDate != null">
+            b.regDate >= #{startDate} AND
+        </if>
+        <if test="endDate != null">
+            #{endDate} >= b.regDate AND
+        </if>
+        <if test="categoryIdx != null">
+            b.categoryIdx = #{categoryIdx} AND
+        </if>
+        <if test="keyword != null">
+            (b.title LIKE CONCAT('%', #{keyword}, '%') OR b.writer LIKE CONCAT('%', #{keyword}, '%') OR b.content LIKE
+            CONCAT('%', #{keyword}, '%')) AND
+        </if>
+        1=1
+        GROUP BY b.boardIdx, f.fileidx
     </select>
+
 
     <select id="findByBoardIdx" parameterType="Long" resultType="Board" useCache="false" flushCache="true">
         SELECT b.boardIdx,

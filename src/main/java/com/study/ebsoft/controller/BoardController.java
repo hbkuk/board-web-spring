@@ -3,12 +3,14 @@ package com.study.ebsoft.controller;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.domain.Category;
 import com.study.ebsoft.domain.File;
+import com.study.ebsoft.dto.SearchConditionDTO;
 import com.study.ebsoft.exception.InvalidPasswordException;
 import com.study.ebsoft.service.BoardService;
 import com.study.ebsoft.service.CategoryService;
 import com.study.ebsoft.service.CommentService;
 import com.study.ebsoft.service.FileService;
 import com.study.ebsoft.utils.FileUtils;
+import com.study.ebsoft.utils.SearchConditionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -38,7 +40,8 @@ public class BoardController {
         this.fileService = fileService;
     }
 
-    // TODO: 검색조건 동적쿼리
+    // TODO: 검색조건 동적쿼리, 페이지네이션
+
     /**
      * 검색조건(searchConditionQueryString)에 맞는 전체 게시물을 응답합니다.
      *
@@ -46,12 +49,17 @@ public class BoardController {
      * @return ResponseEntity 응답 결과
      */
     @GetMapping("/boards")
-    public ResponseEntity<Object> findBoards(Map<String, Object> response) {
-        //mav.addObject("boards", boardService.selectBoardsWithFileCheck(SearchConditionUtils.buildQueryCondition(req.getParameterMap())));
+    public ResponseEntity<Object> findBoards(Map<String, Object> response,
+                                             @RequestParam(required = false) String startDate, @RequestParam(required = false) String endDate,
+                                             @RequestParam(required = false) Integer categoryIdx, @RequestParam(required = false) String keyword) {
         log.debug("findBoards 호출");
+        log.debug("startDate : {} , endDate : {} , categoryIdx : {} , keyword : {}", startDate, endDate, categoryIdx, keyword);
+        SearchConditionDTO searchCondition = SearchConditionDTO.builder()
+                .startDate(SearchConditionUtils.formatDate(startDate)).endDate(SearchConditionUtils.formatDate(endDate))
+                .categoryIdx(categoryIdx).keyword(keyword)
+                .build();
 
-        response.put("boards", boardService.findAll());
-        response.put("files", fileService.findAll());
+        response.put("boards", boardService.findAllBySearchCondition(searchCondition));
         response.put("categories", categoryService.findAll());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -149,20 +157,20 @@ public class BoardController {
      * 게시물을 작성합니다
      *
      * @param multipartFiles 업로드된 파일 배열
-     * @param categoryIdx 카테고리 인덱스
-     * @param title 제목
-     * @param writer 작성자
-     * @param content 내용
-     * @param password 비밀번호
+     * @param categoryIdx    카테고리 인덱스
+     * @param title          제목
+     * @param writer         작성자
+     * @param content        내용
+     * @param password       비밀번호
      * @return 응답 결과
      */
     @PostMapping("/board")
     public ResponseEntity<?> insertBoard(@RequestPart(value = "file", required = false) MultipartFile[] multipartFiles,
-                                      @RequestParam(value = "categoryIdx") Integer categoryIdx,
-                                      @RequestParam(value = "title") String title,
-                                      @RequestParam(value = "writer") String writer,
-                                      @RequestParam(value = "content") String content,
-                                      @RequestParam(value = "password") String password) {
+                                         @RequestParam(value = "categoryIdx") Integer categoryIdx,
+                                         @RequestParam(value = "title") String title,
+                                         @RequestParam(value = "writer") String writer,
+                                         @RequestParam(value = "content") String content,
+                                         @RequestParam(value = "password") String password) {
         log.debug("insertBoard 호출");
 
         // 1. 도메인 객체 생성
@@ -185,25 +193,25 @@ public class BoardController {
     /**
      * 게시물 번호에 해당하는 게시물을 수정합니다
      *
-     * @param boardIdx 게시글 번호
-     * @param multipartFiles 업로드된 파일 배열
-     * @param categoryIdx 카테고리 인덱스
-     * @param title 제목
-     * @param writer 작성자
-     * @param content 내용
-     * @param password 비밀번호
+     * @param boardIdx                  게시글 번호
+     * @param multipartFiles            업로드된 파일 배열
+     * @param categoryIdx               카테고리 인덱스
+     * @param title                     제목
+     * @param writer                    작성자
+     * @param content                   내용
+     * @param password                  비밀번호
      * @param previouslyUploadedIndexes 기존 업로드된 파일 인덱스 리스트
      * @return 응답 결과
      */
     @PutMapping("/board/{boardIdx}")
     public ResponseEntity<?> updateBoard(@PathVariable("boardIdx") Long boardIdx,
-                                      @RequestPart(value = "file", required = false) MultipartFile[] multipartFiles,
-                                      @RequestParam(value = "categoryIdx") Integer categoryIdx,
-                                      @RequestParam(value = "title") String title,
-                                      @RequestParam(value = "writer") String writer,
-                                      @RequestParam(value = "content") String content,
-                                      @RequestParam(value = "password") String password,
-                                      @RequestParam(value = "fileIdx", required = false) List<Long> previouslyUploadedIndexes) {
+                                         @RequestPart(value = "file", required = false) MultipartFile[] multipartFiles,
+                                         @RequestParam(value = "categoryIdx") Integer categoryIdx,
+                                         @RequestParam(value = "title") String title,
+                                         @RequestParam(value = "writer") String writer,
+                                         @RequestParam(value = "content") String content,
+                                         @RequestParam(value = "password") String password,
+                                         @RequestParam(value = "fileIdx", required = false) List<Long> previouslyUploadedIndexes) {
         log.debug("updateBoard 호출");
 
         // 1. 게시글 원본 확인(예외처리는 GlobalExceptionHandler 위임)
