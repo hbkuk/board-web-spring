@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Slf4j
@@ -28,7 +29,7 @@ public class BoardService {
      * 
      * @return 게시물 목록
      */
-    public BoardDTO findAllBySearchCondition(SearchConditionDTO searchCondition) {
+    public List<BoardDTO> findAllBySearchCondition(SearchConditionDTO searchCondition) {
         return boardRepository.findAllBySearchCondition(searchCondition);
     }
 

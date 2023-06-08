@@ -5,10 +5,12 @@ import com.study.ebsoft.dto.BoardDTO;
 import com.study.ebsoft.dto.SearchConditionDTO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 @Mapper
 public interface BoardMapper {
 
-    BoardDTO findAllBySearchCondition(SearchConditionDTO searchCondition);
+    List<BoardDTO> findAllBySearchCondition(SearchConditionDTO searchCondition);
 
     Board findByBoardIdx(Long boardIdx);
 
