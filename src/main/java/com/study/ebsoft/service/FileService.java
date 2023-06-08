@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -56,7 +57,11 @@ public class FileService {
     }
 
     public File findByFileIdx(Long fileIdx) {
-        return fileRepository.findByFileIdx(fileIdx);
+        File file = fileRepository.findByFileIdx(fileIdx);
+        if( file == null ) {
+            throw new NoSuchElementException("해당 파일을 찾을 수 없습니다.");
+        }
+        return file;
     }
 
     public List<Long> findAllIndexesByBoardIdx(Long boardIdx) {

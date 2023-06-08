@@ -38,7 +38,7 @@ public class BoardService {
      */
     public Board findByBoardIdx(Long boardIdx) {
         Board board = boardRepository.findByBoardIdx(boardIdx);
-        if( board == null ) { //TODO: 컨트롤러에서 NoSuchElementException 처리할 것.
+        if( board == null ) {
             throw new NoSuchElementException("해당 글을 찾을 수 없습니다.");
         }
         boardRepository.increaseHit(boardIdx);

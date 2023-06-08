@@ -34,11 +34,8 @@ public class CommentController {
     public ResponseEntity insertComment(@RequestBody Comment newComment) {
         log.debug("insertComment 호출");
 
-        // 원글 확인
-        Board board = boardService.findByBoardIdx(newComment.getBoardIdx());
-        if(board == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 게시글을 찾을 수 없습니다."); // Status Code 404
-        }
+        // 게시글 원본 확인(예외처리는 GlobalExceptionHandler 위임)
+        boardService.findByBoardIdx(newComment.getBoardIdx());
 
         try {
             commentService.insert(newComment);
@@ -60,11 +57,8 @@ public class CommentController {
                                         @RequestParam(value = "password") String password) {
         log.debug("deleteComment 호출");
 
-        // 패스워드 체크..
+        // 게시글 원본 확인(예외처리는 GlobalExceptionHandler 위임)
         Comment comment = commentService.findByCommentIdx(commentIdx);
-        if (comment == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 댓글을 찾을 수 없습니다."); // Status Code 404
-        }
 
         if (!comment.canDelete(password)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 다릅니다."); // Status Code 401

@@ -206,11 +206,8 @@ public class BoardController {
                                       @RequestParam(value = "fileIdx", required = false) List<Long> previouslyUploadedIndexes) {
         log.debug("updateBoard 호출");
 
-        // 1. 게시글 원본 확인
+        // 1. 게시글 원본 확인(예외처리는 GlobalExceptionHandler 위임)
         Board board = boardService.findByBoardIdx(boardIdx);
-        if (board == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 글을 찾을 수 없습니다."); // Status Code 404
-        }
 
         // 2. 도메인 객체 생성
         Board updateBoard = Board.builder().boardIdx(boardIdx).categoryIdx(categoryIdx).title(title).writer(writer).content(content).password(password).build();
@@ -244,11 +241,8 @@ public class BoardController {
                                       @RequestParam(value = "password") String password) {
         log.debug("deleteBoard 호출 -> 게시글 번호 : {}", boardIdx);
 
-        // 1. 게시글 확인
+        // 1. 게시글 원본 확인(예외처리는 GlobalExceptionHandler 위임)
         Board board = boardService.findByBoardIdx(boardIdx);
-        if (board == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 글을 찾을 수 없습니다."); // Status Code 404
-        }
 
         // 2. 패스워드 확인
         if (!board.canDelete(password)) {

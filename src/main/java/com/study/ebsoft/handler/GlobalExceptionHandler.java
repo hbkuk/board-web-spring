@@ -2,15 +2,14 @@ package com.study.ebsoft.handler;
 
 import com.study.ebsoft.exception.SearchConditionException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.NoSuchElementException;
 
 @Slf4j
@@ -43,15 +42,13 @@ public class GlobalExceptionHandler {
      *      게시글을 수정 또는 삭제 하려고 했을때, 해당 게시글이 없을 경우 예외를 던집니다.
      *
      * @param e 발생한 NoSuchElementException 예외 객체
-     * @return 에러 페이지에 대한 ModelAndView 객체
+     * @return 응답 결과
      */
     @ExceptionHandler(NoSuchElementException.class)
-    public ModelAndView handleNoSuchElementException(NoSuchElementException e) {
+    public ResponseEntity handleNoSuchElementException(NoSuchElementException e) {
         log.error(e.getMessage());
 
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("error/error404");
-        return modelAndView;
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 글을 찾을 수 없습니다."); // Status Code 404
     }
 
     /**
