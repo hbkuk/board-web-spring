@@ -5,30 +5,27 @@
 
 <mapper namespace="com.study.ebsoft.mapper.BoardMapper">
 
-    <resultMap id="BoardsResultMap" type="BoardDTO">
-        <association property="board" resultMap="BoardResultMap"/>
-        <association property="file" resultMap="FileResultMap"/>
+    <resultMap id="BoardDTOResultMap" type="BoardDTO">
+        <collection property="board" ofType="Board">
+            <id property="boardIdx" column="boardIdx"/>
+            <result property="categoryIdx" column="categoryIdx"/>
+            <result property="categoryName" column="name"/>
+            <result property="title" column="title"/>
+            <result property="writer" column="writer"/>
+            <result property="content" column="content"/>
+            <result property="hit" column="hit"/>
+            <result property="regDate" column="regdate"/>
+            <result property="modDate" column="moddate"/>
+        </collection>
+        <collection property="file" ofType="File">
+            <id property="fileIdx" column="fileIdx"/>
+            <result property="originalName" column="originalName"/>
+            <result property="fileSize" column="fileSize"/>
+            <result property="boardIdx" column="boardIdx"/>
+        </collection>
     </resultMap>
 
-    <resultMap id="BoardResultMap" type="Board">
-        <id property="boardIdx" column="boardIdx"/>
-        <result property="categoryIdx" column="categoryIdx"/>
-        <result property="categoryName" column="name"/>
-        <result property="title" column="title"/>
-        <result property="writer" column="writer"/>
-        <result property="content" column="content"/>
-        <result property="hit" column="hit"/>
-        <result property="regDate" column="regdate"/>
-        <result property="modDate" column="moddate"/>
-    </resultMap>
-
-    <resultMap id="FileResultMap" type="File">
-        <id property="fileIdx" column="fileIdx"/>
-        <result property="originalName" column="originalName"/>
-        <result property="fileSize" column="fileSize"/>
-    </resultMap>
-
-    <select id="findAllBySearchCondition" parameterType="SearchConditionDTO" resultMap="BoardsResultMap" useCache="false" flushCache="true">
+    <select id="findAllBySearchCondition" parameterType="SearchConditionDTO" resultMap="BoardDTOResultMap" useCache="false" flushCache="true">
         SELECT b.boardIdx,
         c.categoryIdx,
         c.name,
@@ -40,7 +37,8 @@
         b.moddate,
         f.fileIdx,
         f.originalName,
-        f.fileSize
+        f.fileSize,
+        f.boardIdx
         FROM tb_board b
         JOIN tb_category c ON b.categoryIdx = c.categoryIdx
         LEFT OUTER JOIN tb_file f ON b.boardIdx = f.boardIdx
