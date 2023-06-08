@@ -24,17 +24,18 @@ public class BoardService {
 
     /**
      * 검색 조건에 맞는 모든 게시물에 대한 정보와 해당 게시물에 업로드된 파일의 존재여부를 생성해 리턴합니다
+     * 
+     * @return 게시물 목록
      */
     public List<Board> findAll() {
         return boardRepository.findAll();
     }
 
     /**
-     * 게시물 번호를 인자로 받아
-     * 조회수 1을 증가시킨 후 번호에 해당하는 게시물을 생성해 리턴합니다
+     * 게시물 번호를 인자로 받아 해당 게시물을 가져온 후 조회수를 1 증가시킨 후 리턴합니다.
      *
      * @param boardIdx 게시물 번호
-     * @return 게시물 번호에 해당하는 게시물이 있다면 BoardDTO, 그렇지 않다면 null
+     * @return 게시물 번호에 해당하는 게시물이 있다면 Board, 그렇지 않다면 NoSuchElementException 던집니다.
      */
     public Board findByBoardIdx(Long boardIdx) {
         Board board = boardRepository.findByBoardIdx(boardIdx);
@@ -45,15 +46,22 @@ public class BoardService {
         return board;
     }
 
+    /**
+     * 게시물을 저장합니다.
+     *
+     * @param board 게시물 정보가 담긴 객체
+     */
     public void insert(Board board) {
         ValidationUtils.validateBoard(board);
         boardRepository.insert(board);
     }
 
-    public void delete(Board board) {
-        boardRepository.delete(board);
-    }
-
+    /**
+     * 게시물을 수정합니다.
+     * 
+     * @param board 원글 정보가 담긴 객체
+     * @param updateBoard 수정 정보가 담긴 객체
+     */
     public void update(Board board, Board updateBoard) {
         ValidationUtils.validateBoard(updateBoard);
 
@@ -62,5 +70,14 @@ public class BoardService {
         }
 
         boardRepository.update(board.update(updateBoard));
+    }
+
+    /**
+     * 게시물을 삭제합니다.
+     *
+     * @param board 게시물 정보가 담긴 객체
+     */
+    public void delete(Board board) {
+        boardRepository.delete(board);
     }
 }

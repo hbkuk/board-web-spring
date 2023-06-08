@@ -250,8 +250,8 @@ public class BoardController {
         }
 
         // 3. 댓글 -> 파일 -> 게시글 삭제
-        commentService.deleteAllByBoardIdx(board);
-        fileService.deleteAllByBoardIdx(board);
+        commentService.deleteAllByBoardIdx(boardIdx);
+        fileService.deleteAllByBoardIdx(boardIdx);
         boardService.delete(board);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // Status Code 201

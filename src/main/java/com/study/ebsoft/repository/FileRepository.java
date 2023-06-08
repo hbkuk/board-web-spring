@@ -30,8 +30,8 @@ public class FileRepository {
         return fileMapper.findAllByBoardIdx(boardIdx);
     }
 
-    public void deleteAllByBoardIdx(Board board) {
-        fileMapper.deleteAllByBoardIdx(board);
+    public void deleteAllByBoardIdx(Long boardIdx) {
+        fileMapper.deleteAllByBoardIdx(boardIdx);
     }
 
     public File findByFileIdx(Long fileIdx) {

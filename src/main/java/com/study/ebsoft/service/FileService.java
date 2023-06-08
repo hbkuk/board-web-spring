@@ -1,6 +1,5 @@
 package com.study.ebsoft.service;
 
-import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.domain.File;
 import com.study.ebsoft.repository.FileRepository;
 import com.study.ebsoft.utils.FileUtils;
@@ -25,60 +24,109 @@ public class FileService {
     }
 
     /**
-     * 모든 카테고리를 리턴합니다
+     * 모든 파일을 리턴합니다.
      *
-     * @return 모든 카테고리
+     * @return 파일 목록
      */
     public List<File> findAll() {
         return fileRepository.findAll();
     }
 
+    /**
+     * 파일을 저장합니다.
+     *
+     * @param file 파일 정보가 담긴 객체
+     */
     public void insert(File file) {
         ValidationUtils.validateFileOnCreate(file);
         fileRepository.insert(file);
     }
 
+    /**
+     * 파일 목록과 게시물 번호를 인자로 받아 파일을 저장합니다.
+     *
+     * @param files    파일 정보가 담긴 파일 리스트
+     * @param boardIdx 게시물 번호
+     */
     public void insert(List<File> files, Long boardIdx) {
         for (File file : files) {
             insert(file.updateBoardIdx(boardIdx));
         }
     }
 
+    /**
+     * 게시물 번호를 인자로 받아 파일 목록을 리턴합니다.
+     *
+     * @param boardIdx 게시글 번호
+     * @return 파일 목록
+     */
     public List<File> findAllByBoardIdx(Long boardIdx) {
         return fileRepository.findAllByBoardIdx(boardIdx);
     }
 
-    public void deleteAllByBoardIdx(Board board) {
+    /**
+     * 게시물 번호를 인자로 받아 모든 파일을 삭제합니다.
+     *
+     * @param boardIdx 게시물 번호
+     */
+    public void deleteAllByBoardIdx(Long boardIdx) {
+        List<File> files = fileRepository.findAllByBoardIdx(boardIdx);
 
-        List<File> files = fileRepository.findAllByBoardIdx(board.getBoardIdx());
-        files.forEach(file -> FileUtils.deleteUploadedFile(file.getSavedName()));
-
-        fileRepository.deleteAllByBoardIdx(board);
+        FileUtils.deleteFilesFromServerDirectory(files);
+        fileRepository.deleteAllByBoardIdx(boardIdx);
     }
 
+    /**
+     * 파일 번호를 인자로 받아 해당 파일을 리턴합니다.
+     *
+     * @param fileIdx 파일 번호
+     * @return 파일 번호에 해당하는 파일이 있다면 File, 그렇지 않다면 NoSuchElementException 던집니다.
+     */
     public File findByFileIdx(Long fileIdx) {
         File file = fileRepository.findByFileIdx(fileIdx);
-        if( file == null ) {
+        if (file == null) {
             throw new NoSuchElementException("해당 파일을 찾을 수 없습니다.");
         }
         return file;
     }
 
+    /**
+     * 게시물 번호를 인자로 받아 해당하는 파일 번호 목록을 리턴합니다.
+     *
+     * @param boardIdx 게시물 번호
+     * @return 파일 번호 목록
+     */
     public List<Long> findAllIndexesByBoardIdx(Long boardIdx) {
         return fileRepository.findAllIndexesByBoardIdx(boardIdx);
     }
 
+    /**
+     * 파일 번호를 인자로 받아 해당하는 파일을 삭제합니다.
+     *
+     * @param fileIdx 파일 인덱스
+     */
     public void delete(Long fileIdx) {
         FileUtils.deleteUploadedFile(findByFileIdx(fileIdx).getSavedName());
         fileRepository.delete(fileIdx);
     }
 
+    /**
+     * 파일 번호 목록을 인자로 받아 해당하는 파일들을 삭제합니다.
+     *
+     * @param fileIndexes 파일 번호 목록
+     */
     public void delete(List<Long> fileIndexes) {
         for (Long fileIdx : fileIndexes) {
             delete(fileIdx);
         }
     }
 
+    /**
+     * 새로운 파일들과 이전에 업로드된 파일 인덱스 목록을 기준으로 파일을 저장 또는 삭제합니다.
+     *
+     * @param newFiles                  새롭게 업로드된 파일 목록
+     * @param previouslyUploadedIndexes 이전에 업로드된 파일 번호 목록
+     */
     public void update(List<File> newFiles, List<Long> previouslyUploadedIndexes) {
 
         ValidationUtils.validateFileOnCreate(newFiles);
@@ -93,6 +141,12 @@ public class FileService {
         delete(indexesToDelete);
     }
 
+    /**
+     * 이전에 업로드된 파일 번호 목록을 인자로 받아 비어있다면 true, 그렇지 않다면 false를 리턴합니다.
+     *
+     * @param previouslyUploadedIndexes 이전에 업로드된 파일 번호 목록
+     * @return 목록이 비어있다면 true, 그렇지 않다면 false를 리턴
+     */
     private boolean isNotNull(List<Long> previouslyUploadedIndexes) {
         return previouslyUploadedIndexes != null && !previouslyUploadedIndexes.isEmpty();
     }

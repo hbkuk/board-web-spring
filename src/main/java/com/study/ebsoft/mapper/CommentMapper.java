@@ -11,7 +11,7 @@ public interface CommentMapper {
 
     List<Comment> findAll();
 
-    void deleteAllByBoardIdx(Board board);
+    void deleteAllByBoardIdx(Long boardIdx);
 
     void insert(Comment comment);
 

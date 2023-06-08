@@ -1,6 +1,5 @@
 package com.study.ebsoft.mapper;
 
-import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.domain.File;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -15,7 +14,7 @@ public interface FileMapper {
 
     List<File> findAllByBoardIdx(Long boardIdx);
 
-    void deleteAllByBoardIdx(Board board);
+    void deleteAllByBoardIdx(Long boardIdx);
 
     File findByFileIdx(Long fileIdx);
 

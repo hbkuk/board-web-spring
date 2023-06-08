@@ -22,8 +22,8 @@ public class CommentRepository {
         return commentMapper.findAll();
     }
 
-    public void deleteAllByBoardIdx(Board board) {
-        commentMapper.deleteAllByBoardIdx(board);
+    public void deleteAllByBoardIdx(Long boardIdx) {
+        commentMapper.deleteAllByBoardIdx(boardIdx);
     }
 
     public void insert(Comment comment) {
