@@ -38,17 +38,11 @@ public class BoardValidationUtils {
     public static void validateOnUpdate(Board board) {
         log.debug("validateOnUpdate.... 유효성 검증 -> board : {} ", board.toString());
 
-        //validateBoardIdx(board.getBoardIdx());
         validateCategoryIdx(board.getCategoryIdx());
         validateTitle(board.getTitle());
         validateWriter(board.getWriter());
         validateContent(board.getContent());
         validatePassword(board.getPassword());
-    }
-
-    public static void delete(Board board) {
-        validateBoardIdx(board.getBoardIdx());
-        isEmpty(board.getPassword());
     }
 
     private static boolean isEmpty(String value) {
