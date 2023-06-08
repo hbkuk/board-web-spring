@@ -58,8 +58,8 @@ public class BoardService {
 
     /**
      * 게시물을 수정합니다.
-     * 
-     * @param board 원글 정보가 담긴 객체
+     *
+     * @param board       원글 정보가 담긴 객체
      * @param updateBoard 수정 정보가 담긴 객체
      */
     public void update(Board board, Board updateBoard) {
