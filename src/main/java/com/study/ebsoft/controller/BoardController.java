@@ -139,7 +139,7 @@ public class BoardController {
         // 3. 다운로드 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDispositionFormData("attachment", FileUtils.generateEncodedName(file));
+        headers.setContentDispositionFormData("attachment", FileUtils.generateEncodedName(file.getOriginalName()));
         headers.setContentLength(fileContent.length);
 
         return ResponseEntity.ok().headers(headers).body(fileContent);
@@ -167,7 +167,7 @@ public class BoardController {
 
         // 1. 도메인 객체 생성
         Board board = Board.builder().categoryIdx(categoryIdx).title(title).writer(writer).content(content).password(password).build();
-        List<File> files = FileUtils.toFilesAfterUpload(multipartFiles, board.getBoardIdx());
+        List<File> files = fileService.processUploadedFiles(multipartFiles);
 
         // 2. Service 유효성 검증, DB insert 로직 위임
         try {
@@ -175,7 +175,7 @@ public class BoardController {
             fileService.insert(files, board.getBoardIdx());
         } catch (IllegalArgumentException e) {
             // 2-1. 예외 발생 -> 디렉토리 파일 삭제
-            files.forEach(FileUtils::deleteFileFromServerDirectory);
+            fileService.deleteFilesFromServerDirectory(files);
             return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
         }
 
@@ -211,19 +211,19 @@ public class BoardController {
 
         // 2. 도메인 객체 생성
         Board updateBoard = Board.builder().boardIdx(boardIdx).categoryIdx(categoryIdx).title(title).writer(writer).content(content).password(password).build();
-        List<File> newFiles = FileUtils.toFilesAfterUpload(multipartFiles, boardIdx);
+        List<File> newFiles = fileService.processUploadedFiles(multipartFiles);
 
         // 3-1. Service 유효성 검증, DB insert 로직 위임
         try {
             boardService.update(board, updateBoard);
-            fileService.update(newFiles, previouslyUploadedIndexes);
+            fileService.update(newFiles, previouslyUploadedIndexes, boardIdx);
         } catch (IllegalArgumentException e) {
             // 3-2. 유효성 검증 실패
-            FileUtils.deleteFilesFromServerDirectory(newFiles);
+            fileService.deleteFilesFromServerDirectory(newFiles);
             return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
         } catch (InvalidPasswordException e) {
             // 3-3. 패스워드 불일치
-            FileUtils.deleteFilesFromServerDirectory(newFiles);
+            fileService.deleteFilesFromServerDirectory(newFiles);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage()); // Status Code 401
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(board.getBoardIdx()); // Status Code 201

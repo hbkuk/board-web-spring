@@ -7,7 +7,9 @@ import com.study.ebsoft.utils.ValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -72,7 +74,7 @@ public class FileService {
     public void deleteAllByBoardIdx(Long boardIdx) {
         List<File> files = fileRepository.findAllByBoardIdx(boardIdx);
 
-        FileUtils.deleteFilesFromServerDirectory(files);
+        deleteFilesFromServerDirectory(files);
         fileRepository.deleteAllByBoardIdx(boardIdx);
     }
 
@@ -126,8 +128,9 @@ public class FileService {
      *
      * @param newFiles                  새롭게 업로드된 파일 목록
      * @param previouslyUploadedIndexes 이전에 업로드된 파일 번호 목록
+     * @param boardIdx
      */
-    public void update(List<File> newFiles, List<Long> previouslyUploadedIndexes) {
+    public void update(List<File> newFiles, List<Long> previouslyUploadedIndexes, Long boardIdx) {
 
         ValidationUtils.validateFileOnCreate(newFiles);
 
@@ -137,7 +140,7 @@ public class FileService {
             indexesToDelete.removeAll(previouslyUploadedIndexes);
         }
 
-        insert(newFiles, newFiles.get(0).getBoardIdx());
+        insert(newFiles, boardIdx);
         delete(indexesToDelete);
     }
 
@@ -149,5 +152,58 @@ public class FileService {
      */
     private boolean isNotNull(List<Long> previouslyUploadedIndexes) {
         return previouslyUploadedIndexes != null && !previouslyUploadedIndexes.isEmpty();
+    }
+
+    public void deleteFilesFromServerDirectory(List<File> files) {
+        for (File file : files) {
+            FileUtils.deleteUploadedFile(file.getSavedName());
+        }
+        files.clear(); // 파일 삭제 후 리스트 비우기
+    }
+
+    public List<File> processUploadedFiles(MultipartFile[] multipartFiles) {
+        List<File> files = new ArrayList<>();
+
+        if (hasExistUploadFile(multipartFiles)) {
+            for (MultipartFile multipartFile : multipartFiles) {
+                File file = processUploadedFile(multipartFile);
+                if( file == null) {
+                    // 예외 발생 시 모든 파일 삭제
+                    deleteFilesFromServerDirectory(files);
+                    break;
+                }
+                files.add(file);
+            }
+        }
+        return files;
+    }
+
+    private File processUploadedFile(MultipartFile multipartFile) {
+        if (multipartFile.isEmpty()) {
+            return null;
+        }
+
+        String fileName = multipartFile.getOriginalFilename();
+        String systemName = FileUtils.generateSystemName(fileName);
+        int fileSize = (int) multipartFile.getSize();
+
+        try {
+            multipartFile.transferTo(FileUtils.createAbsolutePath(systemName));
+            log.debug("업로드 완료 .. 저장된 파일 이름 : {} ", systemName);
+        } catch (IOException e) {
+            // 파일 업로드 중 에러 발생 시 파일 삭제
+            log.error("파일 업로드 중 예외 발생 -> error : {}", e.getMessage());
+            return null;
+        }
+
+        return File.builder()
+                .savedName(systemName)
+                .originalName(fileName)
+                .fileSize(fileSize)
+                .build();
+    }
+
+    private static boolean hasExistUploadFile(MultipartFile[] multipartFiles) {
+        return multipartFiles != null && multipartFiles.length > 0;
     }
 }
