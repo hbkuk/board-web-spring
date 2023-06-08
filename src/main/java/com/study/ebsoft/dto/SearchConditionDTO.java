@@ -12,8 +12,10 @@ import lombok.*;
 @AllArgsConstructor
 @Data
 public class SearchConditionDTO {
+
     private final String startDate;
     private final String endDate;
     private final Integer categoryIdx;
     private final String keyword;
+
 }

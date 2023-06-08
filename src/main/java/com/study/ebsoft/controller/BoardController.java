@@ -40,8 +40,7 @@ public class BoardController {
         this.fileService = fileService;
     }
 
-    // TODO: 검색조건 동적쿼리, 페이지네이션
-
+    // TODO: 페이지네이션
     /**
      * 검색조건(searchConditionQueryString)에 맞는 전체 게시물을 응답합니다.
      *
@@ -55,7 +54,7 @@ public class BoardController {
         log.debug("findBoards 호출");
         log.debug("startDate : {} , endDate : {} , categoryIdx : {} , keyword : {}", startDate, endDate, categoryIdx, keyword);
         SearchConditionDTO searchCondition = SearchConditionDTO.builder()
-                .startDate(SearchConditionUtils.formatDate(startDate)).endDate(SearchConditionUtils.formatDate(endDate))
+                .startDate(SearchConditionUtils.formatStartDate(startDate)).endDate(SearchConditionUtils.formatEndDate(endDate))
                 .categoryIdx(categoryIdx).keyword(keyword)
                 .build();
 

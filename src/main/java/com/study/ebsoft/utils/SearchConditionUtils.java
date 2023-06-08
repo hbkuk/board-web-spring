@@ -3,9 +3,7 @@ package com.study.ebsoft.utils;
 import com.study.ebsoft.exception.SearchConditionException;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
@@ -28,7 +26,7 @@ public class SearchConditionUtils {
     private static final String[] SEARCH_CONDITIONS =
             {START_DATE_PARAMETER_KEY, END_DATE_PARAMETER_KEY,
                     KEYWORD_PARAMETER_KEY, CATEGORY_IDX_PARAMETER_KEY};
-    
+
     private static final int DEFAULT_MINUS_YEARS = 1;
     private static final String INPUT_DATE_FORMAT = "yyyyMMdd";
     private static final String OUTPUT_DATE_FORMAT = "yyyy-MM-dd";
@@ -54,7 +52,7 @@ public class SearchConditionUtils {
             for (String searchCondition : SEARCH_CONDITIONS) {
                 if (key.equals(searchCondition)) {
                     if(key.equals(START_DATE_PARAMETER_KEY) || key.equals(END_DATE_PARAMETER_KEY) ) {
-                        queryBuilder.append(key).append("=").append(formatDate(parameterMap.get(key)[0]));
+                        queryBuilder.append(key).append("=").append(formatStartDate(parameterMap.get(key)[0]));
                         log.debug("Build Query String append : {} ", queryBuilder);
                         queryBuilder.append("&");
                         break;
@@ -88,6 +86,7 @@ public class SearchConditionUtils {
         return input.replaceAll("[^a-zA-Z0-9가-힣]", " ");
     }
 
+    // TODO: 리팩토링
     /**
      * 전달된 날짜 형식의 문자열{yyyyMMdd}을 커스텀 형식{yyyy-MM-dd}으로 포맷팅하고 리턴합니다
      *
@@ -95,12 +94,34 @@ public class SearchConditionUtils {
      * @return 포맷팅된 날짜 문자열
      * @throws SearchConditionException 날짜 형식이 올바르지 않은 경우 발생합니다
      */
-    public static String formatDate(String dateStr) {
+    public static String formatStartDate(String dateStr) {
+        if(dateStr == null) {
+            return LocalDate.now().minusYears(DEFAULT_MINUS_YEARS).format(DateTimeFormatter.ofPattern(OUTPUT_DATE_FORMAT));
+        }
+
         try {
-            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern(INPUT_DATE_FORMAT);
-            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern(OUTPUT_DATE_FORMAT);
-            LocalDate date = LocalDate.parse(dateStr, inputFormatter);
-            return date.format(outputFormatter);
+            LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern(INPUT_DATE_FORMAT));
+            return date.format(DateTimeFormatter.ofPattern(OUTPUT_DATE_FORMAT));
+        } catch (DateTimeParseException e) {
+            throw new SearchConditionException("올바른 날짜 형식이 아닙니다");
+        }
+    }
+
+    /**
+     * 전달된 날짜 형식의 문자열{yyyyMMdd}을 커스텀 형식{yyyy-MM-dd}으로 포맷팅하고 리턴합니다
+     *
+     * @param inputDateStr 포맷팅할 날짜 문자열
+     * @return 포맷팅된 날짜 문자열
+     * @throws SearchConditionException 날짜 형식이 올바르지 않은 경우 발생합니다
+     */
+    public static String formatEndDate(String inputDateStr) {
+        if(inputDateStr == null) {
+            return LocalDate.now().format(DateTimeFormatter.ofPattern(OUTPUT_DATE_FORMAT));
+        }
+
+        try {
+            LocalDate date = LocalDate.parse(inputDateStr, DateTimeFormatter.ofPattern(INPUT_DATE_FORMAT));
+            return date.format(DateTimeFormatter.ofPattern(OUTPUT_DATE_FORMAT));
         } catch (DateTimeParseException e) {
             throw new SearchConditionException("올바른 날짜 형식이 아닙니다");
         }
