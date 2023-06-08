@@ -1,4 +1,4 @@
-package com.study.ebsoft.utils.validation;
+package com.study.ebsoft.utils;
 
 import java.util.Arrays;
 import java.util.List;

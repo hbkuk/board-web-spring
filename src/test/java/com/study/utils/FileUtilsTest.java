@@ -3,10 +3,7 @@ package com.study.utils;
 import com.study.ebsoft.domain.File;
 import com.study.ebsoft.utils.FileUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
@@ -48,6 +45,7 @@ public class FileUtilsTest {
     }
 
 
+    @Disabled("서비스 클래스에서 진행")
     @Test
     public void deleteFilesFromServerDirectory() {
         MockedStatic<FileUtils> mFileUtils = mockStatic(FileUtils.class);

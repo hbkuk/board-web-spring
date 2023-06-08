@@ -5,7 +5,6 @@ import com.study.ebsoft.domain.File;
 import com.study.ebsoft.repository.FileRepository;
 import com.study.ebsoft.utils.FileUtils;
 import com.study.ebsoft.utils.ValidationUtils;
-import com.study.ebsoft.utils.validation.FileValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
