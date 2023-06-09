@@ -52,7 +52,7 @@ public class SearchConditionUtils {
             for (String searchCondition : SEARCH_CONDITIONS) {
                 if (key.equals(searchCondition)) {
                     if(key.equals(START_DATE_PARAMETER_KEY) || key.equals(END_DATE_PARAMETER_KEY) ) {
-                        queryBuilder.append(key).append("=").append(formatStartDate(parameterMap.get(key)[0]));
+                        queryBuilder.append(key).append("=").append(formatCustomStartDate(parameterMap.get(key)[0]));
                         log.debug("Build Query String append : {} ", queryBuilder);
                         queryBuilder.append("&");
                         break;
@@ -86,39 +86,45 @@ public class SearchConditionUtils {
         return input.replaceAll("[^a-zA-Z0-9가-힣]", " ");
     }
 
-    // TODO: 리팩토링
     /**
-     * 전달된 날짜 형식의 문자열{yyyyMMdd}을 커스텀 형식{yyyy-MM-dd}으로 포맷팅하고 리턴합니다
-     *
-     * @param dateStr 포맷팅할 날짜 문자열
-     * @return 포맷팅된 날짜 문자열
-     * @throws SearchConditionException 날짜 형식이 올바르지 않은 경우 발생합니다
-     */
-    public static String formatStartDate(String dateStr) {
-        if(dateStr == null) {
-            return LocalDate.now().minusYears(DEFAULT_MINUS_YEARS).format(DateTimeFormatter.ofPattern(OUTPUT_DATE_FORMAT));
-        }
-
-        try {
-            LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern(INPUT_DATE_FORMAT));
-            return date.format(DateTimeFormatter.ofPattern(OUTPUT_DATE_FORMAT));
-        } catch (DateTimeParseException e) {
-            throw new SearchConditionException("올바른 날짜 형식이 아닙니다");
-        }
-    }
-
-    /**
-     * 전달된 날짜 형식의 문자열{yyyyMMdd}을 커스텀 형식{yyyy-MM-dd}으로 포맷팅하고 리턴합니다
+     * 전달된 날짜 형식의 문자열{yyyyMMdd}을 커스텀 형식{yyyy-MM-dd}으로 포맷팅하고 리턴합니다.
+     * 만약 입력된 날짜 문자열이 없는 경우, 기본 날짜를 사용하여 포맷팅합니다.
      *
      * @param inputDateStr 포맷팅할 날짜 문자열
      * @return 포맷팅된 날짜 문자열
      * @throws SearchConditionException 날짜 형식이 올바르지 않은 경우 발생합니다
      */
-    public static String formatEndDate(String inputDateStr) {
+    public static String formatCustomStartDate(String inputDateStr) {
+        if(inputDateStr == null) {
+            return LocalDate.now().minusYears(DEFAULT_MINUS_YEARS).format(DateTimeFormatter.ofPattern(OUTPUT_DATE_FORMAT));
+        }
+        return formattedDate(inputDateStr);
+    }
+
+    /**
+     * 전달된 날짜 형식의 문자열{yyyyMMdd}을 커스텀 형식{yyyy-MM-dd}으로 포맷팅하고 리턴합니다.
+     * 만약 입력된 날짜 문자열이 없는 경우, 현재 날짜를 사용하여 포맷팅합니다.
+     *
+     * @param inputDateStr 포맷팅할 날짜 문자열
+     * @return 포맷팅된 날짜 문자열
+     * @throws SearchConditionException 날짜 형식이 올바르지 않은 경우 발생합니다
+     */
+    public static String formatCustomEndDate(String inputDateStr) {
         if(inputDateStr == null) {
             return LocalDate.now().format(DateTimeFormatter.ofPattern(OUTPUT_DATE_FORMAT));
         }
 
+        return formattedDate(inputDateStr);
+    }
+
+    /**
+     * 날짜 문자열을 커스텀 형식으로 포맷팅합니다.
+     *
+     * @param inputDateStr 포맷팅할 날짜 문자열
+     * @return 포맷팅된 날짜 문자열
+     * @throws SearchConditionException 날짜 형식이 올바르지 않은 경우 발생합니다
+     */
+    public static String formattedDate(String inputDateStr) {
         try {
             LocalDate date = LocalDate.parse(inputDateStr, DateTimeFormatter.ofPattern(INPUT_DATE_FORMAT));
             return date.format(DateTimeFormatter.ofPattern(OUTPUT_DATE_FORMAT));
