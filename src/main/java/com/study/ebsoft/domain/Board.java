@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 /**
@@ -38,7 +39,7 @@ public class Board {
     private final Integer categoryIdx;
 
     /**
-     * 카테고리 내용입니다.
+     * 카테고리 내용입니다. (카테고리 테이블에서 가져옴)
      */
     private final String categoryName;
 
@@ -76,6 +77,11 @@ public class Board {
      * 수정일시입니다.
      */
     private final LocalDateTime modDate;
+
+    /**
+     * 파일 정보입니다. (파일 테이블에서 가져옴)
+     */
+    private final List<File> files;
 
     /**
      * 입력받은 비밀번호와 현재 객체의 비밀번호가 일치하다면 true, 그렇지 않으면 false를 리턴합니다
