@@ -130,12 +130,12 @@ public class FileService {
      * @param previouslyUploadedIndexes 이전에 업로드된 파일 번호 목록
      * @param boardIdx
      */
-    public void update(List<File> newFiles, List<Long> previouslyUploadedIndexes, Long boardIdx) {
+    public void  update(List<File> newFiles, List<Long> previouslyUploadedIndexes, Long boardIdx) {
 
         ValidationUtils.validateFileOnCreate(newFiles);
 
         // 데이터베이스에 저장된 기존 파일 인덱스와 인자로 받은 인덱스를 비교
-        List<Long> indexesToDelete = new ArrayList<>(findAllIndexesByBoardIdx(newFiles.get(0).getBoardIdx()));
+        List<Long> indexesToDelete = new ArrayList<>(findAllIndexesByBoardIdx(boardIdx));
         if (isNotNull(previouslyUploadedIndexes)) {
             indexesToDelete.removeAll(previouslyUploadedIndexes);
         }
