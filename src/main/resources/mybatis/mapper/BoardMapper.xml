@@ -5,27 +5,25 @@
 
 <mapper namespace="com.study.ebsoft.mapper.BoardMapper">
 
-    <resultMap id="BoardDTOResultMap" type="BoardDTO">
-        <collection property="board" ofType="Board">
-            <id property="boardIdx" column="boardIdx"/>
-            <result property="categoryIdx" column="categoryIdx"/>
-            <result property="categoryName" column="name"/>
-            <result property="title" column="title"/>
-            <result property="writer" column="writer"/>
-            <result property="content" column="content"/>
-            <result property="hit" column="hit"/>
-            <result property="regDate" column="regdate"/>
-            <result property="modDate" column="moddate"/>
-        </collection>
-        <collection property="file" ofType="File">
+    <resultMap id="BoardsResultMap" type="Board">
+        <id property="boardIdx" column="boardIdx"/>
+        <result property="categoryIdx" column="categoryIdx"/>
+        <result property="categoryName" column="name"/>
+        <result property="title" column="title"/>
+        <result property="writer" column="writer"/>
+        <result property="content" column="content"/>
+        <result property="hit" column="hit"/>
+        <result property="regDate" column="regdate"/>
+        <result property="modDate" column="moddate"/>
+
+        <collection property="files" ofType="File">
             <id property="fileIdx" column="fileIdx"/>
             <result property="originalName" column="originalName"/>
             <result property="fileSize" column="fileSize"/>
-            <result property="boardIdx" column="boardIdx"/>
         </collection>
     </resultMap>
 
-    <select id="findAllBySearchCondition" parameterType="SearchConditionDTO" resultMap="BoardDTOResultMap" useCache="false" flushCache="true">
+    <select id="findAllBySearchCondition" parameterType="SearchCondition" resultMap="BoardsResultMap" useCache="false" flushCache="true">
         SELECT b.boardIdx,
         c.categoryIdx,
         c.name,
@@ -44,10 +42,10 @@
         LEFT OUTER JOIN tb_file f ON b.boardIdx = f.boardIdx
         WHERE
         <if test="startDate != null">
-            b.regDate >= #{startDate} AND
+            b.regDate >= DATE_FORMAT(#{startDate}, '%Y-%m-%d') AND
         </if>
         <if test="endDate != null">
-            #{endDate} >= b.regDate AND
+            DATE_FORMAT(#{endDate}, '%Y-%m-%d') >= b.regDate AND
         </if>
         <if test="categoryIdx != null">
             b.categoryIdx = #{categoryIdx} AND

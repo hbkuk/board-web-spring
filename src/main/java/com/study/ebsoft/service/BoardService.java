@@ -1,7 +1,6 @@
 package com.study.ebsoft.service;
 
-import com.study.ebsoft.dto.BoardDTO;
-import com.study.ebsoft.dto.SearchConditionDTO;
+import com.study.ebsoft.dto.SearchCondition;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.exception.InvalidPasswordException;
 import com.study.ebsoft.repository.BoardRepository;
@@ -29,7 +28,7 @@ public class BoardService {
      * 
      * @return 게시물 목록
      */
-    public List<BoardDTO> findAllBySearchCondition(SearchConditionDTO searchCondition) {
+    public List<Board> findAllBySearchCondition(SearchCondition searchCondition) {
         return boardRepository.findAllBySearchCondition(searchCondition);
     }
 

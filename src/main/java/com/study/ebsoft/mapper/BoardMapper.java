@@ -1,8 +1,7 @@
 package com.study.ebsoft.mapper;
 
 import com.study.ebsoft.domain.Board;
-import com.study.ebsoft.dto.BoardDTO;
-import com.study.ebsoft.dto.SearchConditionDTO;
+import com.study.ebsoft.dto.SearchCondition;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface BoardMapper {
 
-    List<BoardDTO> findAllBySearchCondition(SearchConditionDTO searchCondition);
+    List<Board> findAllBySearchCondition(SearchCondition searchCondition);
 
     Board findByBoardIdx(Long boardIdx);
 

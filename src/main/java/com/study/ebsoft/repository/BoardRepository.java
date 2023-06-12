@@ -1,7 +1,6 @@
 package com.study.ebsoft.repository;
 
-import com.study.ebsoft.dto.BoardDTO;
-import com.study.ebsoft.dto.SearchConditionDTO;
+import com.study.ebsoft.dto.SearchCondition;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.mapper.BoardMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,7 @@ public class BoardRepository {
         this.boardMapper = boardMapper;
     }
 
-    public List<BoardDTO> findAllBySearchCondition(SearchConditionDTO searchCondition) {
+    public List<Board> findAllBySearchCondition(SearchCondition searchCondition) {
         return boardMapper.findAllBySearchCondition(searchCondition);
     }
 
