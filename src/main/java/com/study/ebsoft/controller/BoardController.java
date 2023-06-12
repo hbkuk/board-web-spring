@@ -3,7 +3,7 @@ package com.study.ebsoft.controller;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.domain.Category;
 import com.study.ebsoft.domain.File;
-import com.study.ebsoft.dto.SearchConditionDTO;
+import com.study.ebsoft.dto.SearchCondition;
 import com.study.ebsoft.exception.InvalidPasswordException;
 import com.study.ebsoft.service.BoardService;
 import com.study.ebsoft.service.CategoryService;
@@ -41,6 +41,7 @@ public class BoardController {
     }
 
     // TODO: 페이지네이션
+
     /**
      * 검색조건(searchConditionQueryString)에 맞는 전체 게시물을 응답합니다.
      *
@@ -53,8 +54,9 @@ public class BoardController {
                                              @RequestParam(required = false) Integer categoryIdx, @RequestParam(required = false) String keyword) {
         log.debug("findBoards 호출");
         log.debug("startDate : {} , endDate : {} , categoryIdx : {} , keyword : {}", startDate, endDate, categoryIdx, keyword);
-        SearchConditionDTO searchCondition = SearchConditionDTO.builder()
-                .startDate(SearchConditionUtils.formatStartDate(startDate)).endDate(SearchConditionUtils.formatEndDate(endDate))
+        SearchCondition searchCondition = SearchCondition.builder()
+                .startDate(SearchConditionUtils.formatCustomStartDate(startDate))
+                .endDate(SearchConditionUtils.formatCustomEndDate(endDate))
                 .categoryIdx(categoryIdx).keyword(keyword)
                 .build();
 
@@ -155,25 +157,16 @@ public class BoardController {
     /**
      * 게시물을 작성합니다
      *
+     * @param board          게시글 정보
      * @param multipartFiles 업로드된 파일 배열
-     * @param categoryIdx    카테고리 인덱스
-     * @param title          제목
-     * @param writer         작성자
-     * @param content        내용
-     * @param password       비밀번호
      * @return 응답 결과
      */
     @PostMapping("/board")
-    public ResponseEntity<?> insertBoard(@RequestPart(value = "file", required = false) MultipartFile[] multipartFiles,
-                                         @RequestParam(value = "categoryIdx") Integer categoryIdx,
-                                         @RequestParam(value = "title") String title,
-                                         @RequestParam(value = "writer") String writer,
-                                         @RequestParam(value = "content") String content,
-                                         @RequestParam(value = "password") String password) {
-        log.debug("insertBoard 호출");
+    public ResponseEntity<?> insertBoard(@RequestPart(value = "board") Board board,
+                                         @RequestPart(value = "file", required = false) MultipartFile[] multipartFiles) {
+        log.debug("insertBoard 호출,  New Board : {}, Multipart : {}", board, multipartFiles.toString());
 
         // 1. 도메인 객체 생성
-        Board board = Board.builder().categoryIdx(categoryIdx).title(title).writer(writer).content(content).password(password).build();
         List<File> files = fileService.processUploadedFiles(multipartFiles);
 
         // 2. Service 유효성 검증, DB insert 로직 위임
@@ -192,35 +185,26 @@ public class BoardController {
     /**
      * 게시물 번호에 해당하는 게시물을 수정합니다
      *
-     * @param boardIdx                  게시글 번호
-     * @param multipartFiles            업로드된 파일 배열
-     * @param categoryIdx               카테고리 인덱스
-     * @param title                     제목
-     * @param writer                    작성자
-     * @param content                   내용
-     * @param password                  비밀번호
+     * @param boardIdx 게시글 번호
+     * @param multipartFiles 업로드된 파일 배열
+     * @param updateBoard 업로드 할 게시글 정보
      * @param previouslyUploadedIndexes 기존 업로드된 파일 인덱스 리스트
      * @return 응답 결과
      */
     @PutMapping("/board/{boardIdx}")
     public ResponseEntity<?> updateBoard(@PathVariable("boardIdx") Long boardIdx,
+                                         @RequestPart(value = "board") Board updateBoard,
                                          @RequestPart(value = "file", required = false) MultipartFile[] multipartFiles,
-                                         @RequestParam(value = "categoryIdx") Integer categoryIdx,
-                                         @RequestParam(value = "title") String title,
-                                         @RequestParam(value = "writer") String writer,
-                                         @RequestParam(value = "content") String content,
-                                         @RequestParam(value = "password") String password,
                                          @RequestParam(value = "fileIdx", required = false) List<Long> previouslyUploadedIndexes) {
-        log.debug("updateBoard 호출");
+        log.debug("updateBoard 호출,  Update Board : {}, Multipart : {},  previouslyUploadedIndexes size : {}", updateBoard, multipartFiles.toString(), previouslyUploadedIndexes.size());
 
         // 1. 게시글 원본 확인(예외처리는 GlobalExceptionHandler 위임)
         Board board = boardService.findByBoardIdx(boardIdx);
 
         // 2. 도메인 객체 생성
-        Board updateBoard = Board.builder().boardIdx(boardIdx).categoryIdx(categoryIdx).title(title).writer(writer).content(content).password(password).build();
         List<File> newFiles = fileService.processUploadedFiles(multipartFiles);
 
-        // 3-1. Service 유효성 검증, DB insert 로직 위임
+        // 3. Service 유효성 검증, DB insert 로직 위임
         try {
             boardService.update(board, updateBoard);
             fileService.update(newFiles, previouslyUploadedIndexes, boardIdx);
