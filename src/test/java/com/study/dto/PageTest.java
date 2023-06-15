@@ -2,6 +2,7 @@ package com.study.dto;
 
 import com.study.ebsoft.dto.Page;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -15,6 +16,40 @@ public class PageTest {
     void create(int pageNo, int pagingStart) {
         Page page = new Page(pageNo);
 
-        assertThat(page.getPagingStart()).isEqualTo(pagingStart);
+        assertThat(page.getRecordStartIndex()).isEqualTo(pagingStart);
+    }
+
+    @Test
+    @DisplayName("현재 페이지 1, 전체 글 갯수 100")
+    void update_page_when_1_100() {
+        // given
+        int pageNo = 1;   // 현재 페이지
+        int totalBoardCount = 100;   // 전체 글 갯수
+
+        // when
+        Page page = new Page(pageNo);
+        page.calculatePaginationInfo(totalBoardCount);
+
+        // then
+        assertThat(page.getMaxPage()).isEqualTo(10);
+        assertThat(page.getStartPage()).isEqualTo(1);
+        assertThat(page.getEndPage()).isEqualTo(10);
+    }
+
+    @Test
+    @DisplayName("현재 페이지 2, 전체 글 갯수 50")
+    void update_page_when_2_50() {
+        // given
+        int pageNo = 2;   // 현재 페이지
+        int totalBoardCount = 50;   // 전체 글 갯수
+
+        // when
+        Page page = new Page(pageNo);
+        page.calculatePaginationInfo(totalBoardCount);
+
+        // then
+        assertThat(page.getMaxPage()).isEqualTo(5);
+        assertThat(page.getStartPage()).isEqualTo(1);
+        assertThat(page.getEndPage()).isEqualTo(5);
     }
 }
