@@ -50,7 +50,8 @@ public class BoardController {
     @GetMapping("/api/boards")
     public ResponseEntity<Object> findBoards(@RequestParam(required = false) String startDate, @RequestParam(required = false) String endDate,
                                              @RequestParam(required = false) Integer categoryIdx, @RequestParam(required = false) String keyword,
-                                             @RequestParam(required = false, defaultValue = "1") Integer pageNo) {
+                                             @RequestParam(required = false, defaultValue = "1") Integer pageNo,
+                                             Map<String, Object> response) {
         log.debug("findBoards 호출");
         log.debug("startDate : {} , endDate : {} , categoryIdx : {} , keyword : {}", startDate, endDate, categoryIdx, keyword);
         SearchCondition searchCondition = SearchCondition.builder()
@@ -61,7 +62,9 @@ public class BoardController {
                 .page(new Page(pageNo))
                 .build();
 
-        return new ResponseEntity<>(boardService.findAllBySearchCondition(searchCondition), HttpStatus.OK);
+        response.put("boards", boardService.findAllBySearchCondition(searchCondition));
+        response.put("pagination", boardService.createPagination(searchCondition.getPage()));
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -75,7 +78,7 @@ public class BoardController {
     public ResponseEntity<Object> findBoard(@PathVariable("boardIdx") Long boardIdx, Map<String, Object> response) {
         log.debug("findBoard 호출 -> 게시글 번호 : {}", boardIdx);
 
-        response.put("boards", boardService.findByBoardIdx(boardIdx));
+        response.put("board", boardService.findByBoardIdx(boardIdx));
         response.put("files", fileService.findAll());
         response.put("comments", commentService.findAll());
         return new ResponseEntity<>(response, HttpStatus.OK);
