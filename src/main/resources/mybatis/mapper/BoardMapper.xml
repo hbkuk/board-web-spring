@@ -55,7 +55,8 @@
             CONCAT('%', #{keyword}, '%')) AND
         </if>
         1=1
-        GROUP BY b.boardIdx, f.fileidx
+        ORDER BY b.boardIdx DESC
+        LIMIT #{page.pagingStart}, #{page.pageLimit}
     </select>
 
 

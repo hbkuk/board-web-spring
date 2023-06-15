@@ -3,6 +3,7 @@ package com.study.ebsoft.controller;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.domain.Category;
 import com.study.ebsoft.domain.File;
+import com.study.ebsoft.dto.Page;
 import com.study.ebsoft.dto.SearchCondition;
 import com.study.ebsoft.exception.InvalidPasswordException;
 import com.study.ebsoft.service.BoardService;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -40,29 +42,26 @@ public class BoardController {
         this.fileService = fileService;
     }
 
-    // TODO: 페이지네이션
-
     /**
      * 검색조건(searchConditionQueryString)에 맞는 전체 게시물을 응답합니다.
      *
-     * @param response 응답 맵 객체
      * @return ResponseEntity 응답 결과
      */
-    @GetMapping("/boards")
-    public ResponseEntity<Object> findBoards(Map<String, Object> response,
-                                             @RequestParam(required = false) String startDate, @RequestParam(required = false) String endDate,
-                                             @RequestParam(required = false) Integer categoryIdx, @RequestParam(required = false) String keyword) {
+    @GetMapping("/api/boards")
+    public ResponseEntity<Object> findBoards(@RequestParam(required = false) String startDate, @RequestParam(required = false) String endDate,
+                                             @RequestParam(required = false) Integer categoryIdx, @RequestParam(required = false) String keyword,
+                                             @RequestParam(required = false, defaultValue = "1") Integer pageNo) {
         log.debug("findBoards 호출");
         log.debug("startDate : {} , endDate : {} , categoryIdx : {} , keyword : {}", startDate, endDate, categoryIdx, keyword);
         SearchCondition searchCondition = SearchCondition.builder()
-                .startDate(SearchConditionUtils.formatCustomStartDate(startDate))
-                .endDate(SearchConditionUtils.formatCustomEndDate(endDate))
-                .categoryIdx(categoryIdx).keyword(keyword)
+                .startDate(startDate)
+                .endDate(endDate)
+                .categoryIdx(categoryIdx)
+                .keyword(keyword)
+                .page(new Page(pageNo))
                 .build();
 
-        response.put("boards", boardService.findAllBySearchCondition(searchCondition));
-        response.put("categories", categoryService.findAll());
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(boardService.findAllBySearchCondition(searchCondition), HttpStatus.OK);
     }
 
     /**
@@ -162,14 +161,12 @@ public class BoardController {
      * @return 응답 결과
      */
     @PostMapping("/board")
-    public ResponseEntity<?> insertBoard(@RequestPart(value = "board") Board board,
+    public ResponseEntity<?> insertBoard(@Valid @RequestPart(value = "board") Board board,
                                          @RequestPart(value = "file", required = false) MultipartFile[] multipartFiles) {
-        log.debug("insertBoard 호출,  New Board : {}, Multipart : {}", board, multipartFiles.toString());
+        log.debug("insertBoard 호출,  New Board : {}, Multipart : {}", board, multipartFiles);
 
-        // 1. 도메인 객체 생성
         List<File> files = fileService.processUploadedFiles(multipartFiles);
 
-        // 2. Service 유효성 검증, DB insert 로직 위임
         try {
             boardService.insert(board);
             fileService.insert(files, board.getBoardIdx());
@@ -185,15 +182,15 @@ public class BoardController {
     /**
      * 게시물 번호에 해당하는 게시물을 수정합니다
      *
-     * @param boardIdx 게시글 번호
-     * @param multipartFiles 업로드된 파일 배열
-     * @param updateBoard 업로드 할 게시글 정보
+     * @param boardIdx                  게시글 번호
+     * @param multipartFiles            업로드된 파일 배열
+     * @param updateBoard               업로드 할 게시글 정보
      * @param previouslyUploadedIndexes 기존 업로드된 파일 인덱스 리스트
      * @return 응답 결과
      */
     @PutMapping("/board/{boardIdx}")
     public ResponseEntity<?> updateBoard(@PathVariable("boardIdx") Long boardIdx,
-                                         @RequestPart(value = "board") Board updateBoard,
+                                         @Valid @RequestPart(value = "board") Board updateBoard,
                                          @RequestPart(value = "file", required = false) MultipartFile[] multipartFiles,
                                          @RequestParam(value = "fileIdx", required = false) List<Long> previouslyUploadedIndexes) {
         log.debug("updateBoard 호출,  Update Board : {}, Multipart : {},  previouslyUploadedIndexes size : {}", updateBoard, multipartFiles.toString(), previouslyUploadedIndexes.size());
