@@ -41,4 +41,8 @@ public class BoardRepository {
     public void update(Board board) {
         boardMapper.update(board);
     }
+
+    public int findBoardCount() {
+        return boardMapper.findBoardCount();
+    }
 }

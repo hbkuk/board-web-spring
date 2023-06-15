@@ -1,5 +1,6 @@
 package com.study.ebsoft.service;
 
+import com.study.ebsoft.dto.Page;
 import com.study.ebsoft.dto.SearchCondition;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.exception.InvalidPasswordException;
@@ -53,7 +54,6 @@ public class BoardService {
      * @param board 게시물 정보가 담긴 객체
      */
     public void insert(Board board) {
-        ValidationUtils.validateBoard(board);
         boardRepository.insert(board);
     }
 
@@ -80,5 +80,9 @@ public class BoardService {
      */
     public void delete(Board board) {
         boardRepository.delete(board);
+    }
+
+    public Page createPagination(Page page) {
+        return page.calculatePaginationInfo(boardRepository.findBoardCount());
     }
 }
