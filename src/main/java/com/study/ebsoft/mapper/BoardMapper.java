@@ -21,5 +21,5 @@ public interface BoardMapper {
 
     void update(Board board);
 
-    int findBoardCount();
+    int findBoardCount(SearchCondition searchCondition);
 }

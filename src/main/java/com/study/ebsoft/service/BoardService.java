@@ -82,7 +82,7 @@ public class BoardService {
         boardRepository.delete(board);
     }
 
-    public Page createPagination(Page page) {
-        return page.calculatePaginationInfo(boardRepository.findBoardCount());
+    public Page createPagination(SearchCondition searchCondition) {
+        return searchCondition.getPage().calculatePaginationInfo(boardRepository.findBoardCount(searchCondition));
     }
 }

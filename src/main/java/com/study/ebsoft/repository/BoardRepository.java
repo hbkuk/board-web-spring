@@ -42,7 +42,7 @@ public class BoardRepository {
         boardMapper.update(board);
     }
 
-    public int findBoardCount() {
-        return boardMapper.findBoardCount();
+    public int findBoardCount(SearchCondition searchCondition) {
+        return boardMapper.findBoardCount(searchCondition);
     }
 }

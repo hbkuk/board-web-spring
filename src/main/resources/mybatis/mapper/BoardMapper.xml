@@ -78,7 +78,23 @@
 
     <select id="findBoardCount" useCache="false" flushCache="true">
         SELECT count(boardIdx)
-        FROM tb_board
+        FROM tb_board b
+        JOIN tb_category c ON b.categoryIdx = c.categoryIdx
+        WHERE
+        <if test="startDate != null">
+            b.regDate >= DATE_FORMAT(#{startDate}, '%Y-%m-%d') AND
+        </if>
+        <if test="endDate != null">
+            DATE_FORMAT(#{endDate}, '%Y-%m-%d') >= b.regDate AND
+        </if>
+        <if test="categoryIdx != null">
+            b.categoryIdx = #{categoryIdx} AND
+        </if>
+        <if test="keyword != null">
+            (b.title LIKE CONCAT('%', #{keyword}, '%') OR b.writer LIKE CONCAT('%', #{keyword}, '%') OR b.content LIKE
+            CONCAT('%', #{keyword}, '%')) AND
+        </if>
+        1=1
     </select>
 
     <update id="increaseHit" parameterType="Long">

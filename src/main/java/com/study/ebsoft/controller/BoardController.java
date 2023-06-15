@@ -63,7 +63,7 @@ public class BoardController {
                 .build();
 
         response.put("boards", boardService.findAllBySearchCondition(searchCondition));
-        response.put("pagination", boardService.createPagination(searchCondition.getPage()));
+        response.put("pagination", boardService.createPagination(searchCondition));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
