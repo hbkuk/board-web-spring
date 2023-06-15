@@ -31,4 +31,6 @@ public class SearchCondition {
 
     private final String keyword;
 
+    private final Page page;
+
 }
