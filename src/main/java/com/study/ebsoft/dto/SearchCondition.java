@@ -1,36 +1,66 @@
 package com.study.ebsoft.dto;
 
-import lombok.*;
+import lombok.Data;
+import org.springframework.lang.Nullable;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 /**
  * 검색조건을 나타내는 클래스입니다.
- *
- * @Builder(toBuilder = true)
- *     : 빌더 패턴을 사용하여 객체를 생성합니다. toBuilder 옵션은 생성된 빌더 객체를 이용해 기존 객체를 복사하고 수정할 수 있도록 합니다.
- * @ToString
- *     : 객체의 문자열 표현을 자동으로 생성합니다. 주요 필드들의 값을 포함한 문자열을 반환합니다.
- * @Getter
- *     : 필드들에 대한 Getter 메서드를 자동으로 생성합니다.
- * @NoArgsConstructor(force = true)
- *     : 매개변수가 없는 기본 생성자를 자동으로 생성합니다. MyBatis 또는 JPA 라이브러리에서는 기본 생성자를 필요로 합니다.
- * @AllArgsConstructor
- *     : 모든 필드를 매개변수로 받는 생성자를 자동으로 생성합니다.
  */
-@Builder(toBuilder = true)
-@ToString
-@Getter
-@NoArgsConstructor(force = true)
-@AllArgsConstructor
+@Data
 public class SearchCondition {
 
-    private final String startDate;
+    /**
+     * 시작 날짜입니다.
+     */
+    @Nullable
+    @Pattern(regexp = "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$", message = "시작날짜 형식이 잘못되었습니다")
+    private String startDate;
 
-    private final String endDate;
+    /**
+     * 종료 날짜입니다.
+     */
+    @Nullable
+    @Pattern(regexp = "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$", message = "종료날짜 형식이 잘못되었습니다")
+    private String endDate;
 
-    private final Integer categoryIdx;
+    /**
+     * 카테고리 번호입니다.
+     */
+    @Nullable
+    @Min(value = 1, message = "카테고리 번호는 1보다 큰 숫자여야 합니다")
+    private Integer categoryIdx;
 
-    private final String keyword;
+    /**
+     * 검색 키워드입니다.
+     */
+    @Nullable
+    @Size(min = 4, max = 100, message = "키워드는 4글자 이상, 100글자 이하여야 합니다")
+    private String keyword;
 
-    private final Page page;
+    /**
+     * 페이지 번호입니다.
+     */
+    @Nullable
+    @Min(value = 1, message = "페이지 번호는 1보다 큰 숫자여야 합니다")
+    private Integer pageNo;
 
+    /**
+     * 페이지를 의미하는 객체입니다.
+     */
+    @Null
+    private Page page;
+
+    /**
+     * SearchCondition 객체의 페이지 정보를 업데이트합니다.
+     *
+     * @return Page 객체
+     */
+    public Page updatePage() {
+        return new Page(this.pageNo);
+    }
 }
