@@ -18,4 +18,6 @@ public interface CommentMapper {
     void delete(Comment comment);
 
     Comment findByCommentIdx(Long commentIdx);
+
+    List<Comment> findAllByBoardIdx(Long boardIdx);
 }

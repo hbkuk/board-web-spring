@@ -74,13 +74,13 @@ public class BoardController {
      * @param response 응답 맵 객체
      * @return 응답 결과
      */
-    @GetMapping("/board/{boardIdx}")
+    @GetMapping("/api/board/{boardIdx}")
     public ResponseEntity<Object> findBoard(@PathVariable("boardIdx") Long boardIdx, Map<String, Object> response) {
         log.debug("findBoard 호출 -> 게시글 번호 : {}", boardIdx);
 
         response.put("board", boardService.findByBoardIdx(boardIdx));
-        response.put("files", fileService.findAll());
-        response.put("comments", commentService.findAll());
+        response.put("files", fileService.findAllByBoardIdx(boardIdx));
+        response.put("comments", commentService.findAllByBoardIdx(boardIdx));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

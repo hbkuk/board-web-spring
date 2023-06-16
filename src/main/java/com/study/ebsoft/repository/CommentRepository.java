@@ -37,4 +37,8 @@ public class CommentRepository {
     public Comment findByCommentIdx(Long commentIdx) {
         return commentMapper.findByCommentIdx(commentIdx);
     }
+
+    public List<Comment> findAllByBoardIdx(Long boardIdx) {
+        return commentMapper.findAllByBoardIdx(boardIdx);
+    }
 }

@@ -16,6 +16,12 @@
         WHERE commentIdx = #{commentIdx}
     </select>
 
+    <select id="findAllByBoardIdx" parameterType="Long" resultType="Comment" useCache="false" flushCache="true">
+        SELECT *
+        FROM tb_comment co
+        WHERE boardIdx = #{boardIdx}
+    </select>
+
     <delete id="delete" parameterType="Comment">
         DELETE
         FROM tb_comment

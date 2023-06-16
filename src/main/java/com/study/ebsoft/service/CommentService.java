@@ -74,4 +74,8 @@ public class CommentService {
     public void deleteAllByBoardIdx(Long boardIdx) {
         commentRepository.deleteAllByBoardIdx(boardIdx);
     }
+
+    public List<Comment> findAllByBoardIdx(Long boardIdx) {
+        return commentRepository.findAllByBoardIdx(boardIdx);
+    }
 }
