@@ -1,11 +1,12 @@
 package com.study.ebsoft.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
-
 
 /**
  * 게시글을 나타내는 클래스입니다.
@@ -36,6 +37,7 @@ public class Board {
     /**
      * 카테고리의 식별자입니다.
      */
+    @Min(value = 1, message = "카테고리 번호는 1보다 큰 숫자여야 합니다.")
     private final Integer categoryIdx;
 
     /**
@@ -46,21 +48,26 @@ public class Board {
     /**
      * 게시글의 제목입니다.
      */
+    @Size(min = 4, max = 100, message = "게시글의 제목은 4글자 이상, 100글자 이하여야 합니다")
     private final String title;
 
     /**
      * 게시글 작성자입니다.
      */
+    @Size(min = 3, max = 4, message = "작성자는 3글자 이상, 4글자 이하여야 합니다")
     private final String writer;
 
     /**
      * 게시글의 내용입니다.
      */
+    @Size(min = 4, max = 2000, message = "내용은 4글자 이상, 2000글자 이하여야 합니다")
     private final String content;
 
     /**
      * 게시글의 비밀번호입니다.
      */
+    @Size(min = 4, max = 15, message = "패스워드는 4글자 이상, 15글자 이하여야 합니다")
+    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$", message = "패스워드는 영문, 숫자, 특수문자를 포함해야 합니다")
     private final String password;
 
     /**
