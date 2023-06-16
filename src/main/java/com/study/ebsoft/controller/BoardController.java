@@ -3,7 +3,6 @@ package com.study.ebsoft.controller;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.domain.Category;
 import com.study.ebsoft.domain.File;
-import com.study.ebsoft.dto.Page;
 import com.study.ebsoft.dto.SearchCondition;
 import com.study.ebsoft.exception.InvalidPasswordException;
 import com.study.ebsoft.service.BoardService;
@@ -11,7 +10,6 @@ import com.study.ebsoft.service.CategoryService;
 import com.study.ebsoft.service.CommentService;
 import com.study.ebsoft.service.FileService;
 import com.study.ebsoft.utils.FileUtils;
-import com.study.ebsoft.utils.SearchConditionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -42,26 +40,21 @@ public class BoardController {
         this.fileService = fileService;
     }
 
+
     /**
      * 검색조건(searchConditionQueryString)에 맞는 전체 게시물을 응답합니다.
      *
-     * @return ResponseEntity 응답 결과
+     * @param searchCondition 검색 조건을 나타내는 {@link SearchCondition} 객체
+     * @param response        응답 데이터를 담을 맵 객체
+     * @return 검색된 게시글과 페이징 정보를 담은 {@link ResponseEntity} 객체
      */
     @GetMapping("/api/boards")
-    public ResponseEntity<Object> findBoards(@RequestParam(required = false) String startDate, @RequestParam(required = false) String endDate,
-                                             @RequestParam(required = false) Integer categoryIdx, @RequestParam(required = false) String keyword,
-                                             @RequestParam(required = false, defaultValue = "1") Integer pageNo,
+    public ResponseEntity<Object> findBoards(@Valid @ModelAttribute("searchCondition") SearchCondition searchCondition,
                                              Map<String, Object> response) {
         log.debug("findBoards 호출");
-        log.debug("startDate : {} , endDate : {} , categoryIdx : {} , keyword : {}", startDate, endDate, categoryIdx, keyword);
-        SearchCondition searchCondition = SearchCondition.builder()
-                .startDate(startDate)
-                .endDate(endDate)
-                .categoryIdx(categoryIdx)
-                .keyword(keyword)
-                .page(new Page(pageNo))
-                .build();
+        log.debug("searchCondition : {}", searchCondition);
 
+        searchCondition.updatePage();
         response.put("boards", boardService.findAllBySearchCondition(searchCondition));
         response.put("pagination", boardService.createPagination(searchCondition));
         return new ResponseEntity<>(response, HttpStatus.OK);
