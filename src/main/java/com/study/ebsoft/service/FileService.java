@@ -3,7 +3,6 @@ package com.study.ebsoft.service;
 import com.study.ebsoft.domain.File;
 import com.study.ebsoft.repository.FileRepository;
 import com.study.ebsoft.utils.FileUtils;
-import com.study.ebsoft.utils.ValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,7 +39,6 @@ public class FileService {
      * @param file 파일 정보가 담긴 객체
      */
     public void insert(File file) {
-        ValidationUtils.validateFileOnCreate(file);
         fileRepository.insert(file);
     }
 
@@ -130,9 +128,7 @@ public class FileService {
      * @param previouslyUploadedIndexes 이전에 업로드된 파일 번호 목록
      * @param boardIdx
      */
-    public void  update(List<File> newFiles, List<Long> previouslyUploadedIndexes, Long boardIdx) {
-
-        ValidationUtils.validateFileOnCreate(newFiles);
+    public void update(List<File> newFiles, List<Long> previouslyUploadedIndexes, Long boardIdx) {
 
         // 데이터베이스에 저장된 기존 파일 인덱스와 인자로 받은 인덱스를 비교
         List<Long> indexesToDelete = new ArrayList<>(findAllIndexesByBoardIdx(boardIdx));

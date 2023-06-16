@@ -5,7 +5,6 @@ import com.study.ebsoft.dto.SearchCondition;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.exception.InvalidPasswordException;
 import com.study.ebsoft.repository.BoardRepository;
-import com.study.ebsoft.utils.ValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -64,7 +63,6 @@ public class BoardService {
      * @param updateBoard 수정 정보가 담긴 객체
      */
     public void update(Board board, Board updateBoard) {
-        ValidationUtils.validateBoard(updateBoard);
 
         if( !board.canUpdate(updateBoard.getPassword()) ) {
             throw new InvalidPasswordException("비밀번호가 다릅니다.");
