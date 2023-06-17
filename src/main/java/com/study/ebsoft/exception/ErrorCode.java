@@ -7,7 +7,8 @@ public enum ErrorCode {
 
     INVALID_SEARCH_CONDITION("COMMON-001", "형식에 맞지 않는 파라미터 전달"),
 
-    INVALID_BOARD_DATA("BOARD-001", "형식에 맞지 않는 데이터 전달");
+    INVALID_BOARD_DATA("BOARD-001", "형식에 맞지 않는 데이터 전달"),
+    BOARD_NOT_FOUND("BOARD-002", "게시물을 찾을 수 없음");
 
     private final String code;
     private final String message;

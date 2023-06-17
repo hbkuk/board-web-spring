@@ -1,5 +1,6 @@
 package com.study.ebsoft.handler;
 
+import com.study.ebsoft.exception.BoardNotFoundException;
 import com.study.ebsoft.exception.ErrorCode;
 import com.study.ebsoft.exception.ErrorResponse;
 import com.study.ebsoft.exception.SearchConditionException;
@@ -33,6 +34,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
+        log.error(e.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(ErrorCode.INVALID_BOARD_DATA);
 
         List<String> fieldErrors = e.getAllErrors().stream()
@@ -52,6 +54,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ErrorResponse> handleBindException(BindException e) {
+        log.error(e.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(ErrorCode.INVALID_SEARCH_CONDITION);
 
         List<String> fieldErrors = e.getAllErrors().stream()
@@ -62,6 +65,24 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+
+    /**
+     * BoardNotFoundException 예외 처리
+     *
+     * 예를 들어,
+     *      게시글을 보기, 수정, 삭제 하려고 했을때, 해당 게시글이 없을 경우 예외를 던집니다.
+     *
+     * @param e 발생한 BoardNotFoundException 예외 객체
+     * @return 응답 결과
+     */
+    @ExceptionHandler(BoardNotFoundException.class)
+    public ResponseEntity handleBoardNotFoundException(BoardNotFoundException e) {
+        log.error(e.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.BOARD_NOT_FOUND);
+        errorResponse.setDetail(e.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
 
     /**
      * 쿼리 스트링에 포함된 검색 조건이 유효하지 않은 경우 해당 예외 처리를 담당합니다.
@@ -80,22 +101,6 @@ public class GlobalExceptionHandler {
 
         req.removeAttribute("searchConditionQueryString");
         return "redirect:/boards";
-    }
-
-    /**
-     * NoSuchElementException 예외 처리
-     *
-     * 예를 들어,
-     *      게시글을 수정 또는 삭제 하려고 했을때, 해당 게시글이 없을 경우 예외를 던집니다.
-     *
-     * @param e 발생한 NoSuchElementException 예외 객체
-     * @return 응답 결과
-     */
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity handleNoSuchElementException(NoSuchElementException e) {
-        log.error(e.getMessage());
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 글을 찾을 수 없습니다."); // Status Code 404
     }
 }
 

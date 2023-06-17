@@ -3,6 +3,7 @@ package com.study.ebsoft.service;
 import com.study.ebsoft.dto.Page;
 import com.study.ebsoft.dto.SearchCondition;
 import com.study.ebsoft.domain.Board;
+import com.study.ebsoft.exception.BoardNotFoundException;
 import com.study.ebsoft.exception.InvalidPasswordException;
 import com.study.ebsoft.repository.BoardRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -36,12 +37,12 @@ public class BoardService {
      * 게시물 번호를 인자로 받아 해당 게시물을 가져온 후 조회수를 1 증가시킨 후 리턴합니다.
      *
      * @param boardIdx 게시물 번호
-     * @return 게시물 번호에 해당하는 게시물이 있다면 Board, 그렇지 않다면 NoSuchElementException 던집니다.
+     * @return 게시물 번호에 해당하는 게시물이 있다면 Board, 그렇지 않다면 BoardNotFoundException 던집니다.
      */
     public Board findByBoardIdx(Long boardIdx) {
         Board board = boardRepository.findByBoardIdx(boardIdx);
         if( board == null ) {
-            throw new NoSuchElementException("해당 글을 찾을 수 없습니다.");
+            throw new BoardNotFoundException("해당 글을 찾을 수 없습니다.");
         }
         boardRepository.increaseHit(boardIdx);
         return board;
