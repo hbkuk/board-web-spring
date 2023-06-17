@@ -1,6 +1,9 @@
 package com.study.ebsoft.dto;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.Min;
@@ -26,6 +29,7 @@ public class SearchCondition {
      */
     @Nullable
     @Pattern(regexp = "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$", message = "종료날짜 형식이 잘못되었습니다")
+
     private String endDate;
 
     /**
@@ -60,7 +64,7 @@ public class SearchCondition {
      *
      * @return Page 객체
      */
-    public Page updatePage() {
-        return new Page(this.pageNo);
+    public void updatePage() {
+        this.page = new Page(this.pageNo);
     }
 }
