@@ -6,8 +6,6 @@ import com.study.ebsoft.dto.SearchCondition;
 import com.study.ebsoft.exception.BoardNotFoundException;
 import com.study.ebsoft.exception.InvalidPasswordException;
 import com.study.ebsoft.repository.BoardRepository;
-import com.study.ebsoft.repository.CommentRepository;
-import com.study.ebsoft.repository.FileRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

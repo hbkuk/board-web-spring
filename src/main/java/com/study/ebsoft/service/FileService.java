@@ -45,10 +45,12 @@ public class FileService {
     /**
      * 파일 목록과 게시물 번호를 인자로 받아 파일을 저장합니다.
      *
-     * @param files    파일 정보가 담긴 파일 리스트
+     * @param multipartFiles    multipartFile[] 객체
      * @param boardIdx 게시물 번호
      */
-    public void insert(List<File> files, Long boardIdx) {
+    public void insert(MultipartFile[] multipartFiles, Long boardIdx) {
+        List<File> files = processUploadedFiles(multipartFiles);
+        
         for (File file : files) {
             insert(file.updateBoardIdx(boardIdx));
         }
@@ -136,7 +138,7 @@ public class FileService {
             indexesToDelete.removeAll(previouslyUploadedIndexes);
         }
 
-        insert(newFiles, boardIdx);
+        //insert(newFiles, boardIdx);
         delete(indexesToDelete);
     }
 

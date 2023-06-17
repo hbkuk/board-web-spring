@@ -162,18 +162,10 @@ public class BoardController {
                                          @RequestPart(value = "file", required = false) MultipartFile[] multipartFiles) {
         log.debug("insertBoard 호출,  New Board : {}, Multipart : {}", board, multipartFiles);
 
-        List<File> files = fileService.processUploadedFiles(multipartFiles);
+        boardService.insert(board);
+        fileService.insert(multipartFiles, board.getBoardIdx());
 
-        try {
-            boardService.insert(board);
-            fileService.insert(files, board.getBoardIdx());
-        } catch (IllegalArgumentException e) {
-            // 2-1. 예외 발생 -> 디렉토리 파일 삭제
-            fileService.deleteFilesFromServerDirectory(files);
-            return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
-        }
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(board.getBoardIdx()); // Status Code 201
+        return ResponseEntity.status(HttpStatus.CREATED).body(board); // Status Code 201
     }
 
     /**
