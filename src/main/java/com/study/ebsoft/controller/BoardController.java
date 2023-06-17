@@ -1,5 +1,8 @@
 package com.study.ebsoft.controller;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.domain.Category;
 import com.study.ebsoft.domain.File;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,24 +44,24 @@ public class BoardController {
         this.fileService = fileService;
     }
 
-
     /**
      * 검색조건(searchConditionQueryString)에 맞는 전체 게시물을 응답합니다.
      *
      * @param searchCondition 검색 조건을 나타내는 {@link SearchCondition} 객체
-     * @param response        응답 데이터를 담을 맵 객체
-     * @return 검색된 게시글과 페이징 정보를 담은 {@link ResponseEntity} 객체
+     * @return 검색된 게시글과 페이징 정보를 담은 Map 객체
      */
     @GetMapping("/api/boards")
-    public ResponseEntity<Object> findBoards(@Valid @ModelAttribute("searchCondition") SearchCondition searchCondition,
-                                             Map<String, Object> response) {
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, Object> findBoards(@Valid @ModelAttribute("searchCondition") SearchCondition searchCondition) {
         log.debug("findBoards 호출");
         log.debug("searchCondition : {}", searchCondition);
+        Map<String, Object> response = new HashMap<>();
 
         searchCondition.updatePage();
         response.put("boards", boardService.findAllBySearchCondition(searchCondition));
         response.put("pagination", boardService.createPagination(searchCondition));
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return response;
     }
 
     /**
