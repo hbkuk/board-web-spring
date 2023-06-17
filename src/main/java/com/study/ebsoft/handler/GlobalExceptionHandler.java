@@ -1,9 +1,6 @@
 package com.study.ebsoft.handler;
 
-import com.study.ebsoft.exception.BoardNotFoundException;
-import com.study.ebsoft.exception.ErrorCode;
-import com.study.ebsoft.exception.ErrorResponse;
-import com.study.ebsoft.exception.SearchConditionException;
+import com.study.ebsoft.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -85,22 +82,18 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 쿼리 스트링에 포함된 검색 조건이 유효하지 않은 경우 해당 예외 처리를 담당합니다.
-     *
-     * 예를 들어, "start_date=12313"은 유효한 형식이지만,
-     *          "start_date=8월28일"은 유효하지 않은 형식이기 때문에 예외를 던집니다
-     *
-     * @param e   발생한 SearchConditionException 예외 객체
-     * @param req HttpServletRequest 객체
-     * @return 리다이렉트 URL
-     * @throws UnsupportedEncodingException 인코딩 예외가 발생할 경우
+     * InvalidPasswordException 예외처리
+     * 
+     * @param e 발생한 InvalidPasswordException 예외 객체
+     * @return 응답 결과
      */
-    @ExceptionHandler(SearchConditionException.class)
-    public String handleSearchConditionException(SearchConditionException e, HttpServletRequest req) throws UnsupportedEncodingException {
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity handleInvalidPasswordException(InvalidPasswordException e) {
         log.error(e.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.INVALID_PASSWORD);
+        errorResponse.setDetail(e.getMessage());
 
-        req.removeAttribute("searchConditionQueryString");
-        return "redirect:/boards";
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 }
 

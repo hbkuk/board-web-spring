@@ -1,17 +1,18 @@
 package com.study.ebsoft.service;
 
+import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.dto.Page;
 import com.study.ebsoft.dto.SearchCondition;
-import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.exception.BoardNotFoundException;
 import com.study.ebsoft.exception.InvalidPasswordException;
 import com.study.ebsoft.repository.BoardRepository;
+import com.study.ebsoft.repository.CommentRepository;
+import com.study.ebsoft.repository.FileRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -26,7 +27,7 @@ public class BoardService {
 
     /**
      * 검색 조건에 맞는 모든 게시물에 대한 정보와 해당 게시물에 업로드된 파일의 존재여부를 생성해 리턴합니다
-     * 
+     *
      * @return 게시물 목록
      */
     public List<Board> findAllBySearchCondition(SearchCondition searchCondition) {
@@ -41,7 +42,7 @@ public class BoardService {
      */
     public Board findByBoardIdx(Long boardIdx) {
         Board board = boardRepository.findByBoardIdx(boardIdx);
-        if( board == null ) {
+        if (board == null) {
             throw new BoardNotFoundException("해당 글을 찾을 수 없습니다.");
         }
         boardRepository.increaseHit(boardIdx);
@@ -65,7 +66,7 @@ public class BoardService {
      */
     public void update(Board board, Board updateBoard) {
 
-        if( !board.canUpdate(updateBoard.getPassword()) ) {
+        if (!board.canUpdate(updateBoard.getPassword())) {
             throw new InvalidPasswordException("비밀번호가 다릅니다.");
         }
 

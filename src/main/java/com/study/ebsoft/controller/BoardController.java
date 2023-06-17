@@ -1,8 +1,5 @@
 package com.study.ebsoft.controller;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.domain.Category;
 import com.study.ebsoft.domain.File;
@@ -209,10 +206,6 @@ public class BoardController {
             // 3-2. 유효성 검증 실패
             fileService.deleteFilesFromServerDirectory(newFiles);
             return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
-        } catch (InvalidPasswordException e) {
-            // 3-3. 패스워드 불일치
-            fileService.deleteFilesFromServerDirectory(newFiles);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage()); // Status Code 401
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(board.getBoardIdx()); // Status Code 201
     }
@@ -234,12 +227,12 @@ public class BoardController {
 
         // 2. 패스워드 확인
         if (!board.canDelete(password)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 다릅니다."); // Status Code 401
+            throw new InvalidPasswordException("비밀번호가 다릅니다.");
         }
 
-        // 3. 댓글 -> 파일 -> 게시글 삭제
-        commentService.deleteAllByBoardIdx(boardIdx);
-        fileService.deleteAllByBoardIdx(boardIdx);
+        // 3. 댓글 -> 파일 -> 게시물 삭제
+        commentService.deleteAllByBoardIdx(board.getBoardIdx());
+        fileService.deleteAllByBoardIdx(board.getBoardIdx());
         boardService.delete(board);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // Status Code 201
