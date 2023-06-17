@@ -184,21 +184,12 @@ public class BoardController {
                                          @RequestParam(value = "fileIdx", required = false) List<Long> previouslyUploadedIndexes) {
         log.debug("updateBoard 호출,  Update Board : {}, Multipart : {},  previouslyUploadedIndexes size : {}", updateBoard, multipartFiles.toString(), previouslyUploadedIndexes.size());
 
-        // 1. 게시글 원본 확인(예외처리는 GlobalExceptionHandler 위임)
+        // 1. 게시글 원본 확인
         Board board = boardService.findByBoardIdx(boardIdx);
 
-        // 2. 도메인 객체 생성
-        List<File> newFiles = fileService.processUploadedFiles(multipartFiles);
+        boardService.update(board, updateBoard);
+        fileService.update(multipartFiles, previouslyUploadedIndexes, boardIdx);
 
-        // 3. Service 유효성 검증, DB insert 로직 위임
-        try {
-            boardService.update(board, updateBoard);
-            fileService.update(newFiles, previouslyUploadedIndexes, boardIdx);
-        } catch (IllegalArgumentException e) {
-            // 3-2. 유효성 검증 실패
-            fileService.deleteFilesFromServerDirectory(newFiles);
-            return ResponseEntity.badRequest().body(e.getMessage()); // Status Code 400
-        }
         return ResponseEntity.status(HttpStatus.CREATED).body(board.getBoardIdx()); // Status Code 201
     }
 

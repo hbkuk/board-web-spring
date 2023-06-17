@@ -126,11 +126,11 @@ public class FileService {
     /**
      * 새로운 파일들과 이전에 업로드된 파일 인덱스 목록을 기준으로 파일을 저장 또는 삭제합니다.
      *
-     * @param newFiles                  새롭게 업로드된 파일 목록
+     * @param multipartFiles             MultipartFile[] 객체
      * @param previouslyUploadedIndexes 이전에 업로드된 파일 번호 목록
      * @param boardIdx
      */
-    public void update(List<File> newFiles, List<Long> previouslyUploadedIndexes, Long boardIdx) {
+    public void update(MultipartFile[] multipartFiles, List<Long> previouslyUploadedIndexes, Long boardIdx) {
 
         // 데이터베이스에 저장된 기존 파일 인덱스와 인자로 받은 인덱스를 비교
         List<Long> indexesToDelete = new ArrayList<>(findAllIndexesByBoardIdx(boardIdx));
@@ -138,7 +138,7 @@ public class FileService {
             indexesToDelete.removeAll(previouslyUploadedIndexes);
         }
 
-        //insert(newFiles, boardIdx);
+        insert(multipartFiles, boardIdx);
         delete(indexesToDelete);
     }
 
