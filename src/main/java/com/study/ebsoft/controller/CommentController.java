@@ -37,6 +37,7 @@ public class CommentController {
         // 게시글 원본 확인(예외처리는 GlobalExceptionHandler 위임)
         boardService.findByBoardIdx(newComment.getBoardIdx());
 
+        // TODO: Global 예외 핸들러에서 처리
         try {
             commentService.insert(newComment);
         } catch (IllegalArgumentException e) {
@@ -60,6 +61,7 @@ public class CommentController {
         // 게시글 원본 확인(예외처리는 GlobalExceptionHandler 위임)
         Comment comment = commentService.findByCommentIdx(commentIdx);
 
+        // TODO: Controller에서 처리
         if (!comment.canDelete(password)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 다릅니다."); // Status Code 401
         }

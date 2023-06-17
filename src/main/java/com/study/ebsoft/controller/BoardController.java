@@ -192,11 +192,14 @@ public class BoardController {
             throw new InvalidPasswordException("비밀번호가 다릅니다.");
         }
 
-        // 3. 게시물 -> 파일 수정
-        boardService.update(board, updateBoard);
+        // 3. 객체 update
+        Board updatedBoard = board.update(updateBoard);
+
+        // 4. 게시물 -> 파일 수정
+        boardService.update(updatedBoard);
         fileService.update(multipartFiles, previouslyUploadedIndexes, boardIdx);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(board.getBoardIdx()); // Status Code 201
+        return ResponseEntity.status(HttpStatus.CREATED).body(updatedBoard); // Status Code 201
     }
 
     /**
