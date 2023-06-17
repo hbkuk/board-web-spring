@@ -187,6 +187,12 @@ public class BoardController {
         // 1. 게시글 원본 확인
         Board board = boardService.findByBoardIdx(boardIdx);
 
+        // 2. 패스워드 확인
+        if (!board.canUpdate(updateBoard.getPassword())) {
+            throw new InvalidPasswordException("비밀번호가 다릅니다.");
+        }
+
+        // 3. 게시물 -> 파일 수정
         boardService.update(board, updateBoard);
         fileService.update(multipartFiles, previouslyUploadedIndexes, boardIdx);
 

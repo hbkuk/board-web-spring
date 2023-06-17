@@ -63,11 +63,6 @@ public class BoardService {
      * @param updateBoard 수정 정보가 담긴 객체
      */
     public void update(Board board, Board updateBoard) {
-
-        if (!board.canUpdate(updateBoard.getPassword())) {
-            throw new InvalidPasswordException("비밀번호가 다릅니다.");
-        }
-
         boardRepository.update(board.update(updateBoard));
     }
 
