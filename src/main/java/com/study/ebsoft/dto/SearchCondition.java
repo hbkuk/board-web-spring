@@ -1,15 +1,12 @@
 package com.study.ebsoft.dto;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.Data;
 import org.springframework.lang.Nullable;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 
 /**
  * 검색조건을 나타내는 클래스입니다.
@@ -29,7 +26,6 @@ public class SearchCondition {
      */
     @Nullable
     @Pattern(regexp = "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$", message = "종료날짜 형식이 잘못되었습니다")
-
     private String endDate;
 
     /**
@@ -43,7 +39,7 @@ public class SearchCondition {
      * 검색 키워드입니다.
      */
     @Nullable
-    @Size(min = 4, max = 100, message = "키워드는 4글자 이상, 100글자 이하여야 합니다")
+    @Max(value= 100, message = "키워드는 100글자 이하여야 합니다")
     private String keyword;
 
     /**
@@ -65,6 +61,10 @@ public class SearchCondition {
      * @return Page 객체
      */
     public void updatePage() {
-        this.page = new Page(this.pageNo);
+        if(this.pageNo != null) {
+            this.page = new Page(this.pageNo);
+        } else {
+            this.page = new Page(1);
+        }
     }
 }
