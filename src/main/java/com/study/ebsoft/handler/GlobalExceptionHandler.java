@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -52,7 +49,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ErrorResponse> handleBindException(BindException e) {
         log.error(e.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.INVALID_SEARCH_CONDITION);
+        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.INVALID_PARAM);
 
         List<String> fieldErrors = e.getAllErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -72,6 +69,7 @@ public class GlobalExceptionHandler {
      * @param e 발생한 BoardNotFoundException 예외 객체
      * @return 응답 결과
      */
+    // TODO: 도메인별로 구분하는 것이 아닌 => 재활용 검토
     @ExceptionHandler(BoardNotFoundException.class)
     public ResponseEntity handleBoardNotFoundException(BoardNotFoundException e) {
         log.error(e.getMessage());
