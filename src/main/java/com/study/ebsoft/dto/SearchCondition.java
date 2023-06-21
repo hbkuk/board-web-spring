@@ -38,30 +38,4 @@ public class SearchCondition {
     @Nullable
     @Size(max = 100, message = "키워드는 100글자 이하여야 합니다")
     private String keyword;
-
-    /**
-     * 페이지 번호입니다.
-     */
-    @Nullable
-    @Min(value = 1, message = "페이지 번호는 1보다 큰 숫자여야 합니다")
-    private Integer pageNo;
-
-    /**
-     * 페이지를 의미하는 객체입니다.
-     */
-    @Null
-    private Page page;
-
-    /**
-     * SearchCondition 객체의 페이지 정보를 업데이트합니다.
-     *
-     * @return Page 객체
-     */
-    public void updatePage() {
-        if(this.pageNo != null) {
-            this.page = new Page(this.pageNo);
-        } else {
-            this.page = new Page(1);
-        }
-    }
 }
