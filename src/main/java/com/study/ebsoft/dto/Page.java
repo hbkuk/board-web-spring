@@ -16,13 +16,13 @@ public class Page {
      * 페이지당 레코드 수
      */
     @JsonProperty
-    private final int recordsPerPage = 10;
+    private final Integer recordsPerPage = 5;
 
     /**
      * 블록당 페이지 수
      */
     @JsonProperty
-    private final int blockPerPage = 10;
+    private final Integer blockPerPage = 5;
 
     /**
      * 페이지 번호
@@ -36,7 +36,6 @@ public class Page {
      */
     @JsonProperty
     private Integer recordStartIndex;
-
 
     /**
      * 최대 페이지 수
@@ -61,12 +60,12 @@ public class Page {
      *
      * @param pageNo 페이지 번호
      */
-    public Page(int pageNo) {
-        if( this.pageNo != null ) {
+    public Page(Integer pageNo) {
+        if( pageNo != null ) {
             this.pageNo = pageNo;
             this.recordStartIndex = (pageNo - 1) * this.recordsPerPage;
         }
-        if( this.pageNo == null ) {
+        if( pageNo == null ) {
             this.pageNo = 1;
             this.recordStartIndex = 0;
         }
