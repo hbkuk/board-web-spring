@@ -15,12 +15,14 @@ public class Page {
     /**
      * 페이지당 레코드 수
      */
-    public static final int RECORDS_PER_PAGE = 10;
+    @JsonProperty
+    private final int recordsPerPage = 10;
 
     /**
      * 블록당 페이지 수
      */
-    public static final int BLOCK_PER_PAGE = 10;
+    @JsonProperty
+    private final int blockPerPage = 10;
 
     /**
      * 페이지 번호
@@ -34,6 +36,7 @@ public class Page {
      */
     @JsonProperty
     private Integer recordStartIndex;
+
 
     /**
      * 최대 페이지 수
@@ -59,8 +62,14 @@ public class Page {
      * @param pageNo 페이지 번호
      */
     public Page(int pageNo) {
-        this.pageNo = pageNo;
-        this.recordStartIndex = (pageNo - 1) * RECORDS_PER_PAGE;
+        if( this.pageNo != null ) {
+            this.pageNo = pageNo;
+            this.recordStartIndex = (pageNo - 1) * this.recordsPerPage;
+        }
+        if( this.pageNo == null ) {
+            this.pageNo = 1;
+            this.recordStartIndex = 0;
+        }
     }
 
     /**
@@ -82,7 +91,7 @@ public class Page {
      * @return 업데이트된 종료 페이지
      */
     private int updateEndPage() {
-        int endPage = startPage + BLOCK_PER_PAGE - 1;
+        int endPage = startPage + this.blockPerPage - 1;
         if (endPage > this.maxPage) {
             endPage = maxPage;
         }
@@ -95,7 +104,7 @@ public class Page {
      * @return 업데이트된 시작 페이지
      */
     private int updateStartPage() {
-        return (((int) (Math.ceil((double) pageNo / BLOCK_PER_PAGE))) - 1) * BLOCK_PER_PAGE + 1;
+        return (((int) (Math.ceil((double) pageNo / this.blockPerPage))) - 1) * this.blockPerPage + 1;
     }
 
     /**
@@ -105,6 +114,6 @@ public class Page {
      * @return 업데이트된 최대 페이지 수
      */
     private int updateMaxPage(double totalBoardCount) {
-        return (int) (Math.ceil(totalBoardCount / RECORDS_PER_PAGE));
+        return (int) (Math.ceil(totalBoardCount / this.recordsPerPage));
     }
 }
