@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -28,8 +29,8 @@ public class BoardService {
      *
      * @return 게시물 목록
      */
-    public List<Board> findAllBySearchCondition(SearchCondition searchCondition) {
-        return boardRepository.findAllBySearchCondition(searchCondition);
+    public List<Board> findAllBySearchCondition(Map<String, Object> conditionMap) {
+        return boardRepository.findAllBySearchCondition(conditionMap);
     }
 
     /**
@@ -74,7 +75,7 @@ public class BoardService {
         boardRepository.delete(board);
     }
 
-    public Page createPagination(SearchCondition searchCondition) {
-        return searchCondition.getPage().calculatePaginationInfo(boardRepository.findBoardCount(searchCondition));
+    public Page createPagination(Map<String, Object> conditionMap) {
+        return ((Page) conditionMap.get("page")).calculatePaginationInfo(boardRepository.findBoardCount(conditionMap));
     }
 }

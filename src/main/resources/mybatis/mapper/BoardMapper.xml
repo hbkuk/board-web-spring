@@ -23,7 +23,7 @@
         </collection>
     </resultMap>
 
-    <select id="findAllBySearchCondition" parameterType="SearchCondition" resultMap="BoardsResultMap" useCache="false" flushCache="true">
+    <select id="findAllBySearchCondition" parameterType="Map" resultMap="BoardsResultMap" useCache="false" flushCache="true">
         SELECT b.boardIdx,
         c.categoryIdx,
         c.name,
@@ -41,18 +41,18 @@
         JOIN tb_category c ON b.categoryIdx = c.categoryIdx
         LEFT OUTER JOIN tb_file f ON b.boardIdx = f.boardIdx
         WHERE
-        <if test="startDate != null">
-            b.regDate >= DATE_FORMAT(#{startDate}, '%Y-%m-%d') AND
+        <if test="searchCondition.startDate != null">
+            b.regDate >= DATE_FORMAT(#{searchCondition.startDate}, '%Y-%m-%d') AND
         </if>
-        <if test="endDate != null">
-            DATE_FORMAT(#{endDate}, '%Y-%m-%d') >= b.regDate AND
+        <if test="searchCondition.endDate != null">
+            DATE_FORMAT(#{searchCondition.endDate}, '%Y-%m-%d') >= b.regDate AND
         </if>
-        <if test="categoryIdx != null">
-            b.categoryIdx = #{categoryIdx} AND
+        <if test="searchCondition.categoryIdx != null">
+            b.categoryIdx = #{searchCondition.categoryIdx} AND
         </if>
-        <if test="keyword != null">
-            (b.title LIKE CONCAT('%', #{keyword}, '%') OR b.writer LIKE CONCAT('%', #{keyword}, '%') OR b.content LIKE
-            CONCAT('%', #{keyword}, '%')) AND
+        <if test="searchCondition.keyword != null">
+            (b.title LIKE CONCAT('%', #{searchCondition.keyword}, '%') OR b.writer LIKE CONCAT('%', #{searchCondition.keyword}, '%') OR b.content LIKE
+            CONCAT('%', #{searchCondition.keyword}, '%')) AND
         </if>
         1=1
         ORDER BY b.boardIdx DESC
@@ -81,18 +81,18 @@
         FROM tb_board b
         JOIN tb_category c ON b.categoryIdx = c.categoryIdx
         WHERE
-        <if test="startDate != null">
-            b.regDate >= DATE_FORMAT(#{startDate}, '%Y-%m-%d') AND
+        <if test="searchCondition.startDate != null">
+            b.regDate >= DATE_FORMAT(#{searchCondition.startDate}, '%Y-%m-%d') AND
         </if>
-        <if test="endDate != null">
-            DATE_FORMAT(#{endDate}, '%Y-%m-%d') >= b.regDate AND
+        <if test="searchCondition.endDate != null">
+            DATE_FORMAT(#{searchCondition.endDate}, '%Y-%m-%d') >= b.regDate AND
         </if>
-        <if test="categoryIdx != null">
-            b.categoryIdx = #{categoryIdx} AND
+        <if test="searchCondition.categoryIdx != null">
+            b.categoryIdx = #{searchCondition.categoryIdx} AND
         </if>
-        <if test="keyword != null">
-            (b.title LIKE CONCAT('%', #{keyword}, '%') OR b.writer LIKE CONCAT('%', #{keyword}, '%') OR b.content LIKE
-            CONCAT('%', #{keyword}, '%')) AND
+        <if test="searchCondition.keyword != null">
+            (b.title LIKE CONCAT('%', #{searchCondition.keyword}, '%') OR b.writer LIKE CONCAT('%', #{searchCondition.keyword}, '%') OR b.content LIKE
+            CONCAT('%', #{searchCondition.keyword}, '%')) AND
         </if>
         1=1
     </select>

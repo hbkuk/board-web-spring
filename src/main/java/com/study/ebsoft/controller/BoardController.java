@@ -3,6 +3,7 @@ package com.study.ebsoft.controller;
 import com.study.ebsoft.domain.Board;
 import com.study.ebsoft.domain.Category;
 import com.study.ebsoft.domain.File;
+import com.study.ebsoft.dto.Page;
 import com.study.ebsoft.dto.SearchCondition;
 import com.study.ebsoft.exception.InvalidPasswordException;
 import com.study.ebsoft.service.BoardService;
@@ -42,22 +43,27 @@ public class BoardController {
     }
 
     /**
-     * 검색조건(searchConditionQueryString)에 맞는 전체 게시물을 응답합니다.
+     * 검색조건(searchCondition), 페이지 번호에 맞는 전체 게시물을 응답
      *
      * @param searchCondition 검색 조건을 나타내는 {@link SearchCondition} 객체
+     * @param page 페이지 정보를 나타내는 {@link Page} 객체
      * @return 검색된 게시글과 페이징 정보를 담은 Map 객체
      */
     @GetMapping("/api/boards")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public Map<String, Object> findBoards(@Valid @ModelAttribute("searchCondition") SearchCondition searchCondition) {
+    public Map<String, Object> findBoards(@Valid @ModelAttribute("searchCondition") SearchCondition searchCondition,
+                                          @Valid @ModelAttribute("page") Page page) {
         log.debug("findBoards 호출");
-        log.debug("searchCondition : {}", searchCondition);
+        log.debug("searchCondition : {}, page : {}", searchCondition, page);
         Map<String, Object> response = new HashMap<>();
 
-        searchCondition.updatePage();
-        response.put("boards", boardService.findAllBySearchCondition(searchCondition));
-        response.put("pagination", boardService.createPagination(searchCondition));
+        Map<String, Object> conditionMap = new HashMap<>();
+        conditionMap.put("searchCondition", searchCondition);
+        conditionMap.put("page", page);
+
+        response.put("boards", boardService.findAllBySearchCondition(conditionMap));
+        response.put("pagination", boardService.createPagination(conditionMap));
         return response;
     }
 
@@ -123,7 +129,7 @@ public class BoardController {
     }
 
     /**
-     * 파일 번호에 해당하는 파일을 응답합니다
+     * 파일 번호에 해당하는 파일을 응답한다.
      *
      * @param fileIdx 파일 번호
      * @return 응답 결과

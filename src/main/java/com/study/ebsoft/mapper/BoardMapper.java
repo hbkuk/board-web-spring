@@ -1,15 +1,17 @@
 package com.study.ebsoft.mapper;
 
 import com.study.ebsoft.domain.Board;
+import com.study.ebsoft.dto.Page;
 import com.study.ebsoft.dto.SearchCondition;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface BoardMapper {
 
-    List<Board> findAllBySearchCondition(SearchCondition searchCondition);
+    List<Board> findAllBySearchCondition(Map<String, Object> conditionMap);
 
     Board findByBoardIdx(Long boardIdx);
 
@@ -21,5 +23,5 @@ public interface BoardMapper {
 
     void update(Board board);
 
-    int findBoardCount(SearchCondition searchCondition);
+    int findBoardCount(Map<String, Object> conditionMap);
 }
