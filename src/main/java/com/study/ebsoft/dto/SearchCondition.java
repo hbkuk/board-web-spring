@@ -3,10 +3,7 @@ package com.study.ebsoft.dto;
 import lombok.Data;
 import org.springframework.lang.Nullable;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Null;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 
 /**
  * 검색조건을 나타내는 클래스입니다.
@@ -39,7 +36,7 @@ public class SearchCondition {
      * 검색 키워드입니다.
      */
     @Nullable
-    @Max(value= 100, message = "키워드는 100글자 이하여야 합니다")
+    @Size(max = 100, message = "키워드는 100글자 이하여야 합니다")
     private String keyword;
 
     /**
