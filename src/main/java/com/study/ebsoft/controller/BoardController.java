@@ -191,7 +191,7 @@ public class BoardController {
                                          @Validated(BoardValidationGroup.update.class) @RequestPart(value = "board") Board updateBoard,
                                          @RequestPart(value = "file", required = false) MultipartFile[] multipartFiles,
                                          @RequestParam(value = "fileIdx", required = false) List<Long> previouslyUploadedIndexes) {
-        //log.debug("updateBoard 호출,  Update Board : {}, Multipart : {},  previouslyUploadedIndexes size : {}", updateBoard, multipartFiles.toString(), previouslyUploadedIndexes.size());
+        log.debug("updateBoard 호출,  Update Board : {}, Multipart Files Size: {}, previouslyUploadedIndexes size : {}", updateBoard, (multipartFiles != null ? multipartFiles.length : "null"), previouslyUploadedIndexes.size());
 
         // 1. 게시글 원본 확인
         Board board = boardService.findByBoardIdx(boardIdx);
