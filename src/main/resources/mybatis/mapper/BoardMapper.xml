@@ -42,10 +42,10 @@
         LEFT OUTER JOIN tb_file f ON b.boardIdx = f.boardIdx
         WHERE
         <if test="searchCondition.startDate != null">
-            b.regDate >= DATE_FORMAT(#{searchCondition.startDate}, '%Y-%m-%d') AND
+            DATE(b.regDate) >= DATE(DATE_FORMAT(#{searchCondition.startDate}, '%Y-%m-%d')) AND
         </if>
         <if test="searchCondition.endDate != null">
-            DATE_FORMAT(#{searchCondition.endDate}, '%Y-%m-%d') >= b.regDate AND
+            DATE(DATE_FORMAT(#{searchCondition.endDate}, '%Y-%m-%d')) >= DATE(b.regDate) AND
         </if>
         <if test="searchCondition.categoryIdx != null">
             b.categoryIdx = #{searchCondition.categoryIdx} AND
@@ -82,10 +82,10 @@
         JOIN tb_category c ON b.categoryIdx = c.categoryIdx
         WHERE
         <if test="searchCondition.startDate != null">
-            b.regDate >= DATE_FORMAT(#{searchCondition.startDate}, '%Y-%m-%d') AND
+            DATE(b.regDate) >= DATE(DATE_FORMAT(#{searchCondition.startDate}, '%Y-%m-%d')) AND
         </if>
         <if test="searchCondition.endDate != null">
-            DATE_FORMAT(#{searchCondition.endDate}, '%Y-%m-%d') >= b.regDate AND
+            DATE(DATE_FORMAT(#{searchCondition.endDate}, '%Y-%m-%d')) >= DATE(b.regDate) AND
         </if>
         <if test="searchCondition.categoryIdx != null">
             b.categoryIdx = #{searchCondition.categoryIdx} AND
