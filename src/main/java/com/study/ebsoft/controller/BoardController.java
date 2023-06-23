@@ -11,12 +11,14 @@ import com.study.ebsoft.service.CategoryService;
 import com.study.ebsoft.service.CommentService;
 import com.study.ebsoft.service.FileService;
 import com.study.ebsoft.utils.FileUtils;
+import com.study.ebsoft.validation.BoardValidationGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -89,7 +91,7 @@ public class BoardController {
      *
      * @return 응답 결과
      */
-    @GetMapping("/board/write")
+    @GetMapping("/api/board/write")
     public ResponseEntity<List<Category>> findBoardWriteForm() {
         log.debug("findBoardWriteForm 호출");
 
@@ -104,12 +106,13 @@ public class BoardController {
      * @param response 응답 객체
      * @return 응답 결과
      */
-    @GetMapping("/board/modify/{boardIdx}")
+    @GetMapping("/api/board/modify/{boardIdx}")
     public ResponseEntity<Object> findBoardModifyForm(@PathVariable("boardIdx") Long boardIdx, Map<String, Object> response) {
         log.debug("findBoardModifyForm 호출 -> 게시글 번호 : {}", boardIdx);
 
-        response.put("boards", boardService.findByBoardIdx(boardIdx));
+        response.put("board", boardService.findByBoardIdx(boardIdx));
         response.put("files", fileService.findAllByBoardIdx(boardIdx));
+        response.put("categories", categoryService.findAll());  //TODO: 자주 사용. 매번 get 요청을 ?
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -163,8 +166,8 @@ public class BoardController {
      * @param multipartFiles 업로드된 파일 배열
      * @return 응답 결과
      */
-    @PostMapping("/board")
-    public ResponseEntity<?> insertBoard(@Valid @RequestPart(value = "board") Board board,
+    @PostMapping(value="/api/board", consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<?> insertBoard(@Validated(BoardValidationGroup.write.class) @RequestPart(value = "board") Board board,
                                          @RequestPart(value = "file", required = false) MultipartFile[] multipartFiles) {
         log.debug("insertBoard 호출,  New Board : {}, Multipart : {}", board, multipartFiles);
 
@@ -183,12 +186,12 @@ public class BoardController {
      * @param previouslyUploadedIndexes 기존 업로드된 파일 인덱스 리스트
      * @return 응답 결과
      */
-    @PutMapping("/board/{boardIdx}")
+    @PutMapping("/api/board/{boardIdx}")
     public ResponseEntity<?> updateBoard(@PathVariable("boardIdx") Long boardIdx,
-                                         @Valid @RequestPart(value = "board") Board updateBoard,
+                                         @Validated(BoardValidationGroup.update.class) @RequestPart(value = "board") Board updateBoard,
                                          @RequestPart(value = "file", required = false) MultipartFile[] multipartFiles,
                                          @RequestParam(value = "fileIdx", required = false) List<Long> previouslyUploadedIndexes) {
-        log.debug("updateBoard 호출,  Update Board : {}, Multipart : {},  previouslyUploadedIndexes size : {}", updateBoard, multipartFiles.toString(), previouslyUploadedIndexes.size());
+        //log.debug("updateBoard 호출,  Update Board : {}, Multipart : {},  previouslyUploadedIndexes size : {}", updateBoard, multipartFiles.toString(), previouslyUploadedIndexes.size());
 
         // 1. 게시글 원본 확인
         Board board = boardService.findByBoardIdx(boardIdx);
