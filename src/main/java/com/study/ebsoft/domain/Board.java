@@ -1,11 +1,11 @@
 package com.study.ebsoft.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.study.ebsoft.validation.BoardValidationGroup;
 import lombok.*;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -69,6 +69,8 @@ public class Board {
      */
     @Size(groups = { BoardValidationGroup.write.class }, min = 4, max = 15, message = "패스워드는 4글자 이상, 15글자 이하여야 합니다")
     @Pattern(groups = { BoardValidationGroup.write.class }, regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$", message = "패스워드는 영문, 숫자, 특수문자를 포함해야 합니다")
+    @NotBlank(groups = BoardValidationGroup.update.class, message = "패스워드를 입력하셔야 합니다.")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private final String password;
 
     /**
