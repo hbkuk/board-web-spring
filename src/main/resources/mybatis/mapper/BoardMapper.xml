@@ -64,7 +64,7 @@
     <select id="findByBoardIdx" parameterType="Long" resultMap="BoardsResultMap" useCache="false" flushCache="true">
         SELECT b.boardIdx,
                c.categoryIdx,
-               c.name AS categoryName,
+               c.name,
                b.title,
                b.writer,
                b.content,
