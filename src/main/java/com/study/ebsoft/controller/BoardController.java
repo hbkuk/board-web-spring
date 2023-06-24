@@ -111,7 +111,6 @@ public class BoardController {
         log.debug("findBoardModifyForm 호출 -> 게시글 번호 : {}", boardIdx);
 
         response.put("board", boardService.findByBoardIdx(boardIdx));
-        response.put("files", fileService.findAllByBoardIdx(boardIdx));
         response.put("categories", categoryService.findAll());  //TODO: 자주 사용. 매번 get 요청을 ?
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

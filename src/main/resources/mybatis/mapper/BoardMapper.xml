@@ -12,6 +12,7 @@
         <result property="title" column="title"/>
         <result property="writer" column="writer"/>
         <result property="content" column="content"/>
+        <result property="password" column="password"/>
         <result property="hit" column="hit"/>
         <result property="regDate" column="regdate"/>
         <result property="modDate" column="moddate"/>
@@ -60,7 +61,7 @@
     </select>
 
 
-    <select id="findByBoardIdx" parameterType="Long" resultType="Board" useCache="false" flushCache="true">
+    <select id="findByBoardIdx" parameterType="Long" resultMap="BoardsResultMap" useCache="false" flushCache="true">
         SELECT b.boardIdx,
                c.categoryIdx,
                c.name AS categoryName,
@@ -70,9 +71,14 @@
                b.password,
                b.hit,
                b.regdate,
-               b.moddate
+               b.moddate,
+               f.fileIdx,
+               f.originalName,
+               f.fileSize,
+               f.boardIdx
         FROM tb_board b
                  JOIN tb_category c ON b.categoryIdx = c.categoryIdx
+                 LEFT OUTER JOIN tb_file f ON b.boardIdx = f.boardIdx
         WHERE b.boardIdx = #{boardIdx};
     </select>
 
