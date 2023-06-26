@@ -5,7 +5,7 @@
 
 <mapper namespace="com.study.ebsoft.mapper.BoardMapper">
 
-    <resultMap id="BoardsResultMap" type="Board">
+    <resultMap id="BoardDetail" type="Board">
         <id property="boardIdx" column="boardIdx"/>
         <result property="categoryIdx" column="categoryIdx"/>
         <result property="categoryName" column="name"/>
@@ -14,17 +14,28 @@
         <result property="content" column="content"/>
         <result property="password" column="password"/>
         <result property="hit" column="hit"/>
-        <result property="regDate" column="regdate"/>
-        <result property="modDate" column="moddate"/>
+        <result property="regDate" column="regDate"/>
+        <result property="modDate" column="modDate"/>
 
         <collection property="files" ofType="File">
             <id property="fileIdx" column="fileIdx"/>
             <result property="originalName" column="originalName"/>
             <result property="fileSize" column="fileSize"/>
+            <result property="boardIdx" column="boardIdx"/>
+        </collection>
+
+        <collection property="comments" ofType="Comment">
+            <id property="commentIdx" column="commentIdx"/>
+            <result property="writer" column="writer"/>
+            <result property="content" column="content"/>
+            <result property="content" column="content"/>
+            <result property="regDate" column="regDate"/>
+            <result property="boardIdx" column="boardIdx"/>
         </collection>
     </resultMap>
 
-    <select id="findAllBySearchCondition" parameterType="Map" resultMap="BoardsResultMap" useCache="false" flushCache="true">
+
+    <select id="findAllBySearchCondition" parameterType="Map" resultMap="BoardDetail" useCache="false" flushCache="true">
         SELECT b.boardIdx,
         c.categoryIdx,
         c.name,
@@ -37,10 +48,17 @@
         f.fileIdx,
         f.originalName,
         f.fileSize,
-        f.boardIdx
+        f.boardIdx,
+        co.commentIdx,
+        co.writer,
+        co.password,
+        co.content,
+        co.regDate,
+        co.boardIdx
         FROM tb_board b
         JOIN tb_category c ON b.categoryIdx = c.categoryIdx
         LEFT OUTER JOIN tb_file f ON b.boardIdx = f.boardIdx
+        LEFT OUTER JOIN tb_comment co ON b.boardIdx = co.boardIdx
         WHERE
         <if test="searchCondition.startDate != null">
             DATE(b.regDate) >= DATE(DATE_FORMAT(#{searchCondition.startDate}, '%Y-%m-%d')) AND
@@ -61,7 +79,7 @@
     </select>
 
 
-    <select id="findByBoardIdx" parameterType="Long" resultMap="BoardsResultMap" useCache="false" flushCache="true">
+    <select id="findByBoardIdx" parameterType="Long" resultMap="BoardDetail" useCache="false" flushCache="true">
         SELECT b.boardIdx,
                c.categoryIdx,
                c.name,
@@ -75,10 +93,17 @@
                f.fileIdx,
                f.originalName,
                f.fileSize,
-               f.boardIdx
+               f.boardIdx,
+               co.commentIdx,
+               co.writer,
+               co.password,
+               co.content,
+               co.regDate,
+               co.boardIdx
         FROM tb_board b
                  JOIN tb_category c ON b.categoryIdx = c.categoryIdx
                  LEFT OUTER JOIN tb_file f ON b.boardIdx = f.boardIdx
+                 LEFT OUTER JOIN tb_comment co ON b.boardIdx = co.boardIdx
         WHERE b.boardIdx = #{boardIdx};
     </select>
 

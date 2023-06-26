@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@RestController()
+@RestController
 public class BoardController {
 
     private final BoardService boardService;
@@ -81,8 +81,6 @@ public class BoardController {
         log.debug("findBoard 호출 -> 게시글 번호 : {}", boardIdx);
 
         response.put("board", boardService.findByBoardIdx(boardIdx));
-        response.put("files", fileService.findAllByBoardIdx(boardIdx));
-        response.put("comments", commentService.findAllByBoardIdx(boardIdx));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -111,7 +109,6 @@ public class BoardController {
         log.debug("findBoardModifyForm 호출 -> 게시글 번호 : {}", boardIdx);
 
         response.put("board", boardService.findByBoardIdx(boardIdx));
-        response.put("categories", categoryService.findAll());  //TODO: 자주 사용. 매번 get 요청을 ?
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -126,7 +123,7 @@ public class BoardController {
     public ResponseEntity<Object> findBoardDeleteForm(@PathVariable("boardIdx") Long boardIdx, Map<String, Object> response) {
         log.debug("findBoardModifyForm 호출 -> 게시글 번호 : {}", boardIdx);
 
-        response.put("boards", boardService.findByBoardIdx(boardIdx));
+        response.put("board", boardService.findByBoardIdx(boardIdx));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -201,6 +198,7 @@ public class BoardController {
         }
 
         // 3. 객체 update
+        // TODO: 수정
         Board updatedBoard = board.update(updateBoard);
 
         // 4. 게시물 -> 파일 수정
