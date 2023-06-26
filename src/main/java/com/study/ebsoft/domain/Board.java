@@ -38,7 +38,7 @@ public class Board {
     /**
      * 카테고리의 식별자입니다.
      */
-    @Min(groups = { BoardValidationGroup.write.class, BoardValidationGroup.write.class }, value = 1, message = "카테고리 번호는 1보다 큰 숫자여야 합니다.")
+    @Min(groups = { BoardValidationGroup.write.class, BoardValidationGroup.update.class }, value = 1, message = "카테고리 번호는 1보다 큰 숫자여야 합니다")
     private final Integer categoryIdx;
 
     /**
@@ -49,19 +49,19 @@ public class Board {
     /**
      * 게시글의 제목입니다.
      */
-    @Size(groups = { BoardValidationGroup.write.class, BoardValidationGroup.write.class }, min = 4, max = 100, message = "게시글의 제목은 4글자 이상, 100글자 이하여야 합니다")
+    @Size(groups = { BoardValidationGroup.write.class, BoardValidationGroup.update.class }, min = 4, max = 100, message = "게시글의 제목은 4글자 이상, 100글자 이하여야 합니다")
     private final String title;
 
     /**
      * 게시글 작성자입니다.
      */
-    @Size(groups = { BoardValidationGroup.write.class, BoardValidationGroup.write.class }, min = 3, max = 4, message = "작성자는 3글자 이상, 4글자 이하여야 합니다")
+    @Size(groups = { BoardValidationGroup.write.class, BoardValidationGroup.update.class }, min = 3, max = 4, message = "작성자는 3글자 이상, 4글자 이하여야 합니다")
     private final String writer;
 
     /**
      * 게시글의 내용입니다.
      */
-    @Size(groups = { BoardValidationGroup.write.class, BoardValidationGroup.write.class }, min = 4, max = 2000, message = "내용은 4글자 이상, 2000글자 이하여야 합니다")
+    @Size(groups = { BoardValidationGroup.write.class, BoardValidationGroup.update.class }, min = 4, max = 2000, message = "내용은 4글자 이상, 2000글자 이하여야 합니다")
     private final String content;
 
     /**
@@ -92,6 +92,11 @@ public class Board {
      * 파일 정보입니다. (파일 테이블에서 가져옴)
      */
     private final List<File> files;
+
+    /**
+     * 댓글 정보입니다. (댓글 테이블에서 가져옴)
+     */
+    private final List<Comment> comments;
 
     /**
      * 입력받은 비밀번호와 현재 객체의 비밀번호가 일치하다면 true, 그렇지 않으면 false를 리턴합니다
