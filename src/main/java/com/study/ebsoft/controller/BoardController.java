@@ -187,7 +187,8 @@ public class BoardController {
                                          @Validated(BoardValidationGroup.update.class) @RequestPart(value = "board") Board updateBoard,
                                          @RequestPart(value = "file", required = false) MultipartFile[] multipartFiles,
                                          @RequestParam(value = "fileIdx", required = false) List<Long> previouslyUploadedIndexes) {
-        log.debug("updateBoard 호출,  Update Board : {}, Multipart Files Size: {}, previouslyUploadedIndexes size : {}", updateBoard, (multipartFiles != null ? multipartFiles.length : "null"), previouslyUploadedIndexes.size());
+        log.debug("updateBoard 호출,  Update Board : {}, Multipart Files Size: {}, previouslyUploadedIndexes size : {}",
+                updateBoard, (multipartFiles != null ? multipartFiles.length : "null"), (previouslyUploadedIndexes != null ? previouslyUploadedIndexes.size() : "null"));
 
         // 1. 게시글 원본 확인
         Board board = boardService.findByBoardIdx(boardIdx);
@@ -197,15 +198,11 @@ public class BoardController {
             throw new InvalidPasswordException("비밀번호가 다릅니다.");
         }
 
-        // 3. 객체 update
-        // TODO: 수정
-        Board updatedBoard = board.update(updateBoard);
-
-        // 4. 게시물 -> 파일 수정
-        boardService.update(updatedBoard);
+        // 3. 게시물 -> 파일 수정
+        boardService.update(updateBoard);
         fileService.update(multipartFiles, previouslyUploadedIndexes, boardIdx);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(updatedBoard); // Status Code 201
+        return ResponseEntity.status(HttpStatus.CREATED).body(boardService.findByBoardIdx(boardIdx)); // Status Code 201
     }
 
     /**
