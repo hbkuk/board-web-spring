@@ -1,64 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.study.ebsoft.mapper.BoardMapper">
 
+    <!-- BoardDetail 결과를 매핑하기 위한 ResultMap -->
     <resultMap id="BoardDetail" type="Board">
-        <id property="boardIdx" column="boardIdx"/>
-        <result property="categoryIdx" column="categoryIdx"/>
-        <result property="categoryName" column="name"/>
-        <result property="title" column="title"/>
-        <result property="writer" column="writer"/>
-        <result property="content" column="content"/>
-        <result property="password" column="password"/>
-        <result property="hit" column="hit"/>
-        <result property="regDate" column="regDate"/>
-        <result property="modDate" column="modDate"/>
+        <!-- Board의 속성 매핑 -->
+        <id property="boardIdx" column="b_boardIdx"/>
+        <result property="categoryIdx" column="c_categoryIdx"/>
+        <result property="categoryName" column="c_name"/>
+        <result property="title" column="b_title"/>
+        <result property="writer" column="b_writer"/>
+        <result property="content" column="b_content"/>
+        <result property="password" column="b_password"/>
+        <result property="hit" column="b_hit"/>
+        <result property="regDate" column="b_regDate"/>
+        <result property="modDate" column="b_modDate"/>
 
+        <!-- Files 컬렉션 매핑 -->
         <collection property="files" ofType="File">
-            <id property="fileIdx" column="fileIdx"/>
-            <result property="originalName" column="originalName"/>
-            <result property="fileSize" column="fileSize"/>
-            <result property="boardIdx" column="boardIdx"/>
+            <id property="fileIdx" column="f_fileIdx"/>
+            <result property="originalName" column="f_originalName"/>
+            <result property="fileSize" column="f_fileSize"/>
+            <result property="boardIdx" column="f_boardIdx"/>
         </collection>
 
+        <!-- Comments 컬렉션 매핑 -->
         <collection property="comments" ofType="Comment">
-            <id property="commentIdx" column="commentIdx"/>
-            <result property="writer" column="writer"/>
-            <result property="content" column="content"/>
-            <result property="content" column="content"/>
-            <result property="regDate" column="regDate"/>
-            <result property="boardIdx" column="boardIdx"/>
+            <id property="commentIdx" column="co_commentIdx"/>
+            <result property="writer" column="co_writer"/>
+            <result property="content" column="co_content"/>
+            <result property="regDate" column="co_regDate"/>
+            <result property="boardIdx" column="co_boardIdx"/>
         </collection>
     </resultMap>
 
-
-    <select id="findAllBySearchCondition" parameterType="Map" resultMap="BoardDetail" useCache="false" flushCache="true">
-        SELECT b.boardIdx,
-        c.categoryIdx,
-        c.name,
-        b.title,
-        b.writer,
-        b.content,
-        b.hit,
-        b.regdate,
-        b.moddate,
-        f.fileIdx,
-        f.originalName,
-        f.fileSize,
-        f.boardIdx,
-        co.commentIdx,
-        co.writer,
-        co.password,
-        co.content,
-        co.regDate,
-        co.boardIdx
+    <!-- 게시물, 파일, 댓글을 함께 조회하는 SQL -->
+    <sql id="getBoardAndFileAndComment">
+        SELECT b.boardIdx AS b_boardIdx,
+               c.categoryIdx AS c_categoryIdx,
+               c.name AS c_name,
+               b.title AS b_title,
+               b.writer AS b_writer,
+               b.content AS b_content,
+               b.password AS b_password,
+               b.hit AS b_hit,
+               b.regDate AS b_regDate,
+               b.modDate AS b_modDate,
+               f.fileIdx AS f_fileIdx,
+               f.originalName AS f_originalName,
+               f.fileSize AS f_fileSize,
+               f.boardIdx AS f_boardIdx,
+               co.commentIdx AS co_commentIdx,
+               co.writer AS co_writer,
+               co.password AS co_password,
+               co.content AS co_content,
+               co.regDate AS co_regDate,
+               co.boardIdx AS co_boardIdx
         FROM tb_board b
-        JOIN tb_category c ON b.categoryIdx = c.categoryIdx
-        LEFT OUTER JOIN tb_file f ON b.boardIdx = f.boardIdx
-        LEFT OUTER JOIN tb_comment co ON b.boardIdx = co.boardIdx
+                 JOIN tb_category c ON b.categoryIdx = c.categoryIdx
+                 LEFT OUTER JOIN tb_file f ON b.boardIdx = f.boardIdx
+                 LEFT OUTER JOIN tb_comment co ON b.boardIdx = co.boardIdx
+    </sql>
+
+    <!-- 검색 조건에 따른 WHERE 절 SQL -->
+    <sql id="searchCondition">
         WHERE
         <if test="searchCondition.startDate != null">
             DATE(b.regDate) >= DATE(DATE_FORMAT(#{searchCondition.startDate}, '%Y-%m-%d')) AND
@@ -74,82 +79,57 @@
             CONCAT('%', #{searchCondition.keyword}, '%')) AND
         </if>
         1=1
+    </sql>
+
+    <!-- 검색 조건에 따라 게시물을 조회하는 SELECT 문 -->
+    <select id="findAllBySearchCondition" parameterType="Map" resultMap="BoardDetail" useCache="false" flushCache="true">
+        <include refid="getBoardAndFileAndComment"/>
+        <include refid="searchCondition"/>
         ORDER BY b.boardIdx DESC
         LIMIT #{page.recordStartIndex}, #{page.recordsPerPage}
     </select>
 
 
+    <!-- 게시물 번호로 게시물을 조회하는 SELECT 문 -->
     <select id="findByBoardIdx" parameterType="Long" resultMap="BoardDetail" useCache="false" flushCache="true">
-        SELECT b.boardIdx,
-               c.categoryIdx,
-               c.name,
-               b.title,
-               b.writer,
-               b.content,
-               b.password,
-               b.hit,
-               b.regdate,
-               b.moddate,
-               f.fileIdx,
-               f.originalName,
-               f.fileSize,
-               f.boardIdx,
-               co.commentIdx,
-               co.writer,
-               co.password,
-               co.content,
-               co.regDate,
-               co.boardIdx
-        FROM tb_board b
-                 JOIN tb_category c ON b.categoryIdx = c.categoryIdx
-                 LEFT OUTER JOIN tb_file f ON b.boardIdx = f.boardIdx
-                 LEFT OUTER JOIN tb_comment co ON b.boardIdx = co.boardIdx
+        <include refid="getBoardAndFileAndComment"/>
         WHERE b.boardIdx = #{boardIdx};
     </select>
 
+    <!-- 검색 조건에 따른 게시물 개수를 조회하는 SELECT 문 -->
     <select id="findBoardCount" useCache="false" flushCache="true">
         SELECT count(boardIdx)
         FROM tb_board b
         JOIN tb_category c ON b.categoryIdx = c.categoryIdx
-        WHERE
-        <if test="searchCondition.startDate != null">
-            DATE(b.regDate) >= DATE(DATE_FORMAT(#{searchCondition.startDate}, '%Y-%m-%d')) AND
-        </if>
-        <if test="searchCondition.endDate != null">
-            DATE(DATE_FORMAT(#{searchCondition.endDate}, '%Y-%m-%d')) >= DATE(b.regDate) AND
-        </if>
-        <if test="searchCondition.categoryIdx != null">
-            b.categoryIdx = #{searchCondition.categoryIdx} AND
-        </if>
-        <if test="searchCondition.keyword != null">
-            (b.title LIKE CONCAT('%', #{searchCondition.keyword}, '%') OR b.writer LIKE CONCAT('%', #{searchCondition.keyword}, '%') OR b.content LIKE
-            CONCAT('%', #{searchCondition.keyword}, '%')) AND
-        </if>
-        1=1
+        <include refid="searchCondition"/>
     </select>
 
+    <!-- 게시물 조회수를 증가시키는 UPDATE 문 -->
     <update id="increaseHit" parameterType="Long">
         UPDATE tb_board
         SET hit = hit + 1
         WHERE boardIdx = #{boardIdx}
     </update>
 
+    <!-- 게시물을 삽입하는 INSERT 문 -->
     <insert id="insert" parameterType="Board" useGeneratedKeys="true" keyProperty="boardIdx">
         INSERT INTO tb_board (categoryIdx, title, writer, content, password, hit, regdate)
         VALUES (#{categoryIdx}, #{title}, #{writer}, #{content},
                 #{password}, 0, NOW());
     </insert>
 
+    <!-- 게시물을 수정하는 UPDATE 문 -->
     <update id="update" parameterType="Board">
         UPDATE tb_board
         SET title   = #{title},
             writer  = #{writer},
             content = #{content},
-            moddate = #{modDate}
+            modDate = NOW()
         WHERE boardIdx = #{boardIdx}
           and password = #{password}
     </update>
 
+    <!-- 게시물을 삭제하는 DELETE 문 -->
     <delete id="delete" parameterType="Board">
         DELETE
         FROM tb_board
