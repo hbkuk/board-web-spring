@@ -90,11 +90,12 @@ public class BoardController {
      * @return 응답 결과
      */
     @GetMapping("/api/board/write")
-    public ResponseEntity<List<Category>> findBoardWriteForm() {
+    public ResponseEntity<Object> findBoardWriteForm(Map<String, Object> response) {
         log.debug("findBoardWriteForm 호출");
 
-        List<Category> categories = categoryService.findAll();
-        return ResponseEntity.ok(categories);
+        // TODO: 추후 삭제 -> 전역 저장소 사용으로 인한 1회요청
+        //List<Category> categories = categoryService.findAll();
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     /**
@@ -168,7 +169,7 @@ public class BoardController {
         log.debug("insertBoard 호출,  New Board : {}, Multipart : {}", board, multipartFiles);
 
         boardService.insert(board);
-        fileService.insert(multipartFiles, board.getBoardIdx());
+        fileService.insert(multipartFiles, board.getBoardIdx()); // TODO: 파일 업로드 로직 분리
 
         return ResponseEntity.status(HttpStatus.CREATED).body(board); // Status Code 201
     }
