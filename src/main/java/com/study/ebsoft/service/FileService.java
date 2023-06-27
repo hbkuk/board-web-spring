@@ -152,6 +152,11 @@ public class FileService {
         return previouslyUploadedIndexes != null && !previouslyUploadedIndexes.isEmpty();
     }
 
+    /**
+     * 서버 디렉토리에서 파일을 삭제합니다.
+     *
+     * @param files 삭제할 파일 목록
+     */
     public void deleteFilesFromServerDirectory(List<File> files) {
         for (File file : files) {
             FileUtils.deleteUploadedFile(file.getSavedName());
@@ -159,6 +164,12 @@ public class FileService {
         files.clear(); // 파일 삭제 후 리스트 비우기
     }
 
+    /**
+     * 업로드된 파일들을 처리하고 파일 목록을 반환합니다.
+     *
+     * @param multipartFiles 업로드된 파일 배열
+     * @return 파일 목록
+     */
     public List<File> processUploadedFiles(MultipartFile[] multipartFiles) {
         List<File> files = new ArrayList<>();
 
@@ -176,6 +187,12 @@ public class FileService {
         return files;
     }
 
+    /**
+     * 업로드된 파일을 처리하고 파일 객체를 반환합니다.
+     *
+     * @param multipartFile 업로드된 파일
+     * @return 파일 객체
+     */
     private File processUploadedFile(MultipartFile multipartFile) {
         if (multipartFile.isEmpty()) {
             return null;
@@ -201,6 +218,12 @@ public class FileService {
                 .build();
     }
 
+    /**
+     * 업로드된 파일이 있는지 확인합니다.
+     *
+     * @param multipartFiles 업로드된 파일 배열
+     * @return 업로드된 파일 여부
+     */
     private static boolean hasExistUploadFile(MultipartFile[] multipartFiles) {
         return multipartFiles != null && multipartFiles.length > 0;
     }

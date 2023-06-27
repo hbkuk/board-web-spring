@@ -55,7 +55,7 @@ public class File {
      *
      * @param boardIdx 게시글 번호
      */
-    public File  updateBoardIdx(Long boardIdx) {
+    public File updateBoardIdx(Long boardIdx) {
         return File.builder()
                 .originalName(this.originalName)
                 .savedName(this.savedName)
