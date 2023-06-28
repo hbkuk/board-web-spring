@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -92,6 +93,21 @@ public class GlobalExceptionHandler {
         errorResponse.setDetail(e.getMessage());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    /**
+     * NoHandlerFoundException 예외처리
+     *
+     * @param e 발생한 NoHandlerFoundException 예외 객체
+     * @return 응답 결과
+     */
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity handleNoHandlerFoundException(NoHandlerFoundException e) {
+        log.error(e.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.INVALID_REQUEST);
+        errorResponse.setDetail(ErrorCode.INVALID_REQUEST.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 }
 
