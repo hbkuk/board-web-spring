@@ -213,7 +213,7 @@ public class BoardController {
      * @param password 비밀번호
      * @return 응답 결과
      */
-    @DeleteMapping("/board/{boardIdx}")
+    @DeleteMapping("/api/board/{boardIdx}")
     public ResponseEntity deleteBoard(@PathVariable("boardIdx") Long boardIdx,
                                       @RequestParam(value = "password") String password) {
         log.debug("deleteBoard 호출 -> 게시글 번호 : {}", boardIdx);
