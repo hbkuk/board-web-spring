@@ -231,6 +231,6 @@ public class BoardController {
         fileService.deleteAllByBoardIdx(board.getBoardIdx());
         boardService.delete(board);
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // Status Code 201
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // Status Code 204
     }
 }
