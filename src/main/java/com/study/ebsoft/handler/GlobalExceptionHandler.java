@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
         List<String> fieldErrors = e.getAllErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
-        errorResponse.setDetail(String.join(", ", fieldErrors));
+        errorResponse.setDetail(String.join("&", fieldErrors));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
         List<String> fieldErrors = e.getAllErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
-        errorResponse.setDetail(String.join(", ", fieldErrors));
+        errorResponse.setDetail(String.join("&", fieldErrors));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
