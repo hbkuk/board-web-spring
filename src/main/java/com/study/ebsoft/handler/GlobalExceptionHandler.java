@@ -1,5 +1,7 @@
 package com.study.ebsoft.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.ebsoft.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -21,45 +23,69 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     /**
-     * MethodArgumentNotValidException을 처리하는 예외 핸들러입니다.
-     * 메서드 인자의 유효성 검증 오류를 처리합니다.
+     * JsonProcessingException을 처리하는 예외 핸들러
+     * JSON 처리 오류를 처리
+     *
+     * @param e JsonProcessingException 인스턴스
+     * @return ErrorResponse와 HttpStatus를 포함하는 ResponseEntity
+     * @throws JsonProcessingException JSON 처리 오류가 발생할 경우 예외를 던집니다.
+     */
+    @ExceptionHandler(JsonProcessingException.class)
+    public ResponseEntity<ErrorResponse> handleJsonProcessingException(JsonProcessingException e) {
+        log.error("JSON 처리 오류: {}", e.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.SERVER_INTERNAL_ERROR);
+        errorResponse.setDetail(e.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * MethodArgumentNotValidException을 처리하는 예외 핸들러
+     * 메서드 인자의 유효성 검증 오류를 처리
      *
      * @param e MethodArgumentNotValidException 인스턴스
      * @return ErrorResponse와 HttpStatus를 포함하는 ResponseEntity
+     * @throws JsonProcessingException JSON 처리 오류가 발생할 경우 예외를 던집니다.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException e) throws JsonProcessingException {
         log.error(e.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(ErrorCode.INVALID_BOARD_DATA);
 
         List<String> fieldErrors = e.getAllErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
-        errorResponse.setDetail(String.join("&", fieldErrors));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String fieldErrorsJson = objectMapper.writeValueAsString(fieldErrors);
+        errorResponse.setDetail(fieldErrorsJson);
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     /**
-     * BindException을 처리하는 예외 핸들러입니다.
-     * 바인딩 오류를 처리합니다.
+     * BindException을 처리하는 예외 핸들러
+     * 바인딩 오류를 처리
      *
      * @param e BindException 인스턴스
      * @return ErrorResponse와 HttpStatus를 포함하는 ResponseEntity
+     * @throws JsonProcessingException JSON 처리 오류가 발생할 경우 예외를 던집니다.
      */
     @ExceptionHandler(BindException.class)
-    public ResponseEntity<ErrorResponse> handleBindException(BindException e) {
+    public ResponseEntity<ErrorResponse> handleBindException(BindException e) throws JsonProcessingException {
         log.error(e.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(ErrorCode.INVALID_PARAM);
 
         List<String> fieldErrors = e.getAllErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
-        errorResponse.setDetail(String.join("&", fieldErrors));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String fieldErrorsJson = objectMapper.writeValueAsString(fieldErrors);
+        errorResponse.setDetail(fieldErrorsJson);
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
-
 
     /**
      * BoardNotFoundException 예외 처리
