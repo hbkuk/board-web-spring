@@ -11,7 +11,9 @@ public enum ErrorCode {
     BOARD_NOT_FOUND("BOARD-002", "게시물을 찾을 수 없음"),
     INVALID_PASSWORD("BOARD-003", "잘못된 비밀번호"),
 
-    INVALID_REQUEST("REQUEST-001", "잘못된 요청입니다.");
+    INVALID_REQUEST("REQUEST-001", "잘못된 요청입니다."),
+
+    SERVER_INTERNAL_ERROR("SERVER-001", "서버 내부 오류");
 
     private final String code;
     private final String message;
